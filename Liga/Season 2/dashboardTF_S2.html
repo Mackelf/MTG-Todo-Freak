@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S3 · Season 3 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --border: #2e2e2e;
+    --border-bright: #3d3d3d;
+    --yellow: #f5c800;
+    --yellow-light: #ffd93d;
+    --yellow-dark: #c9a200;
+    --red: #e03030;
+    --text: #f0f0f0;
+    --muted: #707070;
+    --muted2: #4a4a4a;
+    --win: #44cc77;
+    --loss: #e03030;
+    --draw: #f5c800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* DIAGONAL STRIPE BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -55deg,
+      transparent,
+      transparent 40px,
+      rgba(245,200,0,0.018) 40px,
+      rgba(245,200,0,0.018) 41px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER BANNER ── */
+  .header {
+    background: var(--yellow);
+    padding: 0;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -40px;
+    width: 300px; height: 200px;
+    background: rgba(0,0,0,0.08);
+    transform: rotate(-15deg);
+  }
+  .header-inner {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .header-left {
+    padding: 24px 32px;
+    background: #000;
+    clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    padding-right: 60px;
+    min-width: 340px;
+  }
+  .season-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 7vw, 68px);
+    line-height: 0.92;
+    letter-spacing: 3px;
+    color: #fff;
+  }
+  .header h1 span { color: var(--yellow); }
+  .header-meta {
+    padding: 24px 32px;
+    text-align: right;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: rgba(0,0,0,0.65);
+    line-height: 2;
+    font-weight: 600;
+    letter-spacing: 1px;
+    align-self: center;
+  }
+  .header-meta span {
+    color: #000;
+    font-weight: 800;
+  }
+
+  /* ── INNER PADDING ── */
+  .inner { padding: 0 28px; }
+
+  /* ── STAT CARDS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-top: 3px solid var(--yellow);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 94% 100%, 0 100%);
+  }
+  .stat-card.alt { border-top-color: var(--muted2); }
+  .stat-card.red-top { border-top-color: var(--red); }
+  .stat-card.green-top { border-top-color: var(--win); }
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    line-height: 1;
+    color: var(--yellow);
+  }
+  .stat-card.alt .stat-value { color: var(--text); }
+  .stat-card.red-top .stat-value { color: var(--red); font-size: 22px; padding-top: 8px; }
+  .stat-card.green-top .stat-value { color: var(--win); }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    color: var(--text);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 20px;
+    background: var(--yellow);
+    flex-shrink: 0;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── PLAYER TABLE ── */
+  .player-table-wrap {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-left: 4px solid var(--yellow);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #000; border-bottom: 2px solid var(--yellow); }
+  th {
+    padding: 11px 16px;
+    text-align: left;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(245,200,0,0.04); }
+
+  .player-name {
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .attendance-badge {
+    background: var(--yellow);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+  }
+  .attendance-badge.one {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    clip-path: none;
+  }
+
+  .wde-bar { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 8px; height: 8px; display: inline-block; }
+  .dot.w { background: var(--win); }
+  .dot.l { background: var(--loss); }
+  .dot.d { background: var(--draw); }
+  .wde-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+    letter-spacing: 1px;
+  }
+
+  .pts-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--yellow);
+  }
+  .rank-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--muted2);
+    width: 28px;
+  }
+  .rank-num.top { color: var(--yellow); }
+
+  /* WIN RATE BAR */
+  .wr-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .wr-bar-bg { flex: 1; height: 5px; background: var(--border); overflow: hidden; }
+  .wr-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow-dark), var(--yellow-light));
+    transition: width 1s ease;
+  }
+  .wr-pct {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 38px;
+    text-align: right;
+  }
+
+  /* TWO COL */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ARCHETYPE */
+  .arch-grid {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-left: 4px solid var(--yellow);
+    overflow: hidden;
+  }
+  .arch-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    transition: background 0.15s;
+  }
+  .arch-row:last-child { border-bottom: none; }
+  .arch-row:hover { background: rgba(245,200,0,0.05); }
+  .arch-name { flex: 1; font-weight: 600; font-size: 13px; }
+  .arch-color-dot { width: 6px; height: 22px; flex-shrink: 0; }
+  .arch-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 60px;
+    text-align: right;
+    letter-spacing: 1px;
+  }
+  .arch-wr {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 42px;
+    text-align: right;
+    letter-spacing: 1px;
+  }
+  .arch-bar-wrap { width: 55px; }
+
+  /* TOP PERFORMERS */
+  .perf-grid {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-left: 4px solid var(--yellow);
+    overflow: hidden;
+  }
+  .perf-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+  }
+  .perf-row:first-child { background: rgba(245,200,0,0.06); }
+  .perf-row:last-child { border-bottom: none; }
+  .perf-medal { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+  .perf-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .perf-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); }
+  .perf-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* WEEK CARDS */
+  .week-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 600px) { .week-grid { grid-template-columns: 1fr; } }
+  .week-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .week-header {
+    background: #000;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--yellow);
+  }
+  .week-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--yellow);
+  }
+  .week-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-weight: 700;
+  }
+  .week-podium { padding: 14px 16px; }
+  .podium-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .podium-row:last-child { margin-bottom: 0; }
+  .podium-pos {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: var(--muted2);
+    width: 22px;
+  }
+  .podium-pos.gold { color: var(--yellow); }
+  .podium-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .podium-deck { font-size: 11px; color: var(--muted); font-style: italic; }
+  .podium-pts { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--yellow); }
+
+  /* CUMULATIVE */
+  .cumul-section { margin-bottom: 28px; }
+  .cumul-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .cumul-name {
+    width: 160px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .cumul-bar-bg {
+    flex: 1;
+    height: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+  .cumul-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2a2200 0%, var(--yellow-dark) 40%, var(--yellow) 100%);
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    transition: width 1.3s cubic-bezier(.16,1,.3,1);
+  }
+  .cumul-pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--yellow);
+    width: 44px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* FACTS */
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .fact-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-bottom: 3px solid var(--yellow);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .fact-card::before {
+    content: attr(data-icon);
+    position: absolute;
+    right: 10px; top: 8px;
+    font-size: 32px;
+    opacity: 0.1;
+  }
+  .fact-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .fact-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: var(--yellow);
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .fact-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* FOOTER */
+  .footer {
+    border-top: 2px solid var(--border);
+    padding-top: 20px;
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--muted2);
+    text-transform: uppercase;
+  }
+  .footer span { color: var(--yellow); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stat-card:nth-child(1) { animation-delay: 0.04s; }
+  .stat-card:nth-child(2) { animation-delay: 0.08s; }
+  .stat-card:nth-child(3) { animation-delay: 0.12s; }
+  .stat-card:nth-child(4) { animation-delay: 0.16s; }
+  .stat-card:nth-child(5) { animation-delay: 0.20s; }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    letter-spacing: 2px;
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER BANNER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="season-label" id="seasonLabel">Todo Freak Store</div>
+        <h1>STANDINGS<br><span>DASHBOARD</span></h1>
+      </div>
+      <div class="header-meta">
+        <div id="metaSemanas"></div>
+        <div id="metaTorneos"></div>
+        <div id="metaFecha"></div>
+        <div id="metaJugadores"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inner">
+
+  <!-- STAT CARDS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Partidas jugadas</div>
+      <div class="stat-value" id="statRondas">—</div>
+      <div class="stat-sub" id="statRondasSub">—</div>
+    </div>
+    <div class="stat-card alt">
+      <div class="stat-label">Jugadores únicos</div>
+      <div class="stat-value" id="statJugadores">—</div>
+      <div class="stat-sub" id="statJugadoresSub">—</div>
+    </div>
+    <div class="stat-card green-top">
+      <div class="stat-label">Arquetipos distintos</div>
+      <div class="stat-value" id="statArquetipos">—</div>
+      <div class="stat-sub" id="statArquetiposSub">—</div>
+    </div>
+    <div class="stat-card red-top">
+      <div class="stat-label">Jugador destacado</div>
+      <div class="stat-value" id="statDestacado" style="font-size:22px;padding-top:8px">—</div>
+      <div class="stat-sub" id="statDestacadoSub">—</div>
+    </div>
+    <div class="stat-card alt">
+      <div class="stat-label">%VPO más alto · rivales duros</div>
+      <div class="stat-value" id="statVPO">—</div>
+      <div class="stat-sub" id="statVPOSub">—</div>
+    </div>
+  </div>
+
+  <!-- RANKING ACUMULADO -->
+  <div class="cumul-section">
+    <div class="section-title">Ranking Acumulado <span class="tag" id="tagSeason">—</span></div>
+    <div id="cumulBars"></div>
+  </div>
+
+  <!-- ASISTENCIA Y RENDIMIENTO POR JUGADOR -->
+  <div class="section-title">Jugadores · Asistencia y Rendimiento</div>
+  <div class="player-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Asistencias</th>
+          <th>Pts Totales</th>
+          <th>W·E·L (total)</th>
+          <th>%JG (win rate)</th>
+          <th>Mejor Puesto</th>
+        </tr>
+      </thead>
+      <tbody id="playerTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ARQUETIPOS + TOP -->
+  <div class="two-col">
+    <div>
+      <div class="section-title">Arquetipos</div>
+      <div class="arch-grid" id="archetypeGrid"></div>
+    </div>
+    <div>
+      <div class="section-title">Top Performers</div>
+      <div class="perf-grid" id="topPerformers"></div>
+    </div>
+  </div>
+
+  <!-- POR EVENTO -->
+  <div class="section-title">Resultados por Evento</div>
+  <div class="week-grid" id="weekGrid"></div>
+
+  <!-- DATOS CURIOSOS -->
+  <div class="section-title">Datos Curiosos</div>
+  <div class="facts-grid" id="factsGrid"></div>
+
+  <div class="footer">
+    <span>Todo Freak Store</span> · <span id="footerSeason">—</span> · Magic: The Gathering · Dashboard generado automáticamente
+  </div>
+
+  </div><!-- /inner -->
+</div>
+
+<script>
+const raw = [{"Puesto":1,"Nombre":"Marco Alvarez","Puntos":7,"V/D/E":"2/0/1","%VPO":0.63,"%JG":0.625,"%JGO":0.619,"V":"2","D":"0","E":"1","Arquetipo":"Dimir Midrange","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":2,"Nombre":"Alexander Ghio' The Fury","Puntos":7,"V/D/E":"2/0/1","%VPO":0.611,"%JG":0.714,"%JGO":0.527,"V":"2","D":"0","E":"1","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":3,"Nombre":"Hugo Torres","Puntos":6,"V/D/E":"2/1/0","%VPO":0.481,"%JG":0.571,"%JGO":0.486,"V":"2","D":"1","E":"0","Arquetipo":"Simic Aggro","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":4,"Nombre":"Mario Canto","Puntos":4,"V/D/E":"1/1/1","%VPO":0.519,"%JG":0.571,"%JGO":0.462,"V":"1","D":"1","E":"1","Arquetipo":"4c Control","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":5,"Nombre":"Juan Rivera","Puntos":4,"V/D/E":"1/1/1","%VPO":0.519,"%JG":0.429,"%JGO":0.595,"V":"1","D":"1","E":"1","Arquetipo":"Tuti-frutech","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":6,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":3,"V/D/E":"1/2/0","%VPO":0.556,"%JG":0.5,"%JGO":0.5,"V":"1","D":"2","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":7,"Nombre":"Alvaro Pizarro","Puntos":3,"V/D/E":"1/2/0","%VPO":0.556,"%JG":0.333,"%JGO":0.571,"V":"1","D":"2","E":"0","Arquetipo":"Dimir Mill","Tienda":"Todo Freak","Fecha":"2025-11-15T03:00:00.000Z","Evento":"Showdown"},{"Puesto":1,"Nombre":"Gregori Bruna","Puntos":12,"V/D/E":"4/0/0","%VPO":0.521,"%JG":0.889,"%JGO":0.48,"V":"4","D":"0","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":2,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":9,"V/D/E":"3/1/0","%VPO":0.542,"%JG":0.545,"%JGO":0.568,"V":"3","D":"1","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":3,"Nombre":"Dustin Aranda","Puntos":7,"V/D/E":"2/1/1","%VPO":0.389,"%JG":0.6,"%JGO":0.425,"V":"2","D":"1","E":"1","Arquetipo":"Sultai Reanimator","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":4,"Nombre":"Claudio Olguín Pizarro","Puntos":6,"V/D/E":"2/2/0","%VPO":0.604,"%JG":0.5,"%JGO":0.604,"V":"2","D":"2","E":"0","Arquetipo":"Dimir Midrange","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":5,"Nombre":"Javier Ferreira","Puntos":6,"V/D/E":"2/2/0","%VPO":0.583,"%JG":0.5,"%JGO":0.58,"V":"2","D":"2","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":6,"Nombre":"Mario Vega","Puntos":6,"V/D/E":"2/2/0","%VPO":0.528,"%JG":0.556,"%JGO":0.482,"V":"2","D":"2","E":"0","Arquetipo":"Boros Mice","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":7,"Nombre":"Alvaro Pizarro","Puntos":4,"V/D/E":"1/2/1","%VPO":0.604,"%JG":0.375,"%JGO":0.597,"V":"1","D":"2","E":"1","Arquetipo":"Dimir Mill","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":8,"Nombre":"Juan Rivera","Puntos":3,"V/D/E":"1/2/0","%VPO":0.625,"%JG":0.429,"%JGO":0.523,"V":"1","D":"2","E":"0","Arquetipo":"5c Ally","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":9,"Nombre":"José Miguel Reyes","Puntos":3,"V/D/E":"1/3/0","%VPO":0.542,"%JG":0.4,"%JGO":0.519,"V":"1","D":"3","E":"0","Arquetipo":"Izzet Riddler","Tienda":"Todo Freak","Fecha":"2025-11-29T03:00:00.000Z","Evento":"Teleton"},{"Puesto":1,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":16,"V/D/E":"5/1/1","%VPO":0.488,"%JG":0.6,"%JGO":0.472,"V":"5","D":"1","E":"1","Arquetipo":"Mono Red Coyote","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":2,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":13,"V/D/E":"4/2/1","%VPO":0.588,"%JG":0.529,"%JGO":0.546,"V":"4","D":"2","E":"1","Arquetipo":"Azorius Artifact","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":3,"Nombre":"Julian Prado","Puntos":10,"V/D/E":"3/2/1","%VPO":0.574,"%JG":0.533,"%JGO":0.52,"V":"3","D":"2","E":"1","Arquetipo":"4c control","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":4,"Nombre":"Mario Vega","Puntos":10,"V/D/E":"3/2/1","%VPO":0.462,"%JG":0.5,"%JGO":0.446,"V":"3","D":"2","E":"1","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":5,"Nombre":"Ignacio Valenzuela","Puntos":9,"V/D/E":"3/2/0","%VPO":0.46,"%JG":0.636,"%JGO":0.432,"V":"3","D":"2","E":"0","Arquetipo":"Izzet lessons","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":6,"Nombre":"Cristian Valenzuela","Puntos":7,"V/D/E":"2/2/1","%VPO":0.503,"%JG":0.462,"%JGO":0.459,"V":"2","D":"2","E":"1","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":7,"Nombre":"Dustin Aranda","Puntos":7,"V/D/E":"2/2/1","%VPO":0.49,"%JG":0.5,"%JGO":0.446,"V":"2","D":"2","E":"1","Arquetipo":"Sultai Reanimator","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":8,"Nombre":"TBE Felipe Hidalgo","Puntos":3,"V/D/E":"1/4/0","%VPO":0.522,"%JG":0.333,"%JGO":0.524,"V":"1","D":"4","E":"0","Arquetipo":"Izzet Looting","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":9,"Nombre":"Marcelo López Lagos","Puntos":3,"V/D/E":"1/3/0","%VPO":0.511,"%JG":0.333,"%JGO":0.499,"V":"1","D":"3","E":"0","Arquetipo":"Izzet lessons","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":10,"Nombre":"Ignacio Javier Villacura de la Paz","Puntos":0,"V/D/E":"0/2/0","%VPO":0.681,"%JG":0.333,"%JGO":0.618,"V":"0","D":"2","E":"0","Arquetipo":"Orzhov lifegain","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":11,"Nombre":"Mario Canto","Puntos":0,"V/D/E":"","V":0,"D":0,"E":0,"Arquetipo":"Juez","Tienda":"Todo Freak","Fecha":"2025-12-13T03:00:00.000Z","Evento":"SARC"},{"Puesto":1,"Nombre":"Dustin Aranda","Puntos":10,"V/D/E":"3/0/1","%VPO":0.646,"%JG":0.636,"%JGO":0.584,"V":"3","D":"0","E":"1","Arquetipo":"Sultai Reanimator","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Ignacio Valenzuela","Puntos":10,"V/D/E":"3/0/1","%VPO":0.5,"%JG":0.636,"%JGO":0.483,"V":"3","D":"0","E":"1","Arquetipo":"Izzet Lessons","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"Mario Vega","Puntos":9,"V/D/E":"3/1/0","%VPO":0.604,"%JG":0.545,"%JGO":0.564,"V":"3","D":"1","E":"0","Arquetipo":"Simic Aggro","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"Gregori Bruna","Puntos":9,"V/D/E":"3/1/0","%VPO":0.5,"%JG":0.7,"%JGO":0.552,"V":"3","D":"1","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Cristian Cruz Calderón","Puntos":7,"V/D/E":"2/1/1","%VPO":0.438,"%JG":0.576,"%JGO":0.419,"V":"2","D":"1","E":"1","Arquetipo":"Azorius Tempo","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":6,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":6,"V/D/E":"2/2/0","%VPO":0.667,"%JG":0.5,"%JGO":0.554,"V":"2","D":"2","E":"0","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":7,"Nombre":"Juan Rivera","Puntos":6,"V/D/E":"2/2/0","%VPO":0.563,"%JG":0.6,"%JGO":0.526,"V":"2","D":"2","E":"0","Arquetipo":"5c Ally","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":8,"Nombre":"TBE Felipe Hidalgo","Puntos":6,"V/D/E":"2/2/0","%VPO":0.563,"%JG":0.556,"%JGO":0.508,"V":"2","D":"2","E":"0","Arquetipo":"Izzet Looting","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":9,"Nombre":"Claudio Olguín Pizarro","Puntos":6,"V/D/E":"2/2/0","%VPO":0.438,"%JG":0.545,"%JGO":0.394,"V":"2","D":"2","E":"0","Arquetipo":"Monoblack Demons","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":10,"Nombre":"Mario Canto","Puntos":4,"V/D/E":"1/2/1","%VPO":0.639,"%JG":0.433,"%JGO":0.604,"V":"1","D":"2","E":"1","Arquetipo":"4c Control","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":11,"Nombre":"Pedro Aravena Gonzalez","Puntos":3,"V/D/E":"1/3/0","%VPO":0.604,"%JG":0.364,"%JGO":0.578,"V":"1","D":"3","E":"0","Arquetipo":"Dimir Midrange","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":12,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":3,"V/D/E":"1/3/0","%VPO":0.528,"%JG":0.333,"%JGO":0.559,"V":"1","D":"3","E":"0","Arquetipo":"Mono Red Coyote","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":13,"Nombre":"Roderick Olivares","Puntos":3,"V/D/E":"1/3/0","%VPO":0.5,"%JG":0.333,"%JGO":0.548,"V":"1","D":"3","E":"0","Arquetipo":"Azorius control","Tienda":"Todo Freak","Fecha":"2025-12-20T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"Dustin Aranda","Puntos":10,"V/D/E":"3/0/1","%VPO":0.604,"%JG":0.778,"%JGO":0.561,"V":"3","D":"0","E":"1","Arquetipo":"Sultai Reanimator","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Gregori Bruna","Puntos":10,"V/D/E":"3/0/1","%VPO":0.583,"%JG":0.7,"%JGO":0.606,"V":"3","D":"0","E":"1","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"Ignacio Valenzuela","Puntos":7,"V/D/E":"2/1/1","%VPO":0.5,"%JG":0.545,"%JGO":0.497,"V":"2","D":"1","E":"1","Arquetipo":"Izzet Lessons","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"Marcelo Briceño","Puntos":6,"V/D/E":"2/2/0","%VPO":0.667,"%JG":0.5,"%JGO":0.618,"V":"2","D":"2","E":"0","Arquetipo":"MonoBlack","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Claudio Olguín Pizarro","Puntos":6,"V/D/E":"2/2/0","%VPO":0.639,"%JG":0.5,"%JGO":0.623,"V":"2","D":"2","E":"0","Arquetipo":"MonoBlack Demons","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":6,"Nombre":"José Miguel Reyes","Puntos":6,"V/D/E":"2/2/0","%VPO":0.556,"%JG":0.6,"%JGO":0.526,"V":"2","D":"2","E":"0","Arquetipo":"Bant Airbend","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":7,"Nombre":"Mario Vega","Puntos":6,"V/D/E":"2/2/0","%VPO":0.542,"%JG":0.545,"%JGO":0.533,"V":"2","D":"2","E":"0","Arquetipo":"Mono Red Leyline","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":8,"Nombre":"Roderick Olivares","Puntos":4,"V/D/E":"1/2/1","%VPO":0.472,"%JG":0.375,"%JGO":0.46,"V":"1","D":"2","E":"1","Arquetipo":"Azorius control","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":9,"Nombre":"Hugo Torres","Puntos":3,"V/D/E":"1/3/0","%VPO":0.479,"%JG":0.333,"%JGO":0.516,"V":"1","D":"3","E":"0","Arquetipo":"Simic Ouroboroid","Tienda":"Todo Freak","Fecha":"2025-12-27T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"Dustin Aranda","Puntos":10,"V/D/E":"3/0/1","%VPO":0.625,"%JG":0.7,"%JGO":0.558,"V":"3","D":"0","E":"1","Arquetipo":"Sultai Reanimator","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":10,"V/D/E":"3/0/1","%VPO":0.542,"%JG":0.7,"%JGO":0.511,"V":"3","D":"0","E":"1","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"Alexander Ghio' The Fury","Puntos":9,"V/D/E":"3/1/0","%VPO":0.5,"%JG":0.7,"%JGO":0.49,"V":"3","D":"1","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"TBE Felipe Hidalgo","Puntos":7,"V/D/E":"2/1/1","%VPO":0.563,"%JG":0.5,"%JGO":0.564,"V":"2","D":"1","E":"1","Arquetipo":"Izzet blink","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Mario Chacaltana","Puntos":7,"V/D/E":"2/1/1","%VPO":0.396,"%JG":0.667,"%JGO":0.399,"V":"2","D":"1","E":"1","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":6,"Nombre":"Pedro Aravena Gonzalez","Puntos":7,"V/D/E":"2/1/1","%VPO":0.333,"%JG":0.625,"%JGO":0.368,"V":"2","D":"1","E":"1","Arquetipo":"Dimir Midrange","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":7,"Nombre":"Hugo Torres","Puntos":6,"V/D/E":"2/2/0","%VPO":0.563,"%JG":0.455,"%JGO":0.517,"V":"2","D":"2","E":"0","Arquetipo":"Simi Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":8,"Nombre":"Cristian Cruz Calderón","Puntos":6,"V/D/E":"2/2/0","%VPO":0.521,"%JG":0.556,"%JGO":0.477,"V":"2","D":"2","E":"0","Arquetipo":"Azorius Tempo","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":9,"Nombre":"Mario Canto","Puntos":4,"V/D/E":"1/2/1","%VPO":0.542,"%JG":0.375,"%JGO":0.553,"V":"1","D":"2","E":"1","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":10,"Nombre":"José Miguel Reyes","Puntos":3,"V/D/E":"1/2/0","%VPO":0.667,"%JG":0.333,"%JGO":0.664,"V":"1","D":"2","E":"0","Arquetipo":"Golgari Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":11,"Nombre":"Gregori Bruna","Puntos":3,"V/D/E":"1/2/0","%VPO":0.639,"%JG":0.429,"%JGO":0.664,"V":"1","D":"2","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":12,"Nombre":"Claudio Olguín Pizarro","Puntos":3,"V/D/E":"1/3/0","%VPO":0.5,"%JG":0.333,"%JGO":0.503,"V":"1","D":"3","E":"0","Arquetipo":"Monoblack Demons","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":13,"Nombre":"Mario Vega","Puntos":3,"V/D/E":"1/3/0","%VPO":0.472,"%JG":0.333,"%JGO":0.485,"V":"1","D":"3","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":14,"Nombre":"Javier Ferreira","Puntos":0,"V/D/E":"0/3/0","%VPO":0.556,"%JG":0.333,"%JGO":0.51,"V":"0","D":"3","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-03T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"Claudio Olguín Pizarro","Puntos":9,"V/D/E":"3/1/0","%VPO":0.688,"%JG":0.636,"%JGO":0.615,"V":"3","D":"1","E":"0","Arquetipo":"Gruul Delirium","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":9,"V/D/E":"3/1/0","%VPO":0.625,"%JG":0.6,"%JGO":0.59,"V":"3","D":"1","E":"0","Arquetipo":"Mono Red Coyote","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"José Miguel Reyes","Puntos":9,"V/D/E":"3/1/0","%VPO":0.583,"%JG":0.667,"%JGO":0.511,"V":"3","D":"1","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"Ignacio Javier Villacura de la Paz","Puntos":9,"V/D/E":"3/1/0","%VPO":0.521,"%JG":0.636,"%JGO":0.499,"V":"3","D":"1","E":"0","Arquetipo":"Orzhov lifegain","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Cristian Cruz Calderón","Puntos":6,"V/D/E":"2/2/0","%VPO":0.611,"%JG":0.556,"%JGO":0.533,"V":"2","D":"2","E":"0","Arquetipo":"Azorius Tempo","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":6,"Nombre":"Ignacio Valenzuela","Puntos":6,"V/D/E":"2/2/0","%VPO":0.583,"%JG":0.5,"%JGO":0.525,"V":"2","D":"2","E":"0","Arquetipo":"Izzet Lessons","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":7,"Nombre":"Mario Vega","Puntos":6,"V/D/E":"2/2/0","%VPO":0.583,"%JG":0.444,"%JGO":0.576,"V":"2","D":"2","E":"0","Arquetipo":"Boros Dragons","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":8,"Nombre":"Dustin Aranda","Puntos":6,"V/D/E":"2/2/0","%VPO":0.444,"%JG":0.5,"%JGO":0.454,"V":"2","D":"2","E":"0","Arquetipo":"Simic Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":9,"Nombre":"TBE Felipe Hidalgo","Puntos":3,"V/D/E":"1/3/0","%VPO":0.521,"%JG":0.364,"%JGO":0.535,"V":"1","D":"3","E":"0","Arquetipo":"Simic Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":10,"Nombre":"Javier Ferreira","Puntos":3,"V/D/E":"1/3/0","%VPO":0.479,"%JG":0.417,"%JGO":0.5,"V":"1","D":"3","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":11,"Nombre":"Alexander Ghio' The Fury","Puntos":3,"V/D/E":"1/2/0","%VPO":0.417,"%JG":0.5,"%JGO":0.431,"V":"1","D":"2","E":"0","Arquetipo":"Boros Burn","Tienda":"Todo Freak","Fecha":"2026-01-10T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"José Miguel Reyes","Puntos":3,"V/D/E":"1/0/0","V":"1","D":"0","E":"0","Arquetipo":"","Tienda":"Todo Freak","Fecha":"2026-01-17T03:00:00.000Z","Evento":"Apañadores"},{"Puesto":1,"Nombre":"Claudio Olguín Pizarro","Puntos":3,"V/D/E":"1/0/0","V":"1","D":"0","E":"0","Arquetipo":"","Tienda":"Todo Freak","Fecha":"2026-01-17T03:00:00.000Z","Evento":"Apañadores"},{"Puesto":1,"Nombre":"Mario Canto","Puntos":3,"V/D/E":"1/0/0","V":"1","D":"0","E":"0","Arquetipo":"","Tienda":"Todo Freak","Fecha":"2026-01-17T03:00:00.000Z","Evento":"Apañadores"},{"Puesto":1,"Nombre":"Mario Canto","Puntos":9,"V/D/E":"3/0/0","%VPO":0.556,"%JG":0.857,"%JGO":0.611,"V":"3","D":"0","E":"0","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-01-24T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Claudio Olguín Pizarro","Puntos":6,"V/D/E":"2/1/0","%VPO":0.667,"%JG":0.667,"%JGO":0.595,"V":"2","D":"1","E":"0","Arquetipo":"Gruul Delirium","Tienda":"Todo Freak","Fecha":"2026-01-24T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"Javier Ferreira","Puntos":6,"V/D/E":"2/1/0","%VPO":0.667,"%JG":0.667,"%JGO":0.595,"V":"2","D":"1","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-24T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"Gregori Bruna","Puntos":3,"V/D/E":"1/2/0","%VPO":0.667,"%JG":0.5,"%JGO":0.595,"V":"1","D":"2","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2026-01-24T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":3,"V/D/E":"1/2/0","%VPO":0.556,"%JG":0.333,"%JGO":0.611,"V":"1","D":"2","E":"0","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2026-01-24T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"Tomás Carvallo","Puntos":19,"V/D/E":"6/0/1","%VPO":0.493,"%JG":0.784,"%JGO":0.459,"V":"6","D":"0","E":"1","Arquetipo":"Simic Rhythm","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":2,"Nombre":"Mario Chacaltana","Puntos":13,"V/D/E":"4/2/1","%VPO":0.57,"%JG":0.49,"%JGO":0.559,"V":"4","D":"2","E":"1","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":3,"Nombre":"José Miguel Reyes","Puntos":10,"V/D/E":"3/2/1","%VPO":0.591,"%JG":0.471,"%JGO":0.592,"V":"3","D":"2","E":"1","Arquetipo":"Mono Green Landfall","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":4,"Nombre":"Dustin Aranda","Puntos":10,"V/D/E":"3/2/1","%VPO":0.585,"%JG":0.549,"%JGO":0.528,"V":"3","D":"2","E":"1","Arquetipo":"5c Rhythm","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":5,"Nombre":"Mario Vega","Puntos":9,"V/D/E":"3/2/0","%VPO":0.489,"%JG":0.615,"%JGO":0.491,"V":"3","D":"2","E":"0","Arquetipo":"Boros Dragons","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":6,"Nombre":"Ignacio Valenzuela","Puntos":9,"V/D/E":"3/2/0","%VPO":0.484,"%JG":0.667,"%JGO":0.468,"V":"3","D":"2","E":"0","Arquetipo":"Izzet Lessons","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":7,"Nombre":"Alvaro Pizarro","Puntos":7,"V/D/E":"2/2/1","%VPO":0.433,"%JG":0.455,"%JGO":0.488,"V":"2","D":"2","E":"1","Arquetipo":"Dimir Leviathan","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":8,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":6,"V/D/E":"2/3/0","%VPO":0.599,"%JG":0.385,"%JGO":0.609,"V":"2","D":"3","E":"0","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":9,"Nombre":"TBE Felipe Hidalgo","Puntos":6,"V/D/E":"2/2/0","%VPO":0.51,"%JG":0.593,"%JGO":0.445,"V":"2","D":"2","E":"0","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":10,"Nombre":"Claudio Olguín Pizarro","Puntos":6,"V/D/E":"2/3/0","%VPO":0.478,"%JG":0.364,"%JGO":0.501,"V":"2","D":"3","E":"0","Arquetipo":"Gruul Delirium","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":11,"Nombre":"Victor Cortes Castillo","Puntos":6,"V/D/E":"2/3/0","%VPO":0.45,"%JG":0.417,"%JGO":0.478,"V":"2","D":"3","E":"0","Arquetipo":"Mono Red Leyline","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":12,"Nombre":"Hugo Torres","Puntos":4,"V/D/E":"1/3/1","%VPO":0.431,"%JG":0.429,"%JGO":0.425,"V":"1","D":"3","E":"1","Arquetipo":"Simic Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":13,"Nombre":"Jonathan Sepulveda Sobarzo","Puntos":3,"V/D/E":"1/3/0","%VPO":0.619,"%JG":0.4,"%JGO":0.568,"V":"1","D":"3","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":14,"Nombre":"Cristian Valenzuela","Puntos":0,"V/D/E":"0/2/0","%VPO":0.433,"%JG":0.333,"%JGO":0.409,"V":"0","D":"2","E":"0","Arquetipo":"Azorius Control","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":15,"Nombre":"Mario Canto","Puntos":0,"V":"0","D":"0","E":"0","Arquetipo":"Juez","Tienda":"Todo Freak","Fecha":"2026-01-31T03:00:00.000Z","Evento":"SARC"},{"Puesto":1,"Nombre":"Cristian Cruz Calderón","Puntos":10,"V/D/E":"3/0/1","%VPO":0.542,"%JG":0.733,"%JGO":0.513,"V":"3","D":"0","E":"1","Arquetipo":"Azorius Tempo","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":2,"Nombre":"Mario Vega","Puntos":9,"V/D/E":"3/1/0","%VPO":0.604,"%JG":0.7,"%JGO":0.553,"V":"3","D":"1","E":"0","Arquetipo":"Boros Dragons","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":3,"Nombre":"TBE Felipe Hidalgo","Puntos":9,"V/D/E":"3/1/0","%VPO":0.542,"%JG":0.7,"%JGO":0.513,"V":"3","D":"1","E":"0","Arquetipo":"Dimir Excruciator","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":4,"Nombre":"Dustin Aranda","Puntos":9,"V/D/E":"3/1/0","%VPO":0.5,"%JG":0.7,"%JGO":0.481,"V":"3","D":"1","E":"0","Arquetipo":"Simic Rhythm","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":5,"Nombre":"César Rivera","Puntos":7,"V/D/E":"2/1/1","%VPO":0.563,"%JG":0.576,"%JGO":0.525,"V":"2","D":"1","E":"1","Arquetipo":"Boros Mice","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":6,"Nombre":"Mario Chacaltana","Puntos":6,"V/D/E":"2/2/0","%VPO":0.688,"%JG":0.444,"%JGO":0.664,"V":"2","D":"2","E":"0","Arquetipo":"Temur Harmonizer","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":7,"Nombre":"Pedro Aravena Gonzalez","Puntos":6,"V/D/E":"2/2/0","%VPO":0.563,"%JG":0.444,"%JGO":0.525,"V":"2","D":"2","E":"0","Arquetipo":"5c Ally","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":8,"Nombre":"sergio campos","Puntos":6,"V/D/E":"2/2/0","%VPO":0.528,"%JG":0.556,"%JGO":0.493,"V":"2","D":"2","E":"0","Arquetipo":"Izzet Lessons","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":9,"Nombre":"Claudio Olguín Pizarro","Puntos":3,"V/D/E":"1/3/0","%VPO":0.625,"%JG":0.333,"%JGO":0.586,"V":"1","D":"3","E":"0","Arquetipo":"Dimir Control","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":10,"Nombre":"Francisco Cárdenas","Puntos":3,"V/D/E":"1/3/0","%VPO":0.528,"%JG":0.333,"%JGO":0.525,"V":"1","D":"3","E":"0","Arquetipo":"MonoBlack Reanimator","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":11,"Nombre":"Mario Canto","Puntos":3,"V/D/E":"1/3/0","%VPO":0.528,"%JG":0.333,"%JGO":0.493,"V":"1","D":"3","E":"0","Arquetipo":"Jeskai Control","Tienda":"Todo Freak","Fecha":"2026-02-07T03:00:00.000Z","Evento":"Store Championship"},{"Puesto":1,"Nombre":"sergio campos","Puntos":7,"V/D/E":"2/0/1","%VPO":0.481,"%JG":0.714,"%JGO":0.514,"V":"2","D":"0","E":"1","Arquetipo":"Dimir Midrange","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":2,"Nombre":"Gregori Bruna","Puntos":6,"V/D/E":"2/1/0","%VPO":0.593,"%JG":0.667,"%JGO":0.54,"V":"2","D":"1","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":3,"Nombre":"Mario Vega","Puntos":6,"V/D/E":"2/1/0","%VPO":0.444,"%JG":0.571,"%JGO":0.458,"V":"2","D":"1","E":"0","Arquetipo":"Mono Red Aggro","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":4,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":4,"V/D/E":"1/1/1","%VPO":0.481,"%JG":0.5,"%JGO":0.474,"V":"1","D":"1","E":"1","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":5,"Nombre":"Claudio Olguín Pizarro","Puntos":3,"V/D/E":"1/2/0","%VPO":0.63,"%JG":0.375,"%JGO":0.595,"V":"1","D":"2","E":"0","Arquetipo":"Izzet Prowess","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":6,"Nombre":"Hugo Torres","Puntos":0,"V/D/E":"0/3/0","%VPO":0.593,"%JG":0.333,"%JGO":0.579,"V":"0","D":"3","E":"0","Arquetipo":"Simic Ouroboroid","Tienda":"Todo Freak","Fecha":"2026-02-14T03:00:00.000Z","Evento":"showdown"},{"Puesto":1,"Nombre":"Franco Biggio (Naivak) 🐸","Puntos":9,"V/D/E":"3/0/0","%VPO":0.444,"%JG":1,"%JGO":0.403,"V":"3","D":"0","E":"0","Arquetipo":"Jeskai Artifact","Tienda":"Todo Freak","Fecha":"2026-02-13T03:00:00.000Z","Evento":"Not LCQ"},{"Puesto":2,"Nombre":"César Rivera","Puntos":6,"V/D/E":"2/1/0","%VPO":0.556,"%JG":0.5,"%JGO":0.569,"V":"2","D":"1","E":"0","Arquetipo":"Boros Mice","Tienda":"Todo Freak","Fecha":"2026-02-13T03:00:00.000Z","Evento":"Not LCQ"},{"Puesto":3,"Nombre":"Gregori Bruna","Puntos":3,"V/D/E":"1/2/0","%VPO":0.667,"%JG":0.375,"%JGO":0.611,"V":"1","D":"2","E":"0","Arquetipo":"Naya Yuna","Tienda":"Todo Freak","Fecha":"2026-02-13T03:00:00.000Z","Evento":"Not LCQ"},{"Puesto":4,"Nombre":"Mario Vega","Puntos":0,"V/D/E":"0/3/0","%VPO":0.667,"%JG":0.333,"%JGO":0.625,"V":"0","D":"3","E":"0","Arquetipo":"Boros Dragons","Tienda":"Todo Freak","Fecha":"2026-02-13T03:00:00.000Z","Evento":"Not LCQ"}];
+
+// ─── CONFIG: solo cambia esto cada season ───────────────────────────────────
+const SEASON_LABEL = 'Season 2'; // ← ajustar por season
+// ────────────────────────────────────────────────────────────────────────────
+
+// --- FILTRAR REGISTROS SIN DATOS (jueces, byes, etc.) ---
+const validRaw = raw.filter(r =>
+  r.Arquetipo && r.Arquetipo !== 'Juez' &&
+  r['%JG'] !== '' && r['%JG'] !== undefined
+);
+
+// --- DERIVAR METADATOS DEL ARRAY ---
+const fechasUnicas = [...new Set(raw.map(r => r.Fecha.slice(0,10)))].sort();
+const numTorneos = fechasUnicas.length;
+const ultimaFecha = new Date(fechasUnicas[fechasUnicas.length-1])
+  .toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});
+const jugadoresUnicos = new Set(raw.map(r=>r.Nombre)).size;
+const eventosUnicos = [...new Set(raw.map(r=>r.Evento||'').filter(Boolean))];
+
+// --- HEADER META ---
+document.getElementById('seasonLabel').textContent = `Todo Freak Store · ${SEASON_LABEL}`;
+document.getElementById('footerSeason').textContent = SEASON_LABEL;
+document.getElementById('tagSeason').textContent = SEASON_LABEL;
+
+const metaItems = [
+  ['Eventos', `<span>${eventosUnicos.length > 1 ? eventosUnicos.join(' · ') : eventosUnicos[0] || numTorneos + ' torneos'}</span>`],
+  ['Torneos', `<span>${numTorneos}</span>`],
+  ['Última fecha', `<span>${ultimaFecha}</span>`],
+  ['Jugadores únicos', `<span>${jugadoresUnicos}</span>`],
+];
+['metaSemanas','metaTorneos','metaFecha','metaJugadores'].forEach((id, i) => {
+  const [label, val] = metaItems[i];
+  document.getElementById(id).innerHTML = `${label} ${val}`;
+});
+
+// --- PROCESS DATA ---
+const byPlayer = {};
+validRaw.forEach(r => {
+  const n = r.Nombre;
+  if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], totalPts: 0, totalW: 0, totalD: 0, totalL: 0, bestPos: 99, decks: [], eventos: new Set() };
+  byPlayer[n].entries.push(r);
+  byPlayer[n].totalPts += r.Puntos;
+  byPlayer[n].totalW += parseInt(r.V) || 0;
+  byPlayer[n].totalD += parseInt(r.E) || 0;
+  byPlayer[n].totalL += parseInt(r.D) || 0;
+  if (r.Puesto < byPlayer[n].bestPos) byPlayer[n].bestPos = r.Puesto;
+  if (r.Arquetipo) byPlayer[n].decks.push(r.Arquetipo);
+  if (r.Evento) byPlayer[n].eventos.add(r.Evento);
+});
+
+const players = Object.values(byPlayer).sort((a,b) => b.totalPts - a.totalPts);
+
+// --- STAT CARDS (dinámicas) ---
+const totalPartidas = validRaw.length;
+const arquetiposDistintos = new Set(validRaw.map(r=>r.Arquetipo)).size;
+
+// Jugador destacado = más victorias de 1er puesto
+const top1Counts = {};
+validRaw.filter(r=>r.Puesto===1).forEach(r=>{ top1Counts[r.Nombre]=(top1Counts[r.Nombre]||0)+1; });
+const topWinner = Object.entries(top1Counts).sort((a,b)=>b[1]-a[1])[0];
+const topWinnerShort = topWinner ? topWinner[0].replace(/\s\(.*\)/,'').replace(' 🐸','').split(' ').slice(0,2).join(' ') : '—';
+const topWinnerDesc = topWinner ? `${topWinner[1]}× campeón del torneo` : '—';
+
+// VPO más alto
+let vpoKing = null, vpoMax = 0;
+validRaw.forEach(r => {
+  const v = parseFloat(r['%VPO']);
+  if (!isNaN(v) && v > vpoMax) { vpoMax = v; vpoKing = r; }
+});
+
+// Evento con más jugadores
+const maxEventoEntry = fechasUnicas.map(f => {
+  const count = raw.filter(r=>r.Fecha.slice(0,10)===f).length;
+  return {f, count};
+}).sort((a,b)=>b.count-a.count)[0];
+
+document.getElementById('statRondas').textContent = totalPartidas;
+document.getElementById('statRondasSub').textContent = `registros en ${numTorneos} evento${numTorneos>1?'s':''}`;
+document.getElementById('statJugadores').textContent = jugadoresUnicos;
+document.getElementById('statJugadoresSub').textContent = `${maxEventoEntry.count} en el torneo más grande`;
+document.getElementById('statArquetipos').textContent = arquetiposDistintos;
+document.getElementById('statArquetiposSub').textContent = `en ${totalPartidas} registros`;
+document.getElementById('statDestacado').textContent = topWinnerShort;
+document.getElementById('statDestacadoSub').textContent = topWinnerDesc;
+document.getElementById('statVPO').textContent = vpoKing ? Math.round(vpoMax*100)+'%' : '—';
+document.getElementById('statVPOSub').textContent = vpoKing
+  ? `${vpoKing.Nombre.replace(/\s\(.*\)/,'').split(' ')[0]} · rivales más fuertes`
+  : '—';
+
+// --- CUMULATIVE RANKING ---
+const maxPts = players[0].totalPts;
+const cumulContainer = document.getElementById('cumulBars');
+players.forEach((p, i) => {
+  const pct = (p.totalPts / (maxPts > 0 ? maxPts : 1)) * 100;
+  const shortName = p.name.replace(/\s\(.*\)/, '').replace(' 🐸','');
+  const attLabel = p.entries.length === 1 ? '1 evento' : `${p.entries.length} eventos`;
+  const row = document.createElement('div');
+  row.className = 'cumul-bar-row';
+  row.innerHTML = `
+    <div class="cumul-name" title="${p.name}">${i+1}. ${shortName}</div>
+    <div class="cumul-bar-bg">
+      <div class="cumul-bar-fill" style="width:0%" data-pct="${pct}">${attLabel}</div>
+    </div>
+    <div class="cumul-pts">${p.totalPts}</div>
+  `;
+  cumulContainer.appendChild(row);
+});
+setTimeout(() => {
+  document.querySelectorAll('.cumul-bar-fill').forEach(el => {
+    el.style.width = el.dataset.pct + '%';
+  });
+}, 100);
+
+// --- PLAYER TABLE ---
+const tbody = document.getElementById('playerTableBody');
+players.forEach((p, i) => {
+  const att = p.entries.length;
+  const validJG = p.entries.filter(e => e['%JG'] !== '' && !isNaN(parseFloat(e['%JG'])));
+  const jg = validJG.length > 0
+    ? validJG.reduce((s,e) => s + parseFloat(e['%JG']), 0) / validJG.length * 100
+    : 0;
+  const wrDisplay = jg.toFixed(1);
+  const shortName = p.name.replace(' 🐸','');
+  const deckStr = [...new Set(p.decks)].filter(Boolean).join(', ');
+  const attLabel = att === 1 ? '1 evento' : `✦ ${att} eventos`;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <div class="player-name">
+        <span class="rank-num ${i<3?'top':''}">${i+1}</span>
+        ${shortName}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;padding-left:28px;font-style:italic">${deckStr}</div>
+    </td>
+    <td><span class="attendance-badge ${att<2?'one':''}">${attLabel}</span></td>
+    <td><span class="pts-badge">${p.totalPts}</span></td>
+    <td>
+      <div class="wde-bar">
+        ${Array(Math.min(p.totalW,20)).fill('<span class="dot w"></span>').join('')}
+        ${Array(Math.min(p.totalD,20)).fill('<span class="dot d"></span>').join('')}
+        ${Array(Math.min(p.totalL,20)).fill('<span class="dot l"></span>').join('')}
+        <span class="wde-text">${p.totalW}W · ${p.totalD}E · ${p.totalL}L</span>
+      </div>
+    </td>
+    <td>
+      <div class="wr-bar-wrap">
+        <div class="wr-bar-bg"><div class="wr-bar-fill" style="width:${jg}%"></div></div>
+        <span class="wr-pct">${wrDisplay}%</span>
+      </div>
+    </td>
+    <td style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:${p.bestPos<=3?'var(--yellow)':'var(--muted)'}">#${p.bestPos}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// --- ARCHETYPES ---
+const byArch = {};
+validRaw.forEach(r => {
+  const a = r.Arquetipo;
+  if (!a) return;
+  if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
+  byArch[a].count++;
+  byArch[a].wins += parseInt(r.V) || 0;
+  byArch[a].games += (parseInt(r.V)||0) + (parseInt(r.D)||0) + (parseInt(r.E)||0);
+});
+const archs = Object.values(byArch).sort((a,b) => b.count - a.count);
+const archColors = ['#f5c800','#ff4757','#44cc77','#38b2ff','#ff6b9d','#a78bfa','#ffb830','#7b61ff'];
+const archGrid = document.getElementById('archetypeGrid');
+archs.slice(0, 12).forEach((a, i) => {
+  const wr = a.games > 0 ? Math.round((a.wins/a.games)*100) : 0;
+  const wrColor = wr >= 55 ? 'var(--win)' : wr >= 45 ? 'var(--yellow)' : 'var(--loss)';
+  const row = document.createElement('div');
+  row.className = 'arch-row';
+  row.innerHTML = `
+    <div class="arch-color-dot" style="background:${archColors[i%archColors.length]}"></div>
+    <div class="arch-name">${a.name}</div>
+    <div class="arch-bar-wrap">
+      <div class="wr-bar-bg" style="width:55px">
+        <div class="wr-bar-fill" style="width:${wr}%;background:${archColors[i%archColors.length]}"></div>
+      </div>
+    </div>
+    <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
+    <div class="arch-count">${a.count}×</div>
+  `;
+  archGrid.appendChild(row);
+});
+
+// --- TOP PERFORMERS ---
+const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+const topPerf = document.getElementById('topPerformers');
+players.slice(0,5).forEach((p,i) => {
+  const shortName = p.name.replace(/\s\(.*\)/, '').replace(' 🐸','').split(' ').slice(0,2).join(' ');
+  const uniqueDecks = [...new Set(p.decks)].filter(Boolean);
+  const row = document.createElement('div');
+  row.className = 'perf-row';
+  row.innerHTML = `
+    <div class="perf-medal">${medals[i]}</div>
+    <div>
+      <div class="perf-name">${shortName}</div>
+      <div class="perf-sub">${uniqueDecks.slice(0,3).join(' / ')}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="perf-val">${p.totalPts}</div>
+      <div class="perf-sub">${p.entries.length} evento${p.entries.length>1?'s':''}</div>
+    </div>
+  `;
+  topPerf.appendChild(row);
+});
+
+// --- EVENTS GRID ---
+const weeks = {};
+raw.forEach(r => {
+  const key = r.Fecha.slice(0,10) + '|' + (r.Evento||'');
+  if (!weeks[key]) weeks[key] = [];
+  weeks[key].push(r);
+});
+const weekGrid = document.getElementById('weekGrid');
+const weekKeys = Object.keys(weeks).sort();
+weekKeys.forEach((k, wi) => {
+  const entries = weeks[k].filter(r=>r.Arquetipo!=='Juez').sort((a,b)=>a.Puesto-b.Puesto);
+  if (entries.length === 0) return;
+  const [dateKey, eventoNombre] = k.split('|');
+  const dateObj = new Date(dateKey);
+  const dateStr = dateObj.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});
+  const card = document.createElement('div');
+  card.className = 'week-card';
+  const top3 = entries.slice(0,3);
+  const podiumRows = top3.map((e, pi) => {
+    const shortName = e.Nombre.replace(/\s\(.*\)/, '').replace(' 🐸','').split(' ').slice(0,2).join(' ');
+    return `<div class="podium-row">
+      <div class="podium-pos ${pi===0?'gold':''}">#${e.Puesto}</div>
+      <div>
+        <div class="podium-name">${shortName}</div>
+        <div class="podium-deck">${e.Arquetipo||'—'}</div>
+      </div>
+      <div class="podium-pts">${e.Puntos}</div>
+    </div>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="week-header">
+      <div class="week-title">${eventoNombre || 'Evento ' + (wi+1)}</div>
+      <div class="week-date">${dateStr} · ${entries.length} jugadores</div>
+    </div>
+    <div class="week-podium">
+      ${podiumRows}
+      ${entries.length > 3 ? `<div style="font-size:11px;color:var(--muted);margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">+${entries.length-3} jugadores más</div>` : ''}
+    </div>
+  `;
+  weekGrid.appendChild(card);
+});
+
+// --- FUN FACTS (todos dinámicos) ---
+const multiEventPlayers = players.filter(p=>p.entries.length>1);
+let mostConsistent = null, bestAvg = 99;
+multiEventPlayers.forEach(p => {
+  const avg = p.entries.reduce((s,e)=>s+e.Puesto,0)/p.entries.length;
+  if (avg < bestAvg) { bestAvg = avg; mostConsistent = p; }
+});
+
+let bestWR = null, bestWRVal = 0;
+players.forEach(p => {
+  const total = p.totalW+p.totalD+p.totalL;
+  if (total >= 5) {
+    const wr = p.totalW/total;
+    if (wr > bestWRVal) { bestWRVal = wr; bestWR = p; }
+  }
+});
+
+const topArch = archs[0];
+const perfectRuns = validRaw.filter(r=>(parseInt(r.D)||0)===0&&(parseInt(r.E)||0)===0&&(parseInt(r.V)||0)>=3);
+const maxEvents = Math.max(...players.map(p=>p.entries.length));
+const mostActive = players.find(p=>p.entries.length===maxEvents);
+
+const facts = [
+  {
+    icon: '🎯',
+    title: 'Arquetipo más popular',
+    value: topArch ? topArch.name.split(' ').pop() : '—',
+    desc: topArch ? `${topArch.name} jugado ${topArch.count} veces — ${topArch.games > 0 ? Math.round((topArch.wins/topArch.games)*100) : 0}% de win rate` : '—'
+  },
+  {
+    icon: '🔥',
+    title: 'Torneos perfectos (sin derrotas)',
+    value: perfectRuns.length,
+    desc: perfectRuns.length > 0
+      ? perfectRuns.slice(0,2).map(r=>r.Nombre.replace(/\s\(.*\)/,'').split(' ')[0]).join(', ') + (perfectRuns.length>2?` +${perfectRuns.length-2} más`:'') + ' con 0 derrotas'
+      : 'Ningún torneo perfecto aún'
+  },
+  {
+    icon: '📈',
+    title: 'Jugador más consistente',
+    value: mostConsistent ? mostConsistent.name.replace(/\s\(.*\)/,'').split(' ')[0] : '—',
+    desc: mostConsistent
+      ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} eventos`
+      : 'Se necesitan múltiples eventos'
+  },
+  {
+    icon: '⚡',
+    title: 'Mejor %JG (mín. 5 partidas)',
+    value: bestWR ? Math.round(bestWRVal*100)+'%' : '—',
+    desc: bestWR ? `${bestWR.name.replace(/\s\(.*\)/,'').split(' ')[0]} · ${bestWR.totalW}V/${bestWR.totalL}D` : '—'
+  },
+  {
+    icon: '🏔️',
+    title: '%VPO más alto · rivales más duros',
+    value: vpoKing ? Math.round(vpoMax*100)+'%' : '—',
+    desc: vpoKing
+      ? `${vpoKing.Nombre.replace(/\s\(.*\)/,'').split(' ')[0]} en ${vpoKing.Evento||'torneo'} — oponentes con mayor win rate promedio`
+      : '—'
+  },
+  {
+    icon: '🏆',
+    title: 'Jugador más activo',
+    value: mostActive ? mostActive.entries.length : '—',
+    desc: mostActive
+      ? `${mostActive.name.replace(/\s\(.*\)/,'').replace(' 🐸','').split(' ').slice(0,2).join(' ')} con ${mostActive.entries.length} eventos jugados`
+      : '—'
+  },
+];
+
+const factsGrid = document.getElementById('factsGrid');
+facts.forEach(f => {
+  const card = document.createElement('div');
+  card.className = 'fact-card';
+  card.setAttribute('data-icon', f.icon);
+  card.innerHTML = `
+    <div class="fact-title">${f.title}</div>
+    <div class="fact-value">${f.value}</div>
+    <div class="fact-desc">${f.desc}</div>
+  `;
+  factsGrid.appendChild(card);
+});
+</script>
+</body>
+</html>
