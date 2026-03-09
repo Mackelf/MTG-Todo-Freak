@@ -1,0 +1,2561 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S1 · Season 1 Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --surface2: #1f1f1f;
+        --border: #2e2e2e;
+        --border-bright: #3d3d3d;
+        --yellow: #f5c800;
+        --yellow-light: #ffd93d;
+        --yellow-dark: #c9a200;
+        --red: #e03030;
+        --text: #f0f0f0;
+        --muted: #707070;
+        --muted2: #4a4a4a;
+        --win: #44cc77;
+        --loss: #e03030;
+        --draw: #f5c800;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Barlow", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          -55deg,
+          transparent,
+          transparent 40px,
+          rgba(245, 200, 0, 0.018) 40px,
+          rgba(245, 200, 0, 0.018) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 0 80px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* HEADER */
+      .header {
+        background: var(--yellow);
+        padding: 0;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: "";
+        position: absolute;
+        right: -60px;
+        top: -40px;
+        width: 300px;
+        height: 200px;
+        background: rgba(0, 0, 0, 0.08);
+        transform: rotate(-15deg);
+      }
+      .header-inner {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0;
+        flex-wrap: wrap;
+      }
+      .header-left {
+        padding: 24px 32px;
+        background: #000;
+        clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+        padding-right: 60px;
+        min-width: 340px;
+      }
+      .season-label {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--yellow);
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .header h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(40px, 7vw, 68px);
+        line-height: 0.92;
+        letter-spacing: 3px;
+        color: #fff;
+      }
+      .header h1 span {
+        color: var(--yellow);
+      }
+      .header-meta {
+        padding: 24px 32px;
+        text-align: right;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.65);
+        line-height: 2;
+        font-weight: 600;
+        letter-spacing: 1px;
+        align-self: center;
+      }
+      .header-meta span {
+        color: #000;
+        font-weight: 800;
+      }
+
+      .inner {
+        padding: 0 28px;
+      }
+
+      /* STAT CARDS */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-top: 3px solid var(--yellow);
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeUp 0.5s ease both;
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 94% 100%, 0 100%);
+      }
+      .stat-card.alt {
+        border-top-color: var(--muted2);
+      }
+      .stat-card.red-top {
+        border-top-color: var(--red);
+      }
+      .stat-card.green-top {
+        border-top-color: var(--win);
+      }
+      .stat-label {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .stat-value {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 46px;
+        line-height: 1;
+        color: var(--yellow);
+      }
+      .stat-card.alt .stat-value {
+        color: var(--text);
+      }
+      .stat-card.red-top .stat-value {
+        color: var(--red);
+        font-size: 22px;
+        padding-top: 8px;
+      }
+      .stat-card.green-top .stat-value {
+        color: var(--win);
+      }
+      .stat-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-family: "Barlow Condensed", sans-serif;
+        letter-spacing: 1px;
+      }
+
+      /* SECTION TITLE */
+      .section-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 20px;
+        letter-spacing: 4px;
+        color: var(--text);
+        text-transform: uppercase;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .section-title::before {
+        content: "";
+        display: block;
+        width: 4px;
+        height: 20px;
+        background: var(--yellow);
+        flex-shrink: 0;
+      }
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* PLAYER TABLE */
+      .player-table-wrap {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-left: 4px solid var(--yellow);
+        overflow: hidden;
+        margin-bottom: 28px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead {
+        background: #000;
+        border-bottom: 2px solid var(--yellow);
+      }
+      th {
+        padding: 11px 16px;
+        text-align: left;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--yellow);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+      td {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: rgba(245, 200, 0, 0.04);
+      }
+
+      .player-name {
+        font-weight: 600;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .attendance-badge {
+        background: var(--yellow);
+        color: #000;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 8px;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+      }
+      .attendance-badge.one {
+        background: var(--surface2);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        clip-path: none;
+      }
+
+      .wde-bar {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        display: inline-block;
+      }
+      .dot.w {
+        background: var(--win);
+      }
+      .dot.l {
+        background: var(--loss);
+      }
+      .dot.d {
+        background: var(--draw);
+      }
+      .wde-text {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: 4px;
+        letter-spacing: 1px;
+      }
+
+      .pts-badge {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 22px;
+        color: var(--yellow);
+      }
+      .rank-num {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 18px;
+        color: var(--muted2);
+        width: 28px;
+      }
+      .rank-num.top {
+        color: var(--yellow);
+      }
+
+      .wr-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+      }
+      .wr-bar-bg {
+        flex: 1;
+        height: 5px;
+        background: var(--border);
+        overflow: hidden;
+      }
+      .wr-bar-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--yellow-dark),
+          var(--yellow-light)
+        );
+        transition: width 1s ease;
+      }
+      .wr-pct {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        min-width: 38px;
+        text-align: right;
+      }
+
+      /* TWO COL */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+      @media (max-width: 720px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ARCHETYPE */
+      .arch-grid {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-left: 4px solid var(--yellow);
+        overflow: hidden;
+      }
+      .arch-row {
+        display: flex;
+        align-items: center;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--border);
+        gap: 12px;
+        transition: background 0.15s;
+      }
+      .arch-row:last-child {
+        border-bottom: none;
+      }
+      .arch-row:hover {
+        background: rgba(245, 200, 0, 0.05);
+      }
+      .arch-name {
+        flex: 1;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .arch-color-dot {
+        width: 6px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+      .arch-count {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        color: var(--muted);
+        min-width: 60px;
+        text-align: right;
+        letter-spacing: 1px;
+      }
+      .arch-wr {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        min-width: 42px;
+        text-align: right;
+        letter-spacing: 1px;
+      }
+      .arch-bar-wrap {
+        width: 55px;
+      }
+
+      /* TOP PERFORMERS */
+      .perf-grid {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-left: 4px solid var(--yellow);
+        overflow: hidden;
+      }
+      .perf-row {
+        display: flex;
+        align-items: center;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--border);
+        gap: 14px;
+      }
+      .perf-row:first-child {
+        background: rgba(245, 200, 0, 0.06);
+      }
+      .perf-row:last-child {
+        border-bottom: none;
+      }
+      .perf-medal {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .perf-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .perf-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 22px;
+        color: var(--yellow);
+      }
+      .perf-sub {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 1px;
+      }
+
+      /* WEEK CARDS */
+      .week-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      @media (max-width: 600px) {
+        .week-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .week-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        overflow: hidden;
+      }
+      .week-header {
+        background: #000;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid var(--yellow);
+      }
+      .week-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 18px;
+        letter-spacing: 3px;
+        color: var(--yellow);
+      }
+      .week-date {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 2px;
+        font-weight: 700;
+      }
+      .week-podium {
+        padding: 14px 16px;
+      }
+      .podium-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .podium-row:last-child {
+        margin-bottom: 0;
+      }
+      .podium-pos {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 16px;
+        color: var(--muted2);
+        width: 22px;
+      }
+      .podium-pos.gold {
+        color: var(--yellow);
+      }
+      .podium-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .podium-deck {
+        font-size: 11px;
+        color: var(--muted);
+        font-style: italic;
+      }
+      .podium-pts {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 20px;
+        color: var(--yellow);
+      }
+
+      /* CUMULATIVE */
+      .cumul-section {
+        margin-bottom: 28px;
+      }
+      .cumul-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .cumul-name {
+        width: 160px;
+        font-size: 13px;
+        font-weight: 600;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: "Barlow Condensed", sans-serif;
+        letter-spacing: 0.5px;
+      }
+      .cumul-bar-bg {
+        flex: 1;
+        height: 30px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        position: relative;
+      }
+      .cumul-bar-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          #2a2200 0%,
+          var(--yellow-dark) 40%,
+          var(--yellow) 100%
+        );
+        display: flex;
+        align-items: center;
+        padding-left: 12px;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #000;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        transition: width 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .cumul-pts {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 22px;
+        color: var(--yellow);
+        width: 44px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      /* FACTS */
+      .facts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .fact-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-bottom: 3px solid var(--yellow);
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .fact-card::before {
+        content: attr(data-icon);
+        position: absolute;
+        right: 10px;
+        top: 8px;
+        font-size: 32px;
+        opacity: 0.1;
+      }
+      .fact-title {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .fact-value {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 30px;
+        color: var(--yellow);
+        line-height: 1;
+        margin-bottom: 5px;
+      }
+      .fact-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      /* FOOTER */
+      .footer {
+        border-top: 2px solid var(--border);
+        padding-top: 20px;
+        text-align: center;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: var(--muted2);
+        text-transform: uppercase;
+      }
+      .footer span {
+        color: var(--yellow);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .stat-card:nth-child(1) {
+        animation-delay: 0.04s;
+      }
+      .stat-card:nth-child(2) {
+        animation-delay: 0.08s;
+      }
+      .stat-card:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .stat-card:nth-child(4) {
+        animation-delay: 0.16s;
+      }
+      .stat-card:nth-child(5) {
+        animation-delay: 0.2s;
+      }
+
+      .tag {
+        display: inline-block;
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border: 1px solid var(--yellow);
+        color: var(--yellow);
+        letter-spacing: 2px;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-inner">
+          <div class="header-left">
+            <div class="season-label" id="seasonLabel">Todo Freak Store</div>
+            <h1>STANDINGS<br /><span>DASHBOARD</span></h1>
+          </div>
+          <div class="header-meta">
+            <div id="metaSemanas"></div>
+            <div id="metaTorneos"></div>
+            <div id="metaFecha"></div>
+            <div id="metaJugadores"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inner">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Partidas jugadas</div>
+            <div class="stat-value" id="statRondas">—</div>
+            <div class="stat-sub" id="statRondasSub">—</div>
+          </div>
+          <div class="stat-card alt">
+            <div class="stat-label">Jugadores únicos</div>
+            <div class="stat-value" id="statJugadores">—</div>
+            <div class="stat-sub" id="statJugadoresSub">—</div>
+          </div>
+          <div class="stat-card green-top">
+            <div class="stat-label">Arquetipos distintos</div>
+            <div class="stat-value" id="statArquetipos">—</div>
+            <div class="stat-sub" id="statArquetiposSub">—</div>
+          </div>
+          <div class="stat-card red-top">
+            <div class="stat-label">Jugador destacado</div>
+            <div
+              class="stat-value"
+              id="statDestacado"
+              style="font-size: 22px; padding-top: 8px"
+            >
+              —
+            </div>
+            <div class="stat-sub" id="statDestacadoSub">—</div>
+          </div>
+          <div class="stat-card alt">
+            <div class="stat-label">%VPO más alto · rivales duros</div>
+            <div class="stat-value" id="statVPO">—</div>
+            <div class="stat-sub" id="statVPOSub">—</div>
+          </div>
+        </div>
+
+        <div class="cumul-section">
+          <div class="section-title">
+            Ranking Acumulado <span class="tag" id="tagSeason">—</span>
+          </div>
+          <div id="cumulBars"></div>
+        </div>
+
+        <div class="section-title">Jugadores · Asistencia y Rendimiento</div>
+        <div class="player-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Jugador</th>
+                <th>Asistencias</th>
+                <th>Pts Totales</th>
+                <th>W·E·L (total)</th>
+                <th>%JG (win rate)</th>
+                <th>Mejor Puesto</th>
+              </tr>
+            </thead>
+            <tbody id="playerTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="section-title">Arquetipos</div>
+            <div class="arch-grid" id="archetypeGrid"></div>
+          </div>
+          <div>
+            <div class="section-title">Top Performers</div>
+            <div class="perf-grid" id="topPerformers"></div>
+          </div>
+        </div>
+
+        <div class="section-title">Resultados por Evento</div>
+        <div class="week-grid" id="weekGrid"></div>
+
+        <div class="section-title">Datos Curiosos</div>
+        <div class="facts-grid" id="factsGrid"></div>
+
+        <div class="footer">
+          <span>Todo Freak Store</span> · <span id="footerSeason">—</span> ·
+          Magic: The Gathering · Dashboard generado automáticamente
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const raw = [
+        {
+          Puesto: 1,
+          Nombre: "Claudio Olguín Pizarro",
+          Puntos: 10,
+          "V/D/E": "3/0/1",
+          "%VPO": 0.521,
+          "%JG": 0.7,
+          "%JGO": 0.537,
+          Tienda: "Todo Freak",
+          Deck: "Mono Black Demons",
+          v: 3,
+          d: 0,
+          e: 1,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Jonathan Sepulveda Sobarzo",
+          Puntos: 9,
+          "V/D/E": "3/1/0",
+          "%VPO": 0.604,
+          "%JG": 0.636,
+          "%JGO": 0.608,
+          Tienda: "Todo Freak",
+          Deck: "Gruul Mice",
+          v: 3,
+          d: 1,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 3,
+          Nombre: "sergio campos",
+          Puntos: 9,
+          "V/D/E": "3/1/0",
+          "%VPO": 0.521,
+          "%JG": 0.778,
+          "%JGO": 0.489,
+          Tienda: "Todo Freak",
+          Deck: "Vivi Prowess",
+          v: 3,
+          d: 1,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Dustin Aranda",
+          Puntos: 9,
+          "V/D/E": "3/1/0",
+          "%VPO": 0.417,
+          "%JG": 0.545,
+          "%JGO": 0.469,
+          Tienda: "Todo Freak",
+          Deck: "Esper Pixie",
+          v: 3,
+          d: 1,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Andres Gomez",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.778,
+          "%JG": 0.556,
+          "%JGO": 0.674,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Mario Canto",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.694,
+          "%JG": 0.556,
+          "%JGO": 0.631,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 7,
+          Nombre: "Juan Rivera",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.583,
+          "%JG": 0.556,
+          "%JGO": 0.5,
+          Tienda: "Todo Freak",
+          Deck: "Smuggler's Dragon",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Gregori Bruna",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.479,
+          "%JG": 0.4,
+          "%JGO": 0.538,
+          Tienda: "Todo Freak",
+          Deck: "Abzan Yuna",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 9,
+          Nombre: "Cristian Cruz Calderón",
+          Puntos: 4,
+          "V/D/E": "1/2/1",
+          "%VPO": 0.667,
+          "%JG": 0.4,
+          "%JGO": 0.584,
+          Tienda: "Todo Freak",
+          Deck: "Jeskai Control",
+          v: 1,
+          d: 2,
+          e: 1,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 10,
+          Nombre: "José Miguel Reyes",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.583,
+          "%JG": 0.364,
+          "%JGO": 0.544,
+          Tienda: "Todo Freak",
+          Deck: "Simic Aggro",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 11,
+          Nombre: "Mario Vega",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.389,
+          "%JG": 0.455,
+          "%JGO": 0.388,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "16/8/25",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Mario Vega",
+          Puntos: 10,
+          "V/D/E": "3/0/1",
+          "%VPO": 0.604,
+          "%JG": 0.778,
+          "%JGO": 0.593,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 3,
+          d: 0,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Gregori Bruna",
+          Puntos: 10,
+          "V/D/E": "3/0/1",
+          "%VPO": 0.542,
+          "%JG": 0.667,
+          "%JGO": 0.542,
+          Tienda: "Todo Freak",
+          Deck: "Naya Yuna",
+          v: 3,
+          d: 0,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 3,
+          Nombre: "TBE Felipe Hidalgo",
+          Puntos: 9,
+          "V/D/E": "3/1/0",
+          "%VPO": 0.542,
+          "%JG": 0.75,
+          "%JGO": 0.503,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 3,
+          d: 1,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Dustin Aranda",
+          Puntos: 7,
+          "V/D/E": "2/1/1",
+          "%VPO": 0.417,
+          "%JG": 0.667,
+          "%JGO": 0.408,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 1,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Ignacio Valenzuela",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.667,
+          "%JG": 0.5,
+          "%JGO": 0.66,
+          Tienda: "Todo Freak",
+          Deck: "Mono red",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 6,
+          Nombre: "sergio campos",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.542,
+          "%JG": 0.4,
+          "%JGO": 0.593,
+          Tienda: "Todo Freak",
+          Deck: "Vivi Prowess",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 7,
+          Nombre: "José Miguel Reyes",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.5,
+          "%JG": 0.556,
+          "%JGO": 0.503,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Claudio Olguín Pizarro",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.5,
+          "%JG": 0.556,
+          "%JGO": 0.45,
+          Tienda: "Todo Freak",
+          Deck: "Mono Black Demons",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 9,
+          Nombre: "Ignacio Javier Villacura de la Paz",
+          Puntos: 4,
+          "V/D/E": "1/2/1",
+          "%VPO": 0.479,
+          "%JG": 0.4,
+          "%JGO": 0.544,
+          Tienda: "Todo Freak",
+          Deck: "Orzhov Sacrifice",
+          v: 1,
+          d: 2,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 10,
+          Nombre: "Franco Biggio (Naivak) 🐸",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.5,
+          "%JG": 0.4,
+          "%JGO": 0.478,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Artifact",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 11,
+          Nombre: "Mario Canto",
+          Puntos: 1,
+          "V/D/E": "0/3/1",
+          "%VPO": 0.604,
+          "%JG": 0.333,
+          "%JGO": 0.576,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 0,
+          d: 3,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 12,
+          Nombre: "Juan Rivera",
+          Puntos: 1,
+          "V/D/E": "0/3/1",
+          "%VPO": 0.438,
+          "%JG": 0.333,
+          "%JGO": 0.489,
+          Tienda: "Todo Freak",
+          Deck: "Smuggler's Dragon",
+          v: 0,
+          d: 3,
+          e: 1,
+          Fecha: "24/8/25",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Mario Vega",
+          Puntos: 9,
+          "V/D/E": "3/0/0",
+          "%VPO": 0.444,
+          "%JG": 0.857,
+          "%JGO": 0.407,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 3,
+          d: 0,
+          e: 0,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 2,
+          Nombre: "sergio campos",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.667,
+          "%JG": 0.556,
+          "%JGO": 0.638,
+          Tienda: "Todo Freak",
+          Deck: "Izzet vivi Cauldron",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Dustin Aranda",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.444,
+          "%JG": 0.556,
+          "%JGO": 0.463,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Roderick Olivares",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.5,
+          "%JGO": 0.481,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Control",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Claudio Olguín Pizarro",
+          Puntos: 1,
+          "V/D/E": "0/2/1",
+          "%VPO": 0.667,
+          "%JG": 0.333,
+          "%JGO": 0.582,
+          Tienda: "Todo Freak",
+          Deck: "Mono red",
+          v: 0,
+          d: 2,
+          e: 1,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Mario Canto",
+          Puntos: 1,
+          "V/D/E": "0/2/1",
+          "%VPO": 0.556,
+          "%JG": 0.333,
+          "%JGO": 0.563,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 0,
+          d: 2,
+          e: 1,
+          Fecha: "13/9/25",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Julian Prado",
+          Puntos: 16,
+          "V/D/E": "5/1/1",
+          "%VPO": 0.547,
+          "%JG": 0.706,
+          "%JGO": 0.508,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 5,
+          d: 1,
+          e: 1,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Cristian Valenzuela",
+          Puntos: 15,
+          "V/D/E": "5/2/0",
+          "%VPO": 0.508,
+          "%JG": 0.588,
+          "%JGO": 0.51,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 5,
+          d: 2,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Tomás Carvallo",
+          Puntos: 12,
+          "V/D/E": "4/2/0",
+          "%VPO": 0.54,
+          "%JG": 0.6,
+          "%JGO": 0.527,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 4,
+          d: 2,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Marcelo López Lagos",
+          Puntos: 10,
+          "V/D/E": "3/2/1",
+          "%VPO": 0.629,
+          "%JG": 0.563,
+          "%JGO": 0.573,
+          Tienda: "Todo Freak",
+          Deck: "Izzet vivi Cauldron",
+          v: 3,
+          d: 2,
+          e: 1,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Dustin Aranda",
+          Puntos: 10,
+          "V/D/E": "3/1/1",
+          "%VPO": 0.471,
+          "%JG": 0.636,
+          "%JGO": 0.492,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 3,
+          d: 1,
+          e: 1,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Roderick Olivares",
+          Puntos: 10,
+          "V/D/E": "3/1/1",
+          "%VPO": 0.44,
+          "%JG": 0.667,
+          "%JGO": 0.435,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 3,
+          d: 1,
+          e: 1,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 7,
+          Nombre: "Mario Vega",
+          Puntos: 7,
+          "V/D/E": "2/2/1",
+          "%VPO": 0.552,
+          "%JG": 0.455,
+          "%JGO": 0.535,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 2,
+          d: 2,
+          e: 1,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Alvaro Pizarro",
+          Puntos: 6,
+          "V/D/E": "2/3/0",
+          "%VPO": 0.512,
+          "%JG": 0.417,
+          "%JGO": 0.48,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 3,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 9,
+          Nombre: "José Miguel Reyes",
+          Puntos: 4,
+          "V/D/E": "1/2/1",
+          "%VPO": 0.595,
+          "%JG": 0.444,
+          "%JGO": 0.539,
+          Tienda: "Todo Freak",
+          Deck: "Izzet vivi Cauldron",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 10,
+          Nombre: "Ignacio Valenzuela",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.574,
+          "%JG": 0.333,
+          "%JGO": 0.553,
+          Tienda: "Todo Freak",
+          Deck: "Golgari Demons",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 11,
+          Nombre: "Cristian Cruz Calderón",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.567,
+          "%JG": 0.333,
+          "%JGO": 0.538,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Control",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 12,
+          Nombre: "Ignacio Javier Villacura de la Paz",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.467,
+          "%JG": 0.333,
+          "%JGO": 0.472,
+          Tienda: "Todo Freak",
+          Deck: "Orzhov Midrange",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 13,
+          Nombre: "sergio campos",
+          Puntos: 0,
+          "V/D/E": "0/3/0",
+          "%VPO": 0.489,
+          "%JG": 0.333,
+          "%JGO": 0.5,
+          Tienda: "Todo Freak",
+          Deck: "Izzet vivi Cauldron",
+          v: 0,
+          d: 3,
+          e: 0,
+          Fecha: "2025-04-10T04:00:00.000Z",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Mario Vega",
+          Puntos: 7,
+          "V/D/E": "2/0/1",
+          "%VPO": 0.593,
+          "%JG": 0.625,
+          "%JGO": 0.603,
+          Tienda: "Todo Freak",
+          Deck: "Boros Aggro",
+          v: 2,
+          d: 0,
+          e: 1,
+          Fecha: "2025-11-10T03:00:00.000Z",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Dustin Aranda",
+          Puntos: 7,
+          "V/D/E": "2/0/1",
+          "%VPO": 0.556,
+          "%JG": 0.714,
+          "%JGO": 0.479,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 2,
+          d: 0,
+          e: 1,
+          Fecha: "2025-11-10T03:00:00.000Z",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Gregori Bruna",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.556,
+          "%JG": 0.667,
+          "%JGO": 0.479,
+          Tienda: "Todo Freak",
+          Deck: "Yuna",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "2025-11-10T03:00:00.000Z",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Alvaro Pizarro",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.593,
+          "%JG": 0.333,
+          "%JGO": 0.603,
+          Tienda: "Todo Freak",
+          Deck: "",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-11-10T03:00:00.000Z",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Mario Canto",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.429,
+          "%JGO": 0.479,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-11-10T03:00:00.000Z",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Roderick Olivares",
+          Puntos: 9,
+          "V/D/E": "3/0/0",
+          "%VPO": 0.444,
+          "%JG": 0.75,
+          "%JGO": 0.452,
+          Tienda: "Todo Freak",
+          Deck: "Dimir midrange",
+          v: 3,
+          d: 0,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Tomás Carvallo",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.667,
+          "%JG": 0.5,
+          "%JGO": 0.636,
+          Tienda: "Todo Freak",
+          Deck: "Izzet vivi Cauldron",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Ignacio Valenzuela",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.444,
+          "%JG": 0.714,
+          "%JGO": 0.421,
+          Tienda: "Todo Freak",
+          Deck: "Mono red Aggro",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Mario Canto",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.333,
+          "%JG": 0.571,
+          "%JGO": 0.434,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Mario Vega",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.833,
+          "%JG": 0.429,
+          "%JGO": 0.661,
+          Tienda: "Todo Freak",
+          Deck: "Boros Aggro",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Dustin Aranda",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.778,
+          "%JG": 0.429,
+          "%JGO": 0.679,
+          Tienda: "Todo Freak",
+          Deck: "Sultai Reanimator",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 7,
+          Nombre: "Franco Biggio (Naivak) 🐸",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.444,
+          "%JGO": 0.468,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Artifact",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Ignacio Javier Villacura de la Paz",
+          Puntos: 0,
+          "V/D/E": "0/2/0",
+          "%VPO": 0.5,
+          "%JG": 0.333,
+          "%JGO": 0.579,
+          Tienda: "Todo Freak",
+          Deck: "Orzhov Life",
+          v: 0,
+          d: 2,
+          e: 0,
+          Fecha: "25/10/25",
+        },
+        {
+          Puesto: 1,
+          Nombre: "sergio campos",
+          Puntos: 19,
+          "V/D/E": "",
+          "%VPO": 0.55,
+          "%JG": 0.667,
+          "%JGO": 0.534,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 6,
+          d: 0,
+          e: 1,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 2,
+          Nombre: "TBE Felipe Hidalgo",
+          Puntos: 14,
+          "V/D/E": "",
+          "%VPO": 0.551,
+          "%JG": 0.706,
+          "%JGO": 0.532,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 4,
+          d: 1,
+          e: 2,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 3,
+          Nombre: "José Miguel Reyes",
+          Puntos: 12,
+          "V/D/E": "",
+          "%VPO": 0.595,
+          "%JG": 0.692,
+          "%JGO": 0.558,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 4,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Tomás Carvallo",
+          Puntos: 10,
+          "V/D/E": "",
+          "%VPO": 0.554,
+          "%JG": 0.588,
+          "%JGO": 0.535,
+          Tienda: "Todo Freak",
+          Deck: "Simic Midrange",
+          v: 3,
+          d: 2,
+          e: 1,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Marco Alvarez",
+          Puntos: 9,
+          "V/D/E": "",
+          "%VPO": 0.648,
+          "%JG": 0.533,
+          "%JGO": 0.619,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 3,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Mario Vega",
+          Puntos: 9,
+          "V/D/E": "",
+          "%VPO": 0.476,
+          "%JG": 0.636,
+          "%JGO": 0.454,
+          Tienda: "Todo Freak",
+          Deck: "Boros Mice",
+          v: 3,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 7,
+          Nombre: "Ignacio Valenzuela",
+          Puntos: 9,
+          "V/D/E": "",
+          "%VPO": 0.467,
+          "%JG": 0.6,
+          "%JGO": 0.478,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 3,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Gregori Bruna",
+          Puntos: 9,
+          "V/D/E": "",
+          "%VPO": 0.688,
+          "%JG": 0.364,
+          "%JGO": 0.639,
+          Tienda: "Todo Freak",
+          Deck: "Naya Yuna",
+          v: 3,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 9,
+          Nombre: "Roderick Olivares",
+          Puntos: 6,
+          "V/D/E": "",
+          "%VPO": 0.571,
+          "%JG": 0.455,
+          "%JGO": 0.518,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Control",
+          v: 2,
+          d: 3,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 10,
+          Nombre: "Alexander Ghio' The Fury",
+          Puntos: 6,
+          "V/D/E": "",
+          "%VPO": 0.53,
+          "%JG": 0.5,
+          "%JGO": 0.499,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 2,
+          d: 3,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 11,
+          Nombre: "Ignacio Javier Villacura de la Paz",
+          Puntos: 3,
+          "V/D/E": "",
+          "%VPO": 0.518,
+          "%JG": 0.4,
+          "%JGO": 0.491,
+          Tienda: "Todo Freak",
+          Deck: "Orzhov Sacrifice",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 12,
+          Nombre: "Hugo Torres",
+          Puntos: 3,
+          "V/D/E": "",
+          "%VPO": 0.427,
+          "%JG": 0.455,
+          "%JGO": 0.432,
+          Tienda: "Todo Freak",
+          Deck: "Dimir Midrange",
+          v: 1,
+          d: 4,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 13,
+          Nombre: "Jonathan Sepulveda Sobarzo",
+          Puntos: 3,
+          "V/D/E": "",
+          "%VPO": 0.383,
+          "%JG": 0.4,
+          "%JGO": 0.411,
+          Tienda: "Todo Freak",
+          Deck: "Gruul Aggro",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 14,
+          Nombre: "Julian Prado",
+          Puntos: 3,
+          "V/D/E": "",
+          "%VPO": 0.467,
+          "%JG": 0.333,
+          "%JGO": 0.512,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 15,
+          Nombre: "cristian muñoz",
+          Puntos: 1,
+          "V/D/E": "",
+          "%VPO": 0.44,
+          "%JG": 0.333,
+          "%JGO": 0.489,
+          Tienda: "Todo Freak",
+          Deck: "Dimir midrange",
+          v: 0,
+          d: 4,
+          e: 1,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 16,
+          Nombre: "Marcelo López Lagos",
+          Puntos: 1,
+          "V/D/E": "",
+          "%VPO": 0.657,
+          "%JG": 0.333,
+          "%JGO": 0.671,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 0,
+          d: 2,
+          e: 1,
+          Fecha: "2025-06-09T04:00:00.000Z",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Ignacio Javier Villacura de la Paz",
+          Puntos: 10,
+          "V/D/E": "3/0/1",
+          "%VPO": 0.611,
+          "%JG": 0.733,
+          "%JGO": 0.571,
+          Tienda: "Todo Freak",
+          Deck: "Orzhov Life Gain",
+          v: 3,
+          d: 0,
+          e: 1,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 2,
+          Nombre: "TBE Felipe Hidalgo",
+          Puntos: 10,
+          "V/D/E": "3/0/1",
+          "%VPO": 0.583,
+          "%JG": 0.667,
+          "%JGO": 0.569,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 3,
+          d: 0,
+          e: 1,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Dustin Aranda",
+          Puntos: 9,
+          "V/D/E": "3/1/0",
+          "%VPO": 0.458,
+          "%JG": 0.636,
+          "%JGO": 0.47,
+          Tienda: "Todo Freak",
+          Deck: "Sultai Reanimator",
+          v: 3,
+          d: 1,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Mario Canto",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.646,
+          "%JG": 0.545,
+          "%JGO": 0.617,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 5,
+          Nombre: "Mario Chacaltana",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.646,
+          "%JG": 0.5,
+          "%JGO": 0.587,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 6,
+          Nombre: "Roderick Olivares",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.583,
+          "%JG": 0.5,
+          "%JGO": 0.545,
+          Tienda: "Todo Freak",
+          Deck: "Azorius Control",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 7,
+          Nombre: "Juan Rivera",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.6,
+          "%JGO": 0.525,
+          Tienda: "Todo Freak",
+          Deck: "Boros Angel",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 8,
+          Nombre: "Mario Vega",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.542,
+          "%JG": 0.5,
+          "%JGO": 0.51,
+          Tienda: "Todo Freak",
+          Deck: "Boros Prowess",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 9,
+          Nombre: "sergio campos",
+          Puntos: 6,
+          "V/D/E": "2/2/0",
+          "%VPO": 0.5,
+          "%JG": 0.444,
+          "%JGO": 0.466,
+          Tienda: "Todo Freak",
+          Deck: "Izzet Vivi Cauldron",
+          v: 2,
+          d: 2,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 10,
+          Nombre: "Ignacio Valenzuela",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.528,
+          "%JG": 0.333,
+          "%JGO": 0.481,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 11,
+          Nombre: "Andres Gomez",
+          Puntos: 3,
+          "V/D/E": "1/3/0",
+          "%VPO": 0.458,
+          "%JG": 0.364,
+          "%JGO": 0.469,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 1,
+          d: 3,
+          e: 0,
+          Fecha: "2025-01-11T03:00:00.000Z",
+        },
+        {
+          Puesto: 1,
+          Nombre: "Mario Vega",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.444,
+          "%JG": 0.625,
+          "%JGO": 0.458,
+          Tienda: "Todo Freak",
+          Deck: "Mono Red Aggro",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "2025-08-11T04:00:00.000Z",
+        },
+        {
+          Puesto: 2,
+          Nombre: "Juan Rivera",
+          Puntos: 6,
+          "V/D/E": "2/1/0",
+          "%VPO": 0.444,
+          "%JG": 0.5,
+          "%JGO": 0.499,
+          Tienda: "Todo Freak",
+          Deck: "Boros Angel",
+          v: 2,
+          d: 1,
+          e: 0,
+          Fecha: "2025-08-11T04:00:00.000Z",
+        },
+        {
+          Puesto: 3,
+          Nombre: "Mario Canto",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.444,
+          "%JGO": 0.518,
+          Tienda: "Todo Freak",
+          Deck: "4c Control",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-08-11T04:00:00.000Z",
+        },
+        {
+          Puesto: 4,
+          Nombre: "Gregori Bruna",
+          Puntos: 3,
+          "V/D/E": "1/2/0",
+          "%VPO": 0.556,
+          "%JG": 0.429,
+          "%JGO": 0.523,
+          Tienda: "Todo Freak",
+          Deck: "Naya Yuna",
+          v: 1,
+          d: 2,
+          e: 0,
+          Fecha: "2025-08-11T04:00:00.000Z",
+        },
+      ];
+
+      // ── CONFIG ──────────────────────────────────────────────────────────────────
+      const SEASON_LABEL = "Season 1";
+
+      // ── NORMALIZAR FECHAS ────────────────────────────────────────────────────────
+      // Convierte "16/8/25", "24/8/25", "2025-04-10T...", "2025-04-10" → "YYYY-MM-DD
+      function normDate(raw) {
+        if (!raw) return "";
+        const s = String(raw).split("T")[0].trim();
+        // formato dd/mm/yy o dd/mm/yyyy
+        if (s.includes("/")) {
+          const parts = s.split("/");
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, "0");
+            const mon = parts[1].padStart(2, "0");
+            let yr = parts[2];
+            if (yr.length === 2) yr = "20" + yr;
+            return `${yr}-${mon}-${day}`;
+          }
+        }
+        return s; // ya es YYYY-MM-DD
+      }
+
+      raw.forEach((r) => {
+        r._fecha = normDate(r.Fecha);
+      });
+
+      // ── FILTRO: solo registros con Deck (excluye byes/vacíos)
+      // El campo es "Deck", no "Arquetipo"
+      const validRaw = raw.filter((r) => r.Deck && r.Deck.trim() !== "");
+
+      // ── METADATOS ───────────────────────────────────────────────────────────────
+      const fechasUnicas = [...new Set(raw.map((r) => r._fecha))].sort();
+      const numTorneos = fechasUnicas.length;
+      const ultimaFechaObj = new Date(
+        fechasUnicas[fechasUnicas.length - 1] + "T12:00:00",
+      );
+      const ultimaFecha = ultimaFechaObj.toLocaleDateString("es-CL", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+      const jugadoresUnicos = new Set(raw.map((r) => r.Nombre)).size;
+
+      // ── HEADER ──────────────────────────────────────────────────────────────────
+      document.getElementById("seasonLabel").textContent =
+        `Todo Freak Store · ${SEASON_LABEL}`;
+      document.getElementById("footerSeason").textContent = SEASON_LABEL;
+      document.getElementById("tagSeason").textContent = SEASON_LABEL;
+
+      const maxEnEvento = Math.max(
+        ...fechasUnicas.map((f) => raw.filter((r) => r._fecha === f).length),
+      );
+
+      [
+        ["metaSemanas", "Torneos", `<span>${numTorneos}</span>`],
+        ["metaTorneos", "Registros totales", `<span>${raw.length}</span>`],
+        ["metaFecha", "Última fecha", `<span>${ultimaFecha}</span>`],
+        [
+          "metaJugadores",
+          "Jugadores únicos",
+          `<span>${jugadoresUnicos}</span>`,
+        ],
+      ].forEach(([id, label, val]) => {
+        document.getElementById(id).innerHTML = `${label} ${val}`;
+      });
+
+      // ── AGGREGAR POR JUGADOR ─────────────────────────────────────────────────────
+      const byPlayer = {};
+      raw.forEach((r) => {
+        const n = r.Nombre;
+        if (!byPlayer[n])
+          byPlayer[n] = {
+            name: n,
+            entries: [],
+            totalPts: 0,
+            totalW: 0,
+            totalE: 0,
+            totalD_losses: 0,
+            bestPos: 99,
+            decks: [],
+          };
+        const p = byPlayer[n];
+        p.entries.push(r);
+        p.totalPts += r.Puntos || 0;
+        p.totalW += r.v || 0; // victorias
+        p.totalE += r.e || 0; // empates
+        p.totalD_losses += r.d || 0; // derrotas (campo "d" minúscula)
+        if (r.Puesto < p.bestPos) p.bestPos = r.Puesto;
+        if (r.Deck && r.Deck.trim()) p.decks.push(r.Deck.trim());
+      });
+
+      const players = Object.values(byPlayer).sort(
+        (a, b) => b.totalPts - a.totalPts,
+      );
+
+      // ── STAT CARDS ───────────────────────────────────────────────────────────────
+      const totalRegistros = validRaw.length;
+      const arquetiposSet = new Set(
+        validRaw.map((r) => r.Deck.trim().toLowerCase()),
+      );
+      const arquetiposCount = arquetiposSet.size;
+
+      // Campeón de torneo (más victorias en puesto 1)
+      const top1Counts = {};
+      raw
+        .filter((r) => r.Puesto === 1)
+        .forEach((r) => {
+          top1Counts[r.Nombre] = (top1Counts[r.Nombre] || 0) + 1;
+        });
+      const topWinnerEntry = Object.entries(top1Counts).sort(
+        (a, b) => b[1] - a[1],
+      )[0];
+      const topWinnerShort = topWinnerEntry
+        ? topWinnerEntry[0]
+            .replace(/\s\(.*\)/, "")
+            .replace(" 🐸", "")
+            .split(" ")
+            .slice(0, 2)
+            .join(" ")
+        : "—";
+      const topWinnerDesc = topWinnerEntry
+        ? `${topWinnerEntry[1]}× campeón del torneo`
+        : "—";
+
+      // VPO más alto
+      let vpoKing = null,
+        vpoMax = 0;
+      raw.forEach((r) => {
+        const v = parseFloat(r["%VPO"]);
+        if (!isNaN(v) && v > vpoMax) {
+          vpoMax = v;
+          vpoKing = r;
+        }
+      });
+
+      document.getElementById("statRondas").textContent = totalRegistros;
+      document.getElementById("statRondasSub").textContent =
+        `registros en ${numTorneos} evento${numTorneos > 1 ? "s" : ""}`;
+      document.getElementById("statJugadores").textContent = jugadoresUnicos;
+      document.getElementById("statJugadoresSub").textContent =
+        `${maxEnEvento} en el torneo más grande`;
+      document.getElementById("statArquetipos").textContent = arquetiposCount;
+      document.getElementById("statArquetiposSub").textContent =
+        `en ${totalRegistros} registros`;
+      document.getElementById("statDestacado").textContent = topWinnerShort;
+      document.getElementById("statDestacadoSub").textContent = topWinnerDesc;
+      document.getElementById("statVPO").textContent = vpoKing
+        ? Math.round(vpoMax * 100) + "%"
+        : "—";
+      document.getElementById("statVPOSub").textContent = vpoKing
+        ? `${vpoKing.Nombre.replace(/\s\(.*\)/, "").split(" ")[0]} · rivales más fuertes`
+        : "—";
+
+      // ── RANKING ACUMULADO ────────────────────────────────────────────────────────
+      const maxPts = players[0] ? players[0].totalPts : 1;
+      const cumulContainer = document.getElementById("cumulBars");
+      players.forEach((p, i) => {
+        const pct = (p.totalPts / maxPts) * 100;
+        const shortName = p.name.replace(/\s\(.*\)/, "").replace(" 🐸", "");
+        const attLabel =
+          p.entries.length === 1 ? "1 evento" : `${p.entries.length} eventos`;
+        const row = document.createElement("div");
+        row.className = "cumul-bar-row";
+        row.innerHTML = `
+    <div class="cumul-name" title="${p.name}">${i + 1}. ${shortName}</div>
+    <div class="cumul-bar-bg">
+      <div class="cumul-bar-fill" style="width:0%" data-pct="${pct}">${attLabel}</div>
+    </div>
+    <div class="cumul-pts">${p.totalPts}</div>
+  `;
+        cumulContainer.appendChild(row);
+      });
+      setTimeout(() => {
+        document.querySelectorAll(".cumul-bar-fill").forEach((el) => {
+          el.style.width = el.dataset.pct + "%";
+        });
+      }, 100);
+
+      // ── TABLA DE JUGADORES ───────────────────────────────────────────────────────
+      const tbody = document.getElementById("playerTableBody");
+      players.forEach((p, i) => {
+        // Win rate promedio de sus entradas
+        const validJG = p.entries.filter((e) => {
+          const v = parseFloat(e["%JG"]);
+          return !isNaN(v);
+        });
+        const jg =
+          validJG.length > 0
+            ? (validJG.reduce((s, e) => s + parseFloat(e["%JG"]), 0) /
+                validJG.length) *
+              100
+            : 0;
+        const shortName = p.name.replace(" 🐸", "");
+        const deckStr = [...new Set(p.decks)].join(", ");
+        const att = p.entries.length;
+        const attLabel = att === 1 ? "1 evento" : `✦ ${att} eventos`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+    <td>
+      <div class="player-name">
+        <span class="rank-num ${i < 3 ? "top" : ""}">${i + 1}</span>
+        ${shortName}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;padding-left:28px;font-style:italic">${deckStr}</div>
+    </td>
+    <td><span class="attendance-badge ${att < 2 ? "one" : ""}">${attLabel}</span></td>
+    <td><span class="pts-badge">${p.totalPts}</span></td>
+    <td>
+      <div class="wde-bar">
+        ${Array(Math.min(p.totalW, 20)).fill('<span class="dot w"></span>').join("")}
+        ${Array(Math.min(p.totalE, 20)).fill('<span class="dot d"></span>').join("")}
+        ${Array(Math.min(p.totalD_losses, 20)).fill('<span class="dot l"></span>').join("")}
+        <span class="wde-text">${p.totalW}W · ${p.totalE}E · ${p.totalD_losses}L</span>
+      </div>
+    </td>
+    <td>
+      <div class="wr-bar-wrap">
+        <div class="wr-bar-bg"><div class="wr-bar-fill" style="width:${jg}%"></div></div>
+        <span class="wr-pct">${jg.toFixed(1)}%</span>
+      </div>
+    </td>
+    <td style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:${p.bestPos <= 3 ? "var(--yellow)" : "var(--muted)"}">#${p.bestPos}</td>
+  `;
+        tbody.appendChild(tr);
+      });
+
+      // ── ARQUETIPOS ───────────────────────────────────────────────────────────────
+      // Usa r.Deck (minúsculas) y r.v / r.d (minúsculas)
+      const byArch = {};
+      validRaw.forEach((r) => {
+        const a = r.Deck.trim();
+        if (!a) return;
+        if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
+        byArch[a].count++;
+        byArch[a].wins += r.v || 0;
+        byArch[a].games += (r.v || 0) + (r.d || 0) + (r.e || 0);
+      });
+      const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
+      const archColors = [
+        "#f5c800",
+        "#ff4757",
+        "#44cc77",
+        "#38b2ff",
+        "#ff6b9d",
+        "#a78bfa",
+        "#ffb830",
+        "#7b61ff",
+      ];
+      const archGrid = document.getElementById("archetypeGrid");
+      archs.slice(0, 12).forEach((a, i) => {
+        const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
+        const wrColor =
+          wr >= 55 ? "var(--win)" : wr >= 45 ? "var(--yellow)" : "var(--loss)";
+        const row = document.createElement("div");
+        row.className = "arch-row";
+        row.innerHTML = `
+    <div class="arch-color-dot" style="background:${archColors[i % archColors.length]}"></div>
+    <div class="arch-name">${a.name}</div>
+    <div class="arch-bar-wrap">
+      <div class="wr-bar-bg" style="width:55px">
+        <div class="wr-bar-fill" style="width:${wr}%;background:${archColors[i % archColors.length]}"></div>
+      </div>
+    </div>
+    <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
+    <div class="arch-count">${a.count}×</div>
+  `;
+        archGrid.appendChild(row);
+      });
+
+      // ── TOP PERFORMERS ───────────────────────────────────────────────────────────
+      const medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
+      const topPerf = document.getElementById("topPerformers");
+      players.slice(0, 5).forEach((p, i) => {
+        const shortName = p.name
+          .replace(/\s\(.*\)/, "")
+          .replace(" 🐸", "")
+          .split(" ")
+          .slice(0, 2)
+          .join(" ");
+        const uniqueDecks = [...new Set(p.decks)].filter(Boolean);
+        const row = document.createElement("div");
+        row.className = "perf-row";
+        row.innerHTML = `
+    <div class="perf-medal">${medals[i]}</div>
+    <div>
+      <div class="perf-name">${shortName}</div>
+      <div class="perf-sub">${uniqueDecks.slice(0, 3).join(" / ")}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="perf-val">${p.totalPts}</div>
+      <div class="perf-sub">${p.entries.length} evento${p.entries.length > 1 ? "s" : ""}</div>
+    </div>
+  `;
+        topPerf.appendChild(row);
+      });
+
+      // ── RESULTADOS POR EVENTO ─────────────────────────────────────────────────────
+      const weekGrid = document.getElementById("weekGrid");
+      fechasUnicas.forEach((fecha, wi) => {
+        const entries = raw
+          .filter((r) => r._fecha === fecha)
+          .sort((a, b) => a.Puesto - b.Puesto);
+        if (!entries.length) return;
+        const dateObj = new Date(fecha + "T12:00:00");
+        const dateStr = dateObj.toLocaleDateString("es-CL", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+        const top3 = entries.slice(0, 3);
+        const card = document.createElement("div");
+        card.className = "week-card";
+        const podiumRows = top3
+          .map((e, pi) => {
+            const shortName = e.Nombre.replace(/\s\(.*\)/, "")
+              .replace(" 🐸", "")
+              .split(" ")
+              .slice(0, 2)
+              .join(" ");
+            return `<div class="podium-row">
+      <div class="podium-pos ${pi === 0 ? "gold" : ""}">#${e.Puesto}</div>
+      <div>
+        <div class="podium-name">${shortName}</div>
+        <div class="podium-deck">${e.Deck || "—"}</div>
+      </div>
+      <div class="podium-pts">${e.Puntos}</div>
+    </div>`;
+          })
+          .join("");
+        card.innerHTML = `
+    <div class="week-header">
+      <div class="week-title">Evento ${wi + 1}</div>
+      <div class="week-date">${dateStr} · ${entries.length} jugadores</div>
+    </div>
+    <div class="week-podium">
+      ${podiumRows}
+      ${
+        entries.length > 3
+          ? `<div style="font-size:11px;color:var(--muted);margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">+${entries.length - 3} jugadores más</div>`
+          : ""
+      }
+    </div>
+  `;
+        weekGrid.appendChild(card);
+      });
+
+      // ── DATOS CURIOSOS ────────────────────────────────────────────────────────────
+      // Jugador más consistente (mejor puesto promedio, mín. 2 eventos)
+      const multiEvt = players.filter((p) => p.entries.length > 1);
+      let mostConsistent = null,
+        bestAvg = 99;
+      multiEvt.forEach((p) => {
+        const avg =
+          p.entries.reduce((s, e) => s + e.Puesto, 0) / p.entries.length;
+        if (avg < bestAvg) {
+          bestAvg = avg;
+          mostConsistent = p;
+        }
+      });
+
+      // Mejor win rate (mín. 5 partidas totales)
+      let bestWR = null,
+        bestWRVal = 0;
+      players.forEach((p) => {
+        const total = p.totalW + p.totalD_losses + p.totalE;
+        if (total >= 5) {
+          const wr = p.totalW / total;
+          if (wr > bestWRVal) {
+            bestWRVal = wr;
+            bestWR = p;
+          }
+        }
+      });
+
+      // Torneos perfectos (sin derrotas): campo "d" === 0 y victorias >= 3
+      const perfectRuns = raw.filter(
+        (r) => (r.d || 0) === 0 && (r.v || 0) >= 3,
+      );
+
+      // Jugador más activo
+      const maxEvents = Math.max(...players.map((p) => p.entries.length));
+      const mostActive = players.find((p) => p.entries.length === maxEvents);
+
+      const topArch = archs[0];
+
+      const facts = [
+        {
+          icon: "🎯",
+          title: "Arquetipo más popular",
+          value: topArch ? topArch.name.split(" ").slice(-1)[0] : "—",
+          desc: topArch
+            ? `${topArch.name} jugado ${topArch.count} veces · ${topArch.games > 0 ? Math.round((topArch.wins / topArch.games) * 100) : 0}% win rate`
+            : "—",
+        },
+        {
+          icon: "🔥",
+          title: "Torneos perfectos (sin derrotas)",
+          value: perfectRuns.length,
+          desc:
+            perfectRuns.length > 0
+              ? perfectRuns
+                  .slice(0, 2)
+                  .map((r) => r.Nombre.replace(/\s\(.*\)/, "").split(" ")[0])
+                  .join(", ") +
+                (perfectRuns.length > 2
+                  ? ` +${perfectRuns.length - 2} más`
+                  : "") +
+                " — sin derrotas"
+              : "Ningún torneo perfecto aún",
+        },
+        {
+          icon: "📈",
+          title: "Jugador más consistente",
+          value: mostConsistent
+            ? mostConsistent.name.replace(/\s\(.*\)/, "").split(" ")[0]
+            : "—",
+          desc: mostConsistent
+            ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} eventos`
+            : "Se necesitan múltiples eventos",
+        },
+        {
+          icon: "⚡",
+          title: "Mejor %JG (mín. 5 partidas)",
+          value: bestWR ? Math.round(bestWRVal * 100) + "%" : "—",
+          desc: bestWR
+            ? `${bestWR.name.replace(/\s\(.*\)/, "").split(" ")[0]} · ${bestWR.totalW}V / ${bestWR.totalD_losses}L`
+            : "—",
+        },
+        {
+          icon: "🏔️",
+          title: "%VPO más alto · rivales más duros",
+          value: vpoKing ? Math.round(vpoMax * 100) + "%" : "—",
+          desc: vpoKing
+            ? `${vpoKing.Nombre.replace(/\s\(.*\)/, "").split(" ")[0]} — oponentes con mayor win rate`
+            : "—",
+        },
+        {
+          icon: "🏆",
+          title: "Jugador más activo",
+          value: mostActive ? mostActive.entries.length : "—",
+          desc: mostActive
+            ? `${mostActive.name
+                .replace(/\s\(.*\)/, "")
+                .replace(" 🐸", "")
+                .split(" ")
+                .slice(0, 2)
+                .join(" ")} · ${mostActive.entries.length} eventos jugados`
+            : "—",
+        },
+      ];
+
+      const factsGrid = document.getElementById("factsGrid");
+      facts.forEach((f) => {
+        const card = document.createElement("div");
+        card.className = "fact-card";
+        card.setAttribute("data-icon", f.icon);
+        card.innerHTML = `
+    <div class="fact-title">${f.title}</div>
+    <div class="fact-value">${f.value}</div>
+    <div class="fact-desc">${f.desc}</div>
+  `;
+        factsGrid.appendChild(card);
+      });
+    </script>
+  </body>
+</html>
