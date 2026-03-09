@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="es">
+  <meta charset="utf-8" />
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <title>Metagame Casa de juegos. 29 nov 25</title>
+    <style>
+      body {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Centrar texto de los encabezados */
+      #metagame-table table thead th {
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      /* Centrar también las celdas de números */
+      #metagame-table table tbody td:nth-child(2),
+      #metagame-table table tbody td:nth-child(3) {
+        text-align: center;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="row">
+      <div class="col-12">
+        <h1>Standard Metagame en Todo Freak. RCQ</h1>
+        <h2>31 Enero 2026</h2>
+      </div>
+    </div>
+    <div id="record-jugadores-table"></div>
+
+    <div id="metagame-table"></div>
+
+    <script>
+      const recordJugadoresRows = [
+        [
+          "Puesto",
+          "Nombre",
+          "Puntos",
+          "V/D/E",
+          "%VPO",
+          "%JG",
+          "%JGO",
+          "V",
+          "D",
+          "E",
+          "Arquetipo",
+        ],
+        [
+          "1",
+          "Cristian Cruz Calderón",
+          "10",
+          "3/0/1",
+          "54,2%",
+          "73,30%",
+          "51,30%",
+          "3",
+          "0",
+          "1",
+          "Azorius Tempo",
+        ],
+        [
+          "2",
+          "Mario Vega",
+          "9",
+          "3/1/0",
+          "60,4%",
+          "70,00%",
+          "55,30%",
+          "3",
+          "1",
+          "0",
+          "Boros Dragons",
+        ],
+        [
+          "3",
+          "TBE Felipe Hidalgo",
+          "9",
+          "3/1/0",
+          "54,2%",
+          "70,00%",
+          "51,30%",
+          "3",
+          "1",
+          "0",
+          "Dimir Excruciator",
+        ],
+        [
+          "4",
+          "Dustin Aranda",
+          "9",
+          "3/1/0",
+          "50%",
+          "70,00%",
+          "48,10%",
+          "3",
+          "1",
+          "0",
+          "Simic Rhythm",
+        ],
+        [
+          "5",
+          "César Rivera",
+          "7",
+          "2/1/1",
+          "56,3%",
+          "57,60%",
+          "52,50%",
+          "2",
+          "1",
+          "1",
+          "Boros Mice",
+        ],
+        [
+          "6",
+          "Mario Chacaltana",
+          "6",
+          "2/2/0",
+          "68,8%",
+          "44,40%",
+          "66,40%",
+          "2",
+          "2",
+          "0",
+          "Temur Harmonizer",
+        ],
+        [
+          "7",
+          "Pedro Aravena Gonzalez",
+          "6",
+          "2/2/0",
+          "56,3%",
+          "44,40%",
+          "52,50%",
+          "2",
+          "2",
+          "0",
+          "5c Ally",
+        ],
+        [
+          "8",
+          "sergio campos",
+          "6",
+          "2/2/0",
+          "52,8%",
+          "55,60%",
+          "49,30%",
+          "2",
+          "2",
+          "0",
+          "Izzet Lessons",
+        ],
+        [
+          "9",
+          "Claudio Olguín Pizarro",
+          "3",
+          "1/3/0",
+          "62,5%",
+          "33,30%",
+          "58,60%",
+          "1",
+          "3",
+          "0",
+          "Dimir Control",
+        ],
+        [
+          "10",
+          "Francisco Cárdenas",
+          "3",
+          "1/3/0",
+          "52,8%",
+          "33,30%",
+          "52,50%",
+          "1",
+          "3",
+          "0",
+          "MonoBlack Reanimator",
+        ],
+        [
+          "11",
+          "Mario Canto",
+          "3",
+          "1/3/0",
+          "52,8%",
+          "33,30%",
+          "49,30%",
+          "1",
+          "3",
+          "0",
+          "Jeskai Control",
+        ],
+      ];
+
+      function buildSimpleTable(containerId, rows, titleText) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+
+        const h2 = document.createElement("h2");
+        h2.textContent = titleText;
+        container.appendChild(h2);
+
+        if (!rows || rows.length === 0) return;
+
+        const table = document.createElement("table");
+        table.className = "table table-striped table-dark w-auto";
+
+        // Cabecera (primera fila)
+        const thead = document.createElement("thead");
+        const headTr = document.createElement("tr");
+        rows[0].forEach((text) => {
+          const th = document.createElement("th");
+          th.textContent = text;
+          th.style.padding = "4px 8px";
+          th.style.textAlign = "center";
+          headTr.appendChild(th);
+        });
+        thead.appendChild(headTr);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement("tbody");
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          const tr = document.createElement("tr");
+          row.forEach((cellValue, colIndex) => {
+            const td = document.createElement("td");
+            td.style.padding = "4px 8px";
+            // Centramos todas las columnas numéricas
+            if (colIndex === 0 || colIndex >= 3) {
+              td.style.textAlign = "center";
+            }
+            td.textContent = cellValue;
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        }
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+      }
+
+      buildSimpleTable(
+        "record-jugadores-table",
+        recordJugadoresRows,
+        "Record de Jugadores",
+      );
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

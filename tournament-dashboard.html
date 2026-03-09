@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Torneo Magic</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .filter-section label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .filter-section select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 2px solid #667eea;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .medal {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .gold { background: #FFD700; color: #333; }
+        .silver { background: #C0C0C0; color: #333; }
+        .bronze { background: #CD7F32; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Dashboard Torneo Magic - Standard</h1>
+        
+        <div class="filter-section">
+            <label for="monthFilter">Filtrar por mes:</label>
+            <select id="monthFilter" onchange="updateDashboard()">
+                <option value="all">Todos los meses</option>
+                <option value="noviembre">Noviembre</option>
+                <option value="diciembre">Diciembre</option>
+                <option value="enero">Enero</option>
+            </select>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>🥇 Mejor Jugador</h3>
+                <div class="stat-value" id="topPlayer">-</div>
+                <div class="stat-label" id="topPlayerStats">-</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🎯 Mejor Mazo</h3>
+                <div class="stat-value" id="topDeck">-</div>
+                <div class="stat-label" id="topDeckStats">-</div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>Top 10 Jugadores por Puntos</h3>
+                <canvas id="playersChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Rendimiento de Mazos (%V)</h3>
+                <canvas id="decksChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-container" style="margin-bottom: 30px;">
+            <h3>Ranking General de Jugadores</h3>
+            <div id="playerRanking"></div>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Análisis Detallado de Mazos</h3>
+            <div id="deckAnalysis"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Datos del torneo
+        const tournamentData = [
+            // NOVIEMBRE
+            {puesto:1,nombre:"Marco Alvarez",puntos:7,victorias:2,derrotas:0,empates:1,pv:63.00,po:62.50,jgo:61.90,arquetipo:"Dimir Midrange",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:2,nombre:"Alexander Ghio' The Fury",puntos:7,victorias:2,derrotas:0,empates:1,pv:61.10,po:71.40,jgo:52.70,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:3,nombre:"Hugo Torres",puntos:6,victorias:2,derrotas:1,empates:0,pv:48.10,po:57.10,jgo:48.60,arquetipo:"Simic Aggro",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:4,nombre:"Mario Canto",puntos:4,victorias:1,derrotas:1,empates:1,pv:51.90,po:57.10,jgo:46.20,arquetipo:"4c Control",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:5,nombre:"Juan Rivera",puntos:4,victorias:1,derrotas:1,empates:1,pv:51.90,po:42.90,jgo:59.50,arquetipo:"Tuti-frutech",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:6,nombre:"Jonathan Sepulveda Sobarzo",puntos:3,victorias:1,derrotas:2,empates:0,pv:55.60,po:50.00,jgo:50.00,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:7,nombre:"Alvaro Pizarro",puntos:3,victorias:1,derrotas:2,empates:0,pv:55.60,po:33.30,jgo:57.10,arquetipo:"Dimir Mill",tienda:"Todo Freak",fecha:"15/11/2025",evento:"Showdown",mes:"noviembre"},
+            {puesto:1,nombre:"Gregori Bruna",puntos:12,victorias:4,derrotas:0,empates:0,pv:52.10,po:88.90,jgo:48.00,arquetipo:"Naya Yuna",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:2,nombre:"Jonathan Sepulveda Sobarzo",puntos:9,victorias:3,derrotas:1,empates:0,pv:54.20,po:54.50,jgo:56.80,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:3,nombre:"Dustin Aranda",puntos:7,victorias:2,derrotas:1,empates:1,pv:38.90,po:60.00,jgo:42.50,arquetipo:"Sultai Reanimator",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:4,nombre:"Claudio Olguín Pizarro",puntos:6,victorias:2,derrotas:2,empates:0,pv:60.40,po:50.00,jgo:60.40,arquetipo:"Dimir Midrange",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:5,nombre:"Javier Ferreira",puntos:6,victorias:2,derrotas:2,empates:0,pv:58.30,po:50.00,jgo:58.00,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:6,nombre:"Mario Vega",puntos:6,victorias:2,derrotas:2,empates:0,pv:52.80,po:55.60,jgo:48.20,arquetipo:"Boros Mice",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:7,nombre:"Alvaro Pizarro",puntos:4,victorias:1,derrotas:2,empates:1,pv:60.40,po:37.50,jgo:59.70,arquetipo:"Dimir Mill",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:8,nombre:"Juan Rivera",puntos:3,victorias:1,derrotas:2,empates:0,pv:62.50,po:42.90,jgo:52.30,arquetipo:"5c Ally",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            {puesto:9,nombre:"José Miguel Reyes",puntos:3,victorias:1,derrotas:3,empates:0,pv:54.20,po:40.00,jgo:51.90,arquetipo:"Izzet Riddler",tienda:"Todo Freak",fecha:"29/11/2025",evento:"Teleton",mes:"noviembre"},
+            
+            // DICIEMBRE - SARC 13/12
+            {puesto:1,nombre:"Jonathan Sepulveda Sobarzo",puntos:16,victorias:5,derrotas:1,empates:1,pv:48.80,po:60.00,jgo:47.20,arquetipo:"Mono Red Coyote",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:2,nombre:"Franco Biggio (Naivak) 🐸",puntos:13,victorias:4,derrotas:2,empates:1,pv:58.80,po:52.90,jgo:54.60,arquetipo:"Azorius Artifact",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:3,nombre:"Julian Prado",puntos:10,victorias:3,derrotas:2,empates:1,pv:57.40,po:53.30,jgo:52.00,arquetipo:"4c control",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:4,nombre:"Mario Vega",puntos:10,victorias:3,derrotas:2,empates:1,pv:46.20,po:50.00,jgo:44.60,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:5,nombre:"Ignacio Valenzuela",puntos:9,victorias:3,derrotas:2,empates:0,pv:46.00,po:63.60,jgo:43.20,arquetipo:"Izzet lessons",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:6,nombre:"Cristian Valenzuela",puntos:7,victorias:2,derrotas:2,empates:1,pv:50.30,po:46.20,jgo:45.90,arquetipo:"Jeskai Control",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:7,nombre:"Dustin Aranda",puntos:7,victorias:2,derrotas:2,empates:1,pv:49.00,po:50.00,jgo:44.60,arquetipo:"Sultai Reanimator",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:8,nombre:"TBE Felipe Hidalgo",puntos:3,victorias:1,derrotas:4,empates:0,pv:52.20,po:33.30,jgo:52.40,arquetipo:"Izzet Looting",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:9,nombre:"Marcelo López Lagos",puntos:3,victorias:1,derrotas:3,empates:0,pv:51.10,po:33.30,jgo:49.90,arquetipo:"Izzet lessons",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            {puesto:10,nombre:"Ignacio Javier Villacura de la Paz",puntos:0,victorias:0,derrotas:2,empates:0,pv:68.10,po:33.30,jgo:61.80,arquetipo:"Orzhov lifegain",tienda:"Todo Freak",fecha:"13/12/2025",evento:"SARC",mes:"diciembre"},
+            
+            // DICIEMBRE - Showdown 20/12
+            {puesto:1,nombre:"Dustin Aranda",puntos:10,victorias:3,derrotas:0,empates:1,pv:64.60,po:63.60,jgo:58.40,arquetipo:"Sultai Reanimator",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:2,nombre:"Ignacio Valenzuela",puntos:10,victorias:3,derrotas:0,empates:1,pv:50.00,po:63.60,jgo:48.30,arquetipo:"Izzet Lessons",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:3,nombre:"Mario Vega",puntos:9,victorias:3,derrotas:1,empates:0,pv:60.40,po:54.50,jgo:56.40,arquetipo:"Simic Aggro",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:4,nombre:"Gregori Bruna",puntos:9,victorias:3,derrotas:1,empates:0,pv:50.00,po:70.00,jgo:55.20,arquetipo:"Naya Yuna",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:5,nombre:"Cristian Cruz Calderón",puntos:7,victorias:2,derrotas:1,empates:1,pv:43.80,po:57.60,jgo:41.90,arquetipo:"Azorius Tempo",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:6,nombre:"Franco Biggio (Naivak) 🐸",puntos:6,victorias:2,derrotas:2,empates:0,pv:66.70,po:50.00,jgo:55.40,arquetipo:"Jeskai Artifact",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:7,nombre:"Juan Rivera",puntos:6,victorias:2,derrotas:2,empates:0,pv:56.30,po:60.00,jgo:52.60,arquetipo:"5c Ally",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:8,nombre:"TBE Felipe Hidalgo",puntos:6,victorias:2,derrotas:2,empates:0,pv:56.30,po:55.60,jgo:50.80,arquetipo:"Izzet Looting",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:9,nombre:"Claudio Olguín Pizarro",puntos:6,victorias:2,derrotas:2,empates:0,pv:43.80,po:54.50,jgo:39.40,arquetipo:"Monoblack Demons",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:10,nombre:"Mario Canto",puntos:4,victorias:1,derrotas:2,empates:1,pv:63.90,po:43.30,jgo:60.40,arquetipo:"4C Control",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:11,nombre:"Pedro Aravena Gonzalez",puntos:3,victorias:1,derrotas:3,empates:0,pv:60.40,po:36.40,jgo:57.80,arquetipo:"Dimir Midrange",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:12,nombre:"Jonathan Sepulveda Sobarzo",puntos:3,victorias:1,derrotas:3,empates:0,pv:52.80,po:33.30,jgo:55.90,arquetipo:"Mono Red Coyote",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:13,nombre:"Roderick Olivares",puntos:3,victorias:1,derrotas:3,empates:0,pv:50.00,po:33.30,jgo:54.80,arquetipo:"Azorius control",tienda:"Todo Freak",fecha:"20/12/2025",evento:"showdown",mes:"diciembre"},
+            
+            // DICIEMBRE - Showdown 27/12
+            {puesto:1,nombre:"Dustin Aranda",puntos:10,victorias:3,derrotas:0,empates:1,pv:60.40,po:77.80,jgo:56.10,arquetipo:"Sultai Reanimator",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:2,nombre:"Gregori Bruna",puntos:10,victorias:3,derrotas:0,empates:1,pv:58.30,po:70.00,jgo:60.60,arquetipo:"Naya Yuna",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:3,nombre:"Ignacio Valenzuela",puntos:7,victorias:2,derrotas:1,empates:1,pv:50.00,po:54.50,jgo:49.70,arquetipo:"Izzet Lessons",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:4,nombre:"Marcelo Briceño",puntos:6,victorias:2,derrotas:2,empates:0,pv:66.70,po:50.00,jgo:61.80,arquetipo:"MonoBlack",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:5,nombre:"Claudio Olguín Pizarro",puntos:6,victorias:2,derrotas:2,empates:0,pv:63.90,po:50.00,jgo:62.30,arquetipo:"MonoBlack Demons",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:6,nombre:"José Miguel Reyes",puntos:6,victorias:2,derrotas:2,empates:0,pv:55.60,po:60.00,jgo:52.60,arquetipo:"Bant Airbend",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:7,nombre:"Mario Vega",puntos:6,victorias:2,derrotas:2,empates:0,pv:54.20,po:54.50,jgo:53.30,arquetipo:"Mono Red Leyline",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:8,nombre:"Roderick Olivares",puntos:4,victorias:1,derrotas:2,empates:1,pv:47.20,po:37.50,jgo:46.00,arquetipo:"Azorius control",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            {puesto:9,nombre:"Hugo Torres",puntos:3,victorias:1,derrotas:3,empates:0,pv:47.90,po:33.30,jgo:51.60,arquetipo:"Simic Ouroboroid",tienda:"Todo Freak",fecha:"27/12/2025",evento:"showdown",mes:"diciembre"},
+            
+            // ENERO - Showdown 03/01
+            {puesto:1,nombre:"Dustin Aranda",puntos:10,victorias:3,derrotas:0,empates:1,pv:62.50,po:70.00,jgo:55.80,arquetipo:"Sultai Reanimator",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:2,nombre:"Franco Biggio (Naivak) 🐸",puntos:10,victorias:3,derrotas:0,empates:1,pv:54.20,po:70.00,jgo:51.10,arquetipo:"Jeskai Artifact",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:3,nombre:"Alexander Ghio' The Fury",puntos:9,victorias:3,derrotas:1,empates:0,pv:50.00,po:70.00,jgo:49.00,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:4,nombre:"TBE Felipe Hidalgo",puntos:7,victorias:2,derrotas:1,empates:1,pv:56.30,po:50.00,jgo:56.40,arquetipo:"Izzet blink",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:5,nombre:"Mario Chacaltana",puntos:7,victorias:2,derrotas:1,empates:1,pv:39.60,po:66.70,jgo:39.90,arquetipo:"Jeskai Control",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:6,nombre:"Pedro Aravena Gonzalez",puntos:7,victorias:2,derrotas:1,empates:1,pv:33.30,po:62.50,jgo:36.80,arquetipo:"Dimir Midrange",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:7,nombre:"Hugo Torres",puntos:6,victorias:2,derrotas:2,empates:0,pv:56.30,po:45.50,jgo:51.70,arquetipo:"Simi Ouroboroid",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:8,nombre:"Cristian Cruz Calderón",puntos:6,victorias:2,derrotas:2,empates:0,pv:52.10,po:55.60,jgo:47.70,arquetipo:"Azorius Tempo",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:9,nombre:"Mario Canto",puntos:4,victorias:1,derrotas:2,empates:1,pv:54.20,po:37.50,jgo:55.30,arquetipo:"Jeskai Control",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:10,nombre:"José Miguel Reyes",puntos:3,victorias:1,derrotas:2,empates:0,pv:66.70,po:33.30,jgo:66.40,arquetipo:"Golgari Ouroboroid",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:11,nombre:"Gregori Bruna",puntos:3,victorias:1,derrotas:2,empates:0,pv:63.90,po:42.90,jgo:66.40,arquetipo:"Naya Yuna",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:12,nombre:"Claudio Olguín Pizarro",puntos:3,victorias:1,derrotas:3,empates:0,pv:50.00,po:33.30,jgo:50.30,arquetipo:"Monoblack Demons",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:13,nombre:"Mario Vega",puntos:3,victorias:1,derrotas:3,empates:0,pv:47.20,po:33.30,jgo:48.50,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:14,nombre:"Javier Ferreira",puntos:0,victorias:0,derrotas:3,empates:0,pv:55.60,po:33.30,jgo:51.00,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"3/1/2026",evento:"showdown",mes:"enero"},
+            
+            // ENERO - Showdown 10/01
+            {puesto:1,nombre:"Claudio Olguín Pizarro",puntos:9,victorias:3,derrotas:1,empates:0,pv:68.80,po:63.60,jgo:61.50,arquetipo:"Gruul Delirium",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:2,nombre:"Jonathan Sepulveda Sobarzo",puntos:9,victorias:3,derrotas:1,empates:0,pv:62.50,po:60.00,jgo:59.00,arquetipo:"Mono Red Coyote",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:3,nombre:"José Miguel Reyes",puntos:9,victorias:3,derrotas:1,empates:0,pv:58.30,po:66.70,jgo:51.10,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:4,nombre:"Ignacio Javier Villacura de la Paz",puntos:9,victorias:3,derrotas:1,empates:0,pv:52.10,po:63.60,jgo:49.90,arquetipo:"Orzhov lifegain",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:5,nombre:"Cristian Cruz Calderón",puntos:6,victorias:2,derrotas:2,empates:0,pv:61.10,po:55.60,jgo:53.30,arquetipo:"Azorius Tempo",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:6,nombre:"Ignacio Valenzuela",puntos:6,victorias:2,derrotas:2,empates:0,pv:58.30,po:50.00,jgo:52.50,arquetipo:"Izzet Lessons",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:7,nombre:"Mario Vega",puntos:6,victorias:2,derrotas:2,empates:0,pv:58.30,po:44.40,jgo:57.60,arquetipo:"Boros Dragons",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:8,nombre:"Dustin Aranda",puntos:6,victorias:2,derrotas:2,empates:0,pv:44.40,po:50.00,jgo:45.40,arquetipo:"Simic Ouroboroid",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:9,nombre:"TBE Felipe Hidalgo",puntos:3,victorias:1,derrotas:3,empates:0,pv:52.10,po:36.40,jgo:53.50,arquetipo:"Simic Ouroboroid",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:10,nombre:"Javier Ferreira",puntos:3,victorias:1,derrotas:3,empates:0,pv:47.90,po:41.70,jgo:50.00,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:11,nombre:"Alexander Ghio' The Fury",puntos:3,victorias:1,derrotas:2,empates:0,pv:41.70,po:50.00,jgo:43.10,arquetipo:"Boros Burn",tienda:"Todo Freak",fecha:"10/1/2026",evento:"showdown",mes:"enero"},
+            
+            // ENERO - Apañadores 17/01
+            {puesto:1,nombre:"José Miguel Reyes",puntos:3,victorias:1,derrotas:0,empates:0,pv:100,po:100,jgo:100,arquetipo:"",tienda:"Todo Freak",fecha:"17/1/2026",evento:"Apañadores",mes:"enero"},
+            {puesto:1,nombre:"Claudio Olguín Pizarro",puntos:3,victorias:1,derrotas:0,empates:0,pv:100,po:100,jgo:100,arquetipo:"",tienda:"Todo Freak",fecha:"17/1/2026",evento:"Apañadores",mes:"enero"},
+            {puesto:1,nombre:"Mario Canto",puntos:3,victorias:1,derrotas:0,empates:0,pv:100,po:100,jgo:100,arquetipo:"",tienda:"Todo Freak",fecha:"17/1/2026",evento:"Apañadores",mes:"enero"},
+            
+            // ENERO - Showdown 24/01
+            {puesto:1,nombre:"Mario Canto",puntos:9,victorias:3,derrotas:0,empates:0,pv:55.60,po:85.70,jgo:61.10,arquetipo:"Jeskai Control",tienda:"Todo Freak",fecha:"24/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:2,nombre:"Claudio Olguín Pizarro",puntos:6,victorias:2,derrotas:1,empates:0,pv:66.70,po:66.70,jgo:59.50,arquetipo:"RG Delirium",tienda:"Todo Freak",fecha:"24/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:3,nombre:"Javier Ferreira",puntos:6,victorias:2,derrotas:1,empates:0,pv:66.70,po:66.70,jgo:59.50,arquetipo:"Mono Red Aggro",tienda:"Todo Freak",fecha:"24/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:4,nombre:"Gregori Bruna",puntos:3,victorias:1,derrotas:2,empates:0,pv:66.70,po:50.00,jgo:59.50,arquetipo:"Naya Yuna",tienda:"Todo Freak",fecha:"24/1/2026",evento:"showdown",mes:"enero"},
+            {puesto:5,nombre:"Franco Biggio (Naivak) 🐸",puntos:3,victorias:1,derrotas:2,empates:0,pv:55.60,po:33.30,jgo:61.10,arquetipo:"Jeskai Artifact",tienda:"Todo Freak",fecha:"24/1/2026",evento:"showdown",mes:"enero"}
+        ];
+        
+        let playersChart, decksChart;
+        
+        function filterData(month) {
+            if (month === 'all') return tournamentData;
+            return tournamentData.filter(d => d.mes === month);
+        }
+        
+        function aggregatePlayerStats(data) {
+            const playerStats = {};
+            
+            data.forEach(row => {
+                if (!playerStats[row.nombre]) {
+                    playerStats[row.nombre] = {
+                        nombre: row.nombre,
+                        puntos: 0,
+                        victorias: 0,
+                        derrotas: 0,
+                        empates: 0,
+                        partidas: 0
+                    };
+                }
+                
+                playerStats[row.nombre].puntos += row.puntos;
+                playerStats[row.nombre].victorias += row.victorias;
+                playerStats[row.nombre].derrotas += row.derrotas;
+                playerStats[row.nombre].empates += row.empates;
+                playerStats[row.nombre].partidas += row.victorias + row.derrotas + row.empates;
+            });
+            
+            return Object.values(playerStats).sort((a, b) => b.puntos - a.puntos);
+        }
+        
+        function aggregateDeckStats(data) {
+            const deckStats = {};
+            
+            data.forEach(row => {
+                if (!deckStats[row.arquetipo]) {
+                    deckStats[row.arquetipo] = {
+                        arquetipo: row.arquetipo,
+                        victorias: 0,
+                        derrotas: 0,
+                        empates: 0,
+                        puntos: 0,
+                        apariciones: 0
+                    };
+                }
+                
+                deckStats[row.arquetipo].victorias += row.victorias;
+                deckStats[row.arquetipo].derrotas += row.derrotas;
+                deckStats[row.arquetipo].empates += row.empates;
+                deckStats[row.arquetipo].puntos += row.puntos;
+                deckStats[row.arquetipo].apariciones += 1;
+            });
+            
+            Object.values(deckStats).forEach(deck => {
+                const totalGames = deck.victorias + deck.derrotas + deck.empates;
+                deck.winRate = totalGames > 0 ? (deck.victorias / totalGames * 100).toFixed(1) : 0;
+            });
+            
+            return Object.values(deckStats).sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate));
+        }
+        
+        function updateDashboard() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const filteredData = filterData(selectedMonth);
+            
+            const playerStats = aggregatePlayerStats(filteredData);
+            const deckStats = aggregateDeckStats(filteredData);
+            
+            // Actualizar cards de estadísticas
+            const topPlayer = playerStats[0];
+            document.getElementById('topPlayer').textContent = topPlayer.nombre;
+            document.getElementById('topPlayerStats').textContent = 
+                `${topPlayer.puntos} pts | ${topPlayer.victorias}-${topPlayer.derrotas}-${topPlayer.empates}`;
+            
+            const topDeck = deckStats[0];
+            document.getElementById('topDeck').textContent = topDeck.arquetipo;
+            document.getElementById('topDeckStats').textContent = 
+                `${topDeck.winRate}% WR | ${topDeck.victorias}-${topDeck.derrotas}`;
+            
+            // Actualizar gráficos
+            updatePlayersChart(playerStats.slice(0, 10));
+            updateDecksChart(deckStats);
+            
+            // Actualizar tablas
+            updatePlayerRanking(playerStats);
+            updateDeckAnalysis(deckStats);
+        }
+        
+        function updatePlayersChart(players) {
+            const ctx = document.getElementById('playersChart').getContext('2d');
+            
+            if (playersChart) playersChart.destroy();
+            
+            playersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: players.map(p => p.nombre),
+                    datasets: [{
+                        label: 'Puntos',
+                        data: players.map(p => p.puntos),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function updateDecksChart(decks) {
+            const ctx = document.getElementById('decksChart').getContext('2d');
+            
+            if (decksChart) decksChart.destroy();
+            
+            const colors = [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)',
+                'rgba(83, 102, 255, 0.8)'
+            ];
+            
+            decksChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: decks.map(d => d.arquetipo),
+                    datasets: [{
+                        data: decks.map(d => parseFloat(d.winRate)),
+                        backgroundColor: colors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { boxWidth: 15, font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updatePlayerRanking(players) {
+            let html = '<table><thead><tr><th>Posición</th><th>Jugador</th><th>Puntos</th><th>V-D-E</th><th>%V</th></tr></thead><tbody>';
+            
+            players.forEach((player, index) => {
+                const winRate = player.partidas > 0 ? 
+                    (player.victorias / player.partidas * 100).toFixed(1) : 0;
+                
+                let medal = '';
+                if (index === 0) medal = '<span class="medal gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal bronze">🥉</span>';
+                
+                html += `<tr>
+                    <td>${medal}${index + 1}</td>
+                    <td>${player.nombre}</td>
+                    <td><strong>${player.puntos}</strong></td>
+                    <td>${player.victorias}-${player.derrotas}-${player.empates}</td>
+                    <td>${winRate}%</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('playerRanking').innerHTML = html;
+        }
+        
+        function updateDeckAnalysis(decks) {
+            let html = '<table><thead><tr><th>Mazo</th><th>Apariciones</th><th>V-D-E</th><th>%V</th><th>Puntos</th></tr></thead><tbody>';
+            
+            decks.forEach(deck => {
+                html += `<tr>
+                    <td><strong>${deck.arquetipo}</strong></td>
+                    <td>${deck.apariciones}</td>
+                    <td>${deck.victorias}-${deck.derrotas}-${deck.empates}</td>
+                    <td><strong>${deck.winRate}%</strong></td>
+                    <td>${deck.puntos}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('deckAnalysis').innerHTML = html;
+        }
+        
+        // Inicializar dashboard
+        updateDashboard();
+    </script>
+</body>
+</html>

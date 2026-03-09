@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Torneos Magic</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            height: 100%;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section-title {
+            color: var(--secondary-color);
+            border-left: 5px solid var(--primary-color);
+            padding-left: 15px;
+            margin: 2rem 0 1.5rem;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        .badge-arquetipo {
+            background-color: #e8f4fc;
+            color: var(--primary-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .ranking-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: 100%;
+            border-left: 5px solid var(--success-color);
+        }
+        
+        .player-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border-top: 3px solid transparent;
+        }
+        
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .player-name {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .player-stats {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .metric-value {
+                font-size: 1.8rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard Torneos Magic</h1>
+                    <p class="lead">Análisis profesional de torneos - Noviembre 2025 a Enero 2026</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-light text-dark fs-6 p-2">
+                        <i class="fas fa-calendar-alt"></i> 
+                        <span id="current-date"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container-fluid">
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Filtrar por Mes</label>
+                    <select id="filter-month" class="form-select">
+                        <option value="all">Todos los Meses</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                        <option value="1">Enero</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Filtrar por Arquetipo</label>
+                    <select id="filter-arquetipo" class="form-select">
+                        <option value="all">Todos los Arquetipos</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Filtrar por Jugador</label>
+                    <select id="filter-player" class="form-select">
+                        <option value="all">Todos los Jugadores</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Filtrar por Evento</label>
+                    <select id="filter-event" class="form-select">
+                        <option value="all">Todos los Eventos</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button id="reset-filters" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo"></i> Reiniciar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="metric-card">
+                    <div class="metric-label">Jugadores Únicos</div>
+                    <div class="metric-value" id="kpi-unique-players">0</div>
+                    <div class="mt-2">
+                        <small class="text-success"><i class="fas fa-user-plus"></i> Total registrados</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="metric-card">
+                    <div class="metric-label">Torneos Totales</div>
+                    <div class="metric-value" id="kpi-total-tournaments">0</div>
+                    <div class="mt-2">
+                        <small class="text-primary"><i class="fas fa-trophy"></i> Eventos jugados</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="metric-card">
+                    <div class="metric-label">Puntos Promedio</div>
+                    <div class="metric-value" id="kpi-avg-points">0.0</div>
+                    <div class="mt-2">
+                        <small class="text-warning"><i class="fas fa-chart-bar"></i> Por torneo</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="metric-card">
+                    <div class="metric-label">Win Rate Global</div>
+                    <div class="metric-value" id="kpi-win-rate">0%</div>
+                    <div class="mt-2">
+                        <small class="text-danger"><i class="fas fa-percentage"></i> %VPO promedio</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ranking-tab" data-bs-toggle="tab" data-bs-target="#ranking" type="button" role="tab">
+                    <i class="fas fa-trophy"></i> Ranking
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="arquetipos-tab" data-bs-toggle="tab" data-bs-target="#arquetipos" type="button" role="tab">
+                    <i class="fas fa-chess-board"></i> Arquetipos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tabla-tab" data-bs-toggle="tab" data-bs-target="#tabla" type="button" role="tab">
+                    <i class="fas fa-table"></i> Tabla General
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="analisis-tab" data-bs-toggle="tab" data-bs-target="#analisis" type="button" role="tab">
+                    <i class="fas fa-chart-pie"></i> Análisis
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="dashboardTabsContent">
+            
+            <!-- Tab 1: Ranking -->
+            <div class="tab-pane fade show active" id="ranking" role="tabpanel">
+                <h3 class="section-title">🏆 Ranking de Jugadores</h3>
+                
+                <!-- Top 10 Jugadores -->
+                <div class="chart-container mb-4">
+                    <h5>Top 10 Jugadores por Puntos Totales</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <canvas id="topPlayersChart"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="top-players-list" class="mt-3">
+                                <!-- List will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ranking Completo -->
+                <div class="table-container">
+                    <h5>Ranking Completo de Jugadores</h5>
+                    <table id="ranking-table" class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Posición</th>
+                                <th>Jugador</th>
+                                <th>Puntos Totales</th>
+                                <th>Puntos Promedio</th>
+                                <th>Win Rate</th>
+                                <th>Torneos</th>
+                                <th>Arquetipo Principal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tab 2: Arquetipos -->
+            <div class="tab-pane fade" id="arquetipos" role="tabpanel">
+                <h3 class="section-title">🃏 Análisis de Arquetipos</h3>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5>Arquetipos Más Populares</h5>
+                            <canvas id="arquetipoPopularityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5>Win Rate por Arquetipo (Top 10)</h5>
+                            <canvas id="arquetipoWinRateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h5>Estadísticas por Arquetipo</h5>
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Arquetipo</th>
+                                <th>Usos</th>
+                                <th>% Popularidad</th>
+                                <th>Puntos Promedio</th>
+                                <th>Win Rate</th>
+                                <th>Mejor Jugador</th>
+                            </tr>
+                        </thead>
+                        <tbody id="arquetipo-stats-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tab 3: Tabla General -->
+            <div class="tab-pane fade" id="tabla" role="tabpanel">
+                <h3 class="section-title">📋 Tabla General de Torneos</h3>
+                
+                <div class="table-container">
+                    <div class="mb-3 d-flex justify-content-between">
+                        <div>
+                            <button id="export-csv" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-file-csv"></i> Exportar CSV
+                            </button>
+                            <button id="print-table" class="btn btn-outline-primary btn-sm ms-2">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                        <div>
+                            <input type="text" id="table-search" class="form-control form-control-sm" placeholder="Buscar...">
+                        </div>
+                    </div>
+                    
+                    <table id="general-table" class="table table-striped table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Puesto</th>
+                                <th>Nombre</th>
+                                <th>Puntos</th>
+                                <th>V/D/E</th>
+                                <th>%VPO</th>
+                                <th>%JG</th>
+                                <th>%JGO</th>
+                                <th>Arquetipo</th>
+                                <th>Fecha</th>
+                                <th>Evento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Tab 4: Análisis -->
+            <div class="tab-pane fade" id="analisis" role="tabpanel">
+                <h3 class="section-title">💡 Análisis e Insights</h3>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5>Evolución Mensual - Puntos Promedio</h5>
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <h5>Performance por Tipo de Evento</h5>
+                            <canvas id="eventPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-4">
+                        <div class="insight-card">
+                            <h6><i class="fas fa-star text-warning"></i> Jugadores Más Consistentes</h6>
+                            <div id="consistent-players" class="mt-3">
+                                <!-- Data will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="insight-card">
+                            <h6><i class="fas fa-fire text-danger"></i> Jugadores en Racha Positiva</h6>
+                            <div id="hot-streak-players" class="mt-3">
+                                <!-- Data will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="insight-card">
+                            <h6><i class="fas fa-arrow-up text-success"></i> Mayor Mejora Mensual</h6>
+                            <div id="most-improved-players" class="mt-3">
+                                <!-- Data will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="chart-container">
+                            <h5>Distribución de Puntos por Torneo</h5>
+                            <canvas id="pointsDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detalle Jugador Seleccionado -->
+        <div id="player-detail-section" class="chart-container" style="display: none;">
+            <h3 class="section-title" id="player-detail-title"></h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="player-stats-detail"></div>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="player-tournament-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p><i class="fas fa-magic"></i> Dashboard Torneos Magic - Análisis Profesional</p>
+            <p class="small">Generado automáticamente con datos de torneos Noviembre 2025 - Enero 2026</p>
+            <p class="small">Actualizado: <span id="footer-date"></span></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard Script -->
+    <script>
+        // Datos completos de los torneos
+        const tournamentData = [
+            {Puesto: 1, Nombre: "Marco Alvarez", Puntos: 7, "V/D/E": "2/0/1", "%VPO": 63.00, "%JG": 62.50, "%JGO": 61.90, V: 2, D: 0, E: 1, Arquetipo: "Dimir Midrange", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 2, Nombre: "Alexander Ghio' The Fury", Puntos: 7, "V/D/E": "2/0/1", "%VPO": 61.10, "%JG": 71.40, "%JGO": 52.70, V: 2, D: 0, E: 1, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 3, Nombre: "Hugo Torres", Puntos: 6, "V/D/E": "2/1/0", "%VPO": 48.10, "%JG": 57.10, "%JGO": 48.60, V: 2, D: 1, E: 0, Arquetipo: "Simic Aggro", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 4, Nombre: "Mario Canto", Puntos: 4, "V/D/E": "1/1/1", "%VPO": 51.90, "%JG": 57.10, "%JGO": 46.20, V: 1, D: 1, E: 1, Arquetipo: "4c Control", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 5, Nombre: "Juan Rivera", Puntos: 4, "V/D/E": "1/1/1", "%VPO": 51.90, "%JG": 42.90, "%JGO": 59.50, V: 1, D: 1, E: 1, Arquetipo: "Tuti-frutech", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 6, Nombre: "Jonathan Sepulveda Sobarzo", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 55.60, "%JG": 50.00, "%JGO": 50.00, V: 1, D: 2, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 7, Nombre: "Alvaro Pizarro", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 55.60, "%JG": 33.30, "%JGO": 57.10, V: 1, D: 2, E: 0, Arquetipo: "Dimir Mill", Tienda: "Todo Freak", Fecha: "15/11/2025", Evento: "Showdown"},
+            {Puesto: 1, Nombre: "Gregori Bruna", Puntos: 12, "V/D/E": "4/0/0", "%VPO": 52.10, "%JG": 88.90, "%JGO": 48.00, V: 4, D: 0, E: 0, Arquetipo: "Naya Yuna", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 2, Nombre: "Jonathan Sepulveda Sobarzo", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 54.20, "%JG": 54.50, "%JGO": 56.80, V: 3, D: 1, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 3, Nombre: "Dustin Aranda", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 38.90, "%JG": 60.00, "%JGO": 42.50, V: 2, D: 1, E: 1, Arquetipo: "Sultai Reanimator", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 4, Nombre: "Claudio Olguín Pizarro", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 60.40, "%JG": 50.00, "%JGO": 60.40, V: 2, D: 2, E: 0, Arquetipo: "Dimir Midrange", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 5, Nombre: "Javier Ferreira", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 58.30, "%JG": 50.00, "%JGO": 58.00, V: 2, D: 2, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 6, Nombre: "Mario Vega", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 52.80, "%JG": 55.60, "%JGO": 48.20, V: 2, D: 2, E: 0, Arquetipo: "Boros Mice", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 7, Nombre: "Alvaro Pizarro", Puntos: 4, "V/D/E": "1/2/1", "%VPO": 60.40, "%JG": 37.50, "%JGO": 59.70, V: 1, D: 2, E: 1, Arquetipo: "Dimir Mill", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 8, Nombre: "Juan Rivera", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 62.50, "%JG": 42.90, "%JGO": 52.30, V: 1, D: 2, E: 0, Arquetipo: "5c Ally", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 9, Nombre: "José Miguel Reyes", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 54.20, "%JG": 40.00, "%JGO": 51.90, V: 1, D: 3, E: 0, Arquetipo: "Izzet Riddler", Tienda: "Todo Freak", Fecha: "29/11/2025", Evento: "Teleton"},
+            {Puesto: 1, Nombre: "Jonathan Sepulveda Sobarzo", Puntos: 16, "V/D/E": "5/1/1", "%VPO": 48.80, "%JG": 60.00, "%JGO": 47.20, V: 5, D: 1, E: 1, Arquetipo: "Mono Red Coyote", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 2, Nombre: "Franco Biggio (Naivak) 🐸", Puntos: 13, "V/D/E": "4/2/1", "%VPO": 58.80, "%JG": 52.90, "%JGO": 54.60, V: 4, D: 2, E: 1, Arquetipo: "Azorius Artifact", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 3, Nombre: "Julian Prado", Puntos: 10, "V/D/E": "3/2/1", "%VPO": 57.40, "%JG": 53.30, "%JGO": 52.00, V: 3, D: 2, E: 1, Arquetipo: "4c control", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 4, Nombre: "Mario Vega", Puntos: 10, "V/D/E": "3/2/1", "%VPO": 46.20, "%JG": 50.00, "%JGO": 44.60, V: 3, D: 2, E: 1, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 5, Nombre: "Ignacio Valenzuela", Puntos: 9, "V/D/E": "3/2/0", "%VPO": 46.00, "%JG": 63.60, "%JGO": 43.20, V: 3, D: 2, E: 0, Arquetipo: "Izzet lessons", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 6, Nombre: "Cristian Valenzuela", Puntos: 7, "V/D/E": "2/2/1", "%VPO": 50.30, "%JG": 46.20, "%JGO": 45.90, V: 2, D: 2, E: 1, Arquetipo: "Jeskai Control", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 7, Nombre: "Dustin Aranda", Puntos: 7, "V/D/E": "2/2/1", "%VPO": 49.00, "%JG": 50.00, "%JGO": 44.60, V: 2, D: 2, E: 1, Arquetipo: "Sultai Reanimator", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 8, Nombre: "TBE Felipe Hidalgo", Puntos: 3, "V/D/E": "1/4/0", "%VPO": 52.20, "%JG": 33.30, "%JGO": 52.40, V: 1, D: 4, E: 0, Arquetipo: "Izzet Looting", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 9, Nombre: "Marcelo López Lagos", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 51.10, "%JG": 33.30, "%JGO": 49.90, V: 1, D: 3, E: 0, Arquetipo: "Izzet lessons", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 10, Nombre: "Ignacio Javier Villacura de la Paz", Puntos: 0, "V/D/E": "0/2/0", "%VPO": 68.10, "%JG": 33.30, "%JGO": 61.80, V: 0, D: 2, E: 0, Arquetipo: "Orzhov lifegain", Tienda: "Todo Freak", Fecha: "13/12/2025", Evento: "SARC"},
+            {Puesto: 1, Nombre: "Dustin Aranda", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 64.60, "%JG": 63.60, "%JGO": 58.40, V: 3, D: 0, E: 1, Arquetipo: "Sultai Reanimator", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 2, Nombre: "Ignacio Valenzuela", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 50.00, "%JG": 63.60, "%JGO": 48.30, V: 3, D: 0, E: 1, Arquetipo: "Izzet Lessons", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 3, Nombre: "Mario Vega", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 60.40, "%JG": 54.50, "%JGO": 56.40, V: 3, D: 1, E: 0, Arquetipo: "Simic Aggro", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 4, Nombre: "Gregori Bruna", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 50.00, "%JG": 70.00, "%JGO": 55.20, V: 3, D: 1, E: 0, Arquetipo: "Naya Yuna", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 5, Nombre: "Cristian Cruz Calderón", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 43.80, "%JG": 57.60, "%JGO": 41.90, V: 2, D: 1, E: 1, Arquetipo: "Azorius Tempo", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 6, Nombre: "Franco Biggio (Naivak) 🐸", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 66.70, "%JG": 50.00, "%JGO": 55.40, V: 2, D: 2, E: 0, Arquetipo: "Jeskai Artifact", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 7, Nombre: "Juan Rivera", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 56.30, "%JG": 60.00, "%JGO": 52.60, V: 2, D: 2, E: 0, Arquetipo: "5c Ally", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 8, Nombre: "TBE Felipe Hidalgo", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 56.30, "%JG": 55.60, "%JGO": 50.80, V: 2, D: 2, E: 0, Arquetipo: "Izzet Looting", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 9, Nombre: "Claudio Olguín Pizarro", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 43.80, "%JG": 54.50, "%JGO": 39.40, V: 2, D: 2, E: 0, Arquetipo: "Monoblack Demons", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 10, Nombre: "Mario Canto", Puntos: 4, "V/D/E": "1/2/1", "%VPO": 63.90, "%JG": 43.30, "%JGO": 60.40, V: 1, D: 2, E: 1, Arquetipo: "4C Control", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 11, Nombre: "Pedro Aravena Gonzalez", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 60.40, "%JG": 36.40, "%JGO": 57.80, V: 1, D: 3, E: 0, Arquetipo: "Dimir Midrange", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 12, Nombre: "Jonathan Sepulveda Sobarzo", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 52.80, "%JG": 33.30, "%JGO": 55.90, V: 1, D: 3, E: 0, Arquetipo: "Mono Red Coyote", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 13, Nombre: "Roderick Olivares", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 50.00, "%JG": 33.30, "%JGO": 54.80, V: 1, D: 3, E: 0, Arquetipo: "Azorius control", Tienda: "Todo Freak", Fecha: "20/12/2025", Evento: "showdown"},
+            {Puesto: 1, Nombre: "Dustin Aranda", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 60.40, "%JG": 77.80, "%JGO": 56.10, V: 3, D: 0, E: 1, Arquetipo: "Sultai Reanimator", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 2, Nombre: "Gregori Bruna", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 58.30, "%JG": 70.00, "%JGO": 60.60, V: 3, D: 0, E: 1, Arquetipo: "Naya Yuna", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 3, Nombre: "Ignacio Valenzuela", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 50.00, "%JG": 54.50, "%JGO": 49.70, V: 2, D: 1, E: 1, Arquetipo: "Izzet Lessons", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 4, Nombre: "Marcelo Briceño", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 66.70, "%JG": 50.00, "%JGO": 61.80, V: 2, D: 2, E: 0, Arquetipo: "MonoBlack", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 5, Nombre: "Claudio Olguín Pizarro", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 63.90, "%JG": 50.00, "%JGO": 62.30, V: 2, D: 2, E: 0, Arquetipo: "MonoBlack Demons", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 6, Nombre: "José Miguel Reyes", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 55.60, "%JG": 60.00, "%JGO": 52.60, V: 2, D: 2, E: 0, Arquetipo: "Bant Airbend", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 7, Nombre: "Mario Vega", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 54.20, "%JG": 54.50, "%JGO": 53.30, V: 2, D: 2, E: 0, Arquetipo: "Mono Red Leyline", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 8, Nombre: "Roderick Olivares", Puntos: 4, "V/D/E": "1/2/1", "%VPO": 47.20, "%JG": 37.50, "%JGO": 46.00, V: 1, D: 2, E: 1, Arquetipo: "Azorius control", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 9, Nombre: "Hugo Torres", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 47.90, "%JG": 33.30, "%JGO": 51.60, V: 1, D: 3, E: 0, Arquetipo: "Simic Ouroboroid", Tienda: "Todo Freak", Fecha: "27/12/2025", Evento: "showdown"},
+            {Puesto: 1, Nombre: "Dustin Aranda", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 62.50, "%JG": 70.00, "%JGO": 55.80, V: 3, D: 0, E: 1, Arquetipo: "Sultai Reanimator", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 2, Nombre: "Franco Biggio (Naivak) 🐸", Puntos: 10, "V/D/E": "3/0/1", "%VPO": 54.20, "%JG": 70.00, "%JGO": 51.10, V: 3, D: 0, E: 1, Arquetipo: "Jeskai Artifact", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 3, Nombre: "Alexander Ghio' The Fury", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 50.00, "%JG": 70.00, "%JGO": 49.00, V: 3, D: 1, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 4, Nombre: "TBE Felipe Hidalgo", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 56.30, "%JG": 50.00, "%JGO": 56.40, V: 2, D: 1, E: 1, Arquetipo: "Izzet blink", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 5, Nombre: "Mario Chacaltana", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 39.60, "%JG": 66.70, "%JGO": 39.90, V: 2, D: 1, E: 1, Arquetipo: "Jeskai Control", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 6, Nombre: "Pedro Aravena Gonzalez", Puntos: 7, "V/D/E": "2/1/1", "%VPO": 33.30, "%JG": 62.50, "%JGO": 36.80, V: 2, D: 1, E: 1, Arquetipo: "Dimir Midrange", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 7, Nombre: "Hugo Torres", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 56.30, "%JG": 45.50, "%JGO": 51.70, V: 2, D: 2, E: 0, Arquetipo: "Simi Ouroboroid", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 8, Nombre: "Cristian Cruz Calderón", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 52.10, "%JG": 55.60, "%JGO": 47.70, V: 2, D: 2, E: 0, Arquetipo: "Azorius Tempo", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 9, Nombre: "Mario Canto", Puntos: 4, "V/D/E": "1/2/1", "%VPO": 54.20, "%JG": 37.50, "%JGO": 55.30, V: 1, D: 2, E: 1, Arquetipo: "Jeskai Control", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 10, Nombre: "José Miguel Reyes", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 66.70, "%JG": 33.30, "%JGO": 66.40, V: 1, D: 2, E: 0, Arquetipo: "Golgari Ouroboroid", Tienda: "Todo Freak", Fecha: "3/1/2025", Evento: "showdown"},
+            {Puesto: 11, Nombre: "Gregori Bruna", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 63.90, "%JG": 42.90, "%JGO": 66.40, V: 1, D: 2, E: 0, Arquetipo: "Naya Yuna", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 12, Nombre: "Claudio Olguín Pizarro", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 50.00, "%JG": 33.30, "%JGO": 50.30, V: 1, D: 3, E: 0, Arquetipo: "Monoblack Demons", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 13, Nombre: "Mario Vega", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 47.20, "%JG": 33.30, "%JGO": 48.50, V: 1, D: 3, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 14, Nombre: "Javier Ferreira", Puntos: 0, "V/D/E": "0/3/0", "%VPO": 55.60, "%JG": 33.30, "%JGO": 51.00, V: 0, D: 3, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "3/1/2026", Evento: "showdown"},
+            {Puesto: 1, Nombre: "Claudio Olguín Pizarro", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 68.80, "%JG": 63.60, "%JGO": 61.50, V: 3, D: 1, E: 0, Arquetipo: "Gruul Delirium", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 2, Nombre: "Jonathan Sepulveda Sobarzo", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 62.50, "%JG": 60.00, "%JGO": 59.00, V: 3, D: 1, E: 0, Arquetipo: "Mono Red Coyote", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 3, Nombre: "José Miguel Reyes", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 58.30, "%JG": 66.70, "%JGO": 51.10, V: 3, D: 1, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 4, Nombre: "Ignacio Javier Villacura de la Paz", Puntos: 9, "V/D/E": "3/1/0", "%VPO": 52.10, "%JG": 63.60, "%JGO": 49.90, V: 3, D: 1, E: 0, Arquetipo: "Orzhov lifegain", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 5, Nombre: "Cristian Cruz Calderón", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 61.10, "%JG": 55.60, "%JGO": 53.30, V: 2, D: 2, E: 0, Arquetipo: "Azorius Tempo", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 6, Nombre: "Ignacio Valenzuela", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 58.30, "%JG": 50.00, "%JGO": 52.50, V: 2, D: 2, E: 0, Arquetipo: "Izzet Lessons", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 7, Nombre: "Mario Vega", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 58.30, "%JG": 44.40, "%JGO": 57.60, V: 2, D: 2, E: 0, Arquetipo: "Boros Dragons", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 8, Nombre: "Dustin Aranda", Puntos: 6, "V/D/E": "2/2/0", "%VPO": 44.40, "%JG": 50.00, "%JGO": 45.40, V: 2, D: 2, E: 0, Arquetipo: "Simic Ouroboroid", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 9, Nombre: "TBE Felipe Hidalgo", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 52.10, "%JG": 36.40, "%JGO": 53.50, V: 1, D: 3, E: 0, Arquetipo: "Simic Ouroboroid", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 10, Nombre: "Javier Ferreira", Puntos: 3, "V/D/E": "1/3/0", "%VPO": 47.90, "%JG": 41.70, "%JGO": 50.00, V: 1, D: 3, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 11, Nombre: "Alexander Ghio' The Fury", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 41.70, "%JG": 50.00, "%JGO": 43.10, V: 1, D: 2, E: 0, Arquetipo: "Boros Burn", Tienda: "Todo Freak", Fecha: "10/1/2026", Evento: "showdown"},
+            {Puesto: 1, Nombre: "Mario Canto", Puntos: 9, "V/D/E": "3/0/0", "%VPO": 55.60, "%JG": 85.70, "%JGO": 61.10, V: 3, D: 0, E: 0, Arquetipo: "Jeskai Control", Tienda: "Todo Freak", Fecha: "24/1/2026", Evento: "showdown"},
+            {Puesto: 2, Nombre: "Claudio Olguín Pizarro", Puntos: 6, "V/D/E": "2/1/0", "%VPO": 66.70, "%JG": 66.70, "%JGO": 59.50, V: 2, D: 1, E: 0, Arquetipo: "RG Delirium", Tienda: "Todo Freak", Fecha: "24/1/2026", Evento: "showdown"},
+            {Puesto: 3, Nombre: "Javier Ferreira", Puntos: 6, "V/D/E": "2/1/0", "%VPO": 66.70, "%JG": 66.70, "%JGO": 59.50, V: 2, D: 1, E: 0, Arquetipo: "Mono Red Aggro", Tienda: "Todo Freak", Fecha: "24/1/2026", Evento: "showdown"},
+            {Puesto: 4, Nombre: "Gregori Bruna", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 66.70, "%JG": 50.00, "%JGO": 59.50, V: 1, D: 2, E: 0, Arquetipo: "Naya Yuna", Tienda: "Todo Freak", Fecha: "24/1/2026", Evento: "showdown"},
+            {Puesto: 5, Nombre: "Franco Biggio (Naivak) 🐸", Puntos: 3, "V/D/E": "1/2/0", "%VPO": 55.60, "%JG": 33.30, "%JGO": 61.10, V: 1, D: 2, E: 0, Arquetipo: "Jeskai Artifact", Tienda: "Todo Freak", Fecha: "24/1/2026", Evento: "showdown"}
+        ];
+
+        // Variables globales
+        let filteredData = [...tournamentData];
+        let charts = {};
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('es-ES', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('footer-date').textContent = now.toLocaleDateString();
+            
+            // Inicializar filtros
+            initializeFilters();
+            
+            // Inicializar dashboard
+            initializeDashboard();
+            
+            // Configurar eventos
+            setupEventListeners();
+        });
+
+        // Inicializar filtros
+        function initializeFilters() {
+            // Obtener valores únicos para filtros
+            const arquetipos = [...new Set(tournamentData.map(item => item.Arquetipo).filter(Boolean))].sort();
+            const jugadores = [...new Set(tournamentData.map(item => item.Nombre))].sort();
+            const eventos = [...new Set(tournamentData.map(item => item.Evento))].sort();
+            
+            // Llenar filtro de arquetipos
+            const arquetipoSelect = document.getElementById('filter-arquetipo');
+            arquetipos.forEach(arquetipo => {
+                const option = document.createElement('option');
+                option.value = arquetipo;
+                option.textContent = arquetipo;
+                arquetipoSelect.appendChild(option);
+            });
+            
+            // Llenar filtro de jugadores
+            const jugadorSelect = document.getElementById('filter-player');
+            jugadores.forEach(jugador => {
+                const option = document.createElement('option');
+                option.value = jugador;
+                option.textContent = jugador;
+                jugadorSelect.appendChild(option);
+            });
+            
+            // Llenar filtro de eventos
+            const eventSelect = document.getElementById('filter-event');
+            eventos.forEach(evento => {
+                const option = document.createElement('option');
+                option.value = evento;
+                option.textContent = evento;
+                eventSelect.appendChild(option);
+            });
+        }
+
+        // Configurar eventos
+        function setupEventListeners() {
+            // Filtros
+            document.getElementById('filter-month').addEventListener('change', applyFilters);
+            document.getElementById('filter-arquetipo').addEventListener('change', applyFilters);
+            document.getElementById('filter-player').addEventListener('change', applyFilters);
+            document.getElementById('filter-event').addEventListener('change', applyFilters);
+            
+            // Reiniciar filtros
+            document.getElementById('reset-filters').addEventListener('click', function() {
+                document.getElementById('filter-month').value = 'all';
+                document.getElementById('filter-arquetipo').value = 'all';
+                document.getElementById('filter-player').value = 'all';
+                document.getElementById('filter-event').value = 'all';
+                applyFilters();
+            });
+            
+            // Exportar CSV
+            document.getElementById('export-csv').addEventListener('click', exportToCSV);
+            
+            // Imprimir
+            document.getElementById('print-table').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Buscar en tabla
+            document.getElementById('table-search').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#table-body tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            const monthFilter = document.getElementById('filter-month').value;
+            const arquetipoFilter = document.getElementById('filter-arquetipo').value;
+            const playerFilter = document.getElementById('filter-player').value;
+            const eventFilter = document.getElementById('filter-event').value;
+            
+            filteredData = tournamentData.filter(item => {
+                // Filtrar por mes
+                if (monthFilter !== 'all') {
+                    const fechaParts = item.Fecha.split('/');
+                    const itemMonth = parseInt(fechaParts[1]);
+                    if (itemMonth !== parseInt(monthFilter)) return false;
+                }
+                
+                // Filtrar por arquetipo
+                if (arquetipoFilter !== 'all' && item.Arquetipo !== arquetipoFilter) return false;
+                
+                // Filtrar por jugador
+                if (playerFilter !== 'all' && item.Nombre !== playerFilter) return false;
+                
+                // Filtrar por evento
+                if (eventFilter !== 'all' && item.Evento !== eventFilter) return false;
+                
+                return true;
+            });
+            
+            // Actualizar dashboard con datos filtrados
+            updateDashboard();
+            
+            // Mostrar/ocultar detalle de jugador
+            if (playerFilter !== 'all') {
+                showPlayerDetail(playerFilter);
+            } else {
+                document.getElementById('player-detail-section').style.display = 'none';
+            }
+        }
+
+        // Inicializar dashboard
+        function initializeDashboard() {
+            updateDashboard();
+        }
+
+        // Actualizar dashboard completo
+        function updateDashboard() {
+            updateKPIs();
+            updateRanking();
+            updateArquetipoAnalysis();
+            updateGeneralTable();
+            updateCharts();
+            updateInsights();
+        }
+
+        // Actualizar KPIs
+        function updateKPIs() {
+            const uniquePlayers = new Set(filteredData.map(item => item.Nombre)).size;
+            const uniqueTournaments = new Set(filteredData.map(item => `${item.Fecha}-${item.Evento}`)).size;
+            const avgPoints = filteredData.length > 0 ? 
+                (filteredData.reduce((sum, item) => sum + item.Puntos, 0) / filteredData.length).toFixed(1) : 0;
+            const avgWinRate = filteredData.length > 0 ? 
+                (filteredData.reduce((sum, item) => sum + item["%VPO"], 0) / filteredData.length).toFixed(1) : 0;
+            
+            document.getElementById('kpi-unique-players').textContent = uniquePlayers;
+            document.getElementById('kpi-total-tournaments').textContent = uniqueTournaments;
+            document.getElementById('kpi-avg-points').textContent = avgPoints;
+            document.getElementById('kpi-win-rate').textContent = avgWinRate + '%';
+        }
+
+        // Actualizar ranking
+        function updateRanking() {
+            // Calcular estadísticas por jugador
+            const playerStats = {};
+            
+            filteredData.forEach(item => {
+                if (!playerStats[item.Nombre]) {
+                    playerStats[item.Nombre] = {
+                        puntosTotales: 0,
+                        puntosPromedio: 0,
+                        winRate: 0,
+                        torneos: 0,
+                        victorias: 0,
+                        derrotas: 0,
+                        empates: 0,
+                        arquetipos: {}
+                    };
+                }
+                
+                const stats = playerStats[item.Nombre];
+                stats.puntosTotales += item.Puntos;
+                stats.torneos++;
+                stats.victorias += item.V;
+                stats.derrotas += item.D;
+                stats.empates += item.E;
+                
+                // Track arquetipos usados
+                if (item.Arquetipo) {
+                    if (!stats.arquetipos[item.Arquetipo]) {
+                        stats.arquetipos[item.Arquetipo] = 0;
+                    }
+                    stats.arquetipos[item.Arquetipo]++;
+                }
+                
+                // Acumular win rate para promedio
+                stats.winRate += item["%VPO"];
+            });
+            
+            // Calcular promedios
+            Object.keys(playerStats).forEach(player => {
+                const stats = playerStats[player];
+                stats.puntosPromedio = (stats.puntosTotales / stats.torneos).toFixed(1);
+                stats.winRate = (stats.winRate / stats.torneos).toFixed(1);
+                
+                // Determinar arquetipo principal
+                let mainArquetipo = 'N/A';
+                let maxUses = 0;
+                Object.keys(stats.arquetipos).forEach(arq => {
+                    if (stats.arquetipos[arq] > maxUses) {
+                        maxUses = stats.arquetipos[arq];
+                        mainArquetipo = arq;
+                    }
+                });
+                stats.mainArquetipo = mainArquetipo;
+            });
+            
+            // Convertir a array y ordenar por puntos totales
+            const rankingArray = Object.keys(playerStats).map(player => ({
+                nombre: player,
+                ...playerStats[player]
+            })).sort((a, b) => b.puntosTotales - a.puntosTotales);
+            
+            // Actualizar tabla de ranking
+            const rankingBody = document.getElementById('ranking-body');
+            rankingBody.innerHTML = '';
+            
+            rankingArray.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${player.nombre}</strong></td>
+                    <td>${player.puntosTotales}</td>
+                    <td>${player.puntosPromedio}</td>
+                    <td>${player.winRate}%</td>
+                    <td>${player.torneos}</td>
+                    <td><span class="badge-arquetipo">${player.mainArquetipo}</span></td>
+                `;
+                rankingBody.appendChild(row);
+            });
+            
+            // Actualizar gráfico de top 10
+            updateTopPlayersChart(rankingArray.slice(0, 10));
+            
+            // Actualizar lista de top 10
+            updateTopPlayersList(rankingArray.slice(0, 10));
+        }
+
+        // Actualizar gráfico de top jugadores
+        function updateTopPlayersChart(topPlayers) {
+            const ctx = document.getElementById('topPlayersChart').getContext('2d');
+            
+            // Destruir gráfico anterior si existe
+            if (charts.topPlayersChart) {
+                charts.topPlayersChart.destroy();
+            }
+            
+            charts.topPlayersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topPlayers.map(p => p.nombre),
+                    datasets: [{
+                        label: 'Puntos Totales',
+                        data: topPlayers.map(p => p.puntosTotales),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                            '#9966FF', '#FF9F40', '#8AC926', '#1982C4',
+                            '#6A4C93', '#F15BB5'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const player = topPlayers[context.dataIndex];
+                                    return `Puntos: ${player.puntosTotales} | Torneos: ${player.torneos} | WR: ${player.winRate}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Puntos Totales'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Actualizar lista de top jugadores
+        function updateTopPlayersList(topPlayers) {
+            const container = document.getElementById('top-players-list');
+            container.innerHTML = '';
+            
+            topPlayers.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = 'player-card mb-3';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="ranking-number">${index + 1}</span>
+                            <span class="player-name">${player.nombre}</span>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${player.puntosTotales} pts</div>
+                            <small class="text-muted">${player.torneos} torneos</small>
+                        </div>
+                    </div>
+                    <div class="player-stats mt-2">
+                        <small>WR: ${player.winRate}% | Arquetipo: ${player.mainArquetipo}</small>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Actualizar análisis de arquetipos
+        function updateArquetipoAnalysis() {
+            // Calcular estadísticas por arquetipo
+            const arquetipoStats = {};
+            
+            filteredData.forEach(item => {
+                if (!item.Arquetipo) return;
+                
+                if (!arquetipoStats[item.Arquetipo]) {
+                    arquetipoStats[item.Arquetipo] = {
+                        usos: 0,
+                        puntosTotales: 0,
+                        winRate: 0,
+                        jugadores: new Set(),
+                        mejorJugador: '',
+                        mejorPuntos: 0
+                    };
+                }
+                
+                const stats = arquetipoStats[item.Arquetipo];
+                stats.usos++;
+                stats.puntosTotales += item.Puntos;
+                stats.winRate += item["%VPO"];
+                stats.jugadores.add(item.Nombre);
+                
+                // Trackear mejor jugador con este arquetipo
+                if (item.Puntos > stats.mejorPuntos) {
+                    stats.mejorPuntos = item.Puntos;
+                    stats.mejorJugador = item.Nombre;
+                }
+            });
+            
+            // Calcular promedios
+            Object.keys(arquetipoStats).forEach(arq => {
+                const stats = arquetipoStats[arq];
+                stats.puntosPromedio = (stats.puntosTotales / stats.usos).toFixed(1);
+                stats.winRate = (stats.winRate / stats.usos).toFixed(1);
+                stats.jugadoresUnicos = stats.jugadores.size;
+                stats.popularidad = ((stats.usos / filteredData.length) * 100).toFixed(1);
+            });
+            
+            // Convertir a array y ordenar por usos
+            const arquetipoArray = Object.keys(arquetipoStats).map(arq => ({
+                nombre: arq,
+                ...arquetipoStats[arq]
+            })).sort((a, b) => b.usos - a.usos);
+            
+            // Actualizar tabla de arquetipos
+            const arquetipoBody = document.getElementById('arquetipo-stats-body');
+            arquetipoBody.innerHTML = '';
+            
+            arquetipoArray.forEach(arq => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="badge-arquetipo">${arq.nombre}</span></td>
+                    <td>${arq.usos}</td>
+                    <td>${arq.popularidad}%</td>
+                    <td>${arq.puntosPromedio}</td>
+                    <td>${arq.winRate}%</td>
+                    <td>${arq.mejorJugador} (${arq.mejorPuntos} pts)</td>
+                `;
+                arquetipoBody.appendChild(row);
+            });
+            
+            // Actualizar gráficos de arquetipos
+            updateArquetipoCharts(arquetipoArray);
+        }
+
+        // Actualizar gráficos de arquetipos
+        function updateArquetipoCharts(arquetipoArray) {
+            // Gráfico de popularidad (top 10)
+            const top10Popular = arquetipoArray.slice(0, 10);
+            const popularityCtx = document.getElementById('arquetipoPopularityChart').getContext('2d');
+            
+            if (charts.arquetipoPopularityChart) {
+                charts.arquetipoPopularityChart.destroy();
+            }
+            
+            charts.arquetipoPopularityChart = new Chart(popularityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: top10Popular.map(a => a.nombre),
+                    datasets: [{
+                        data: top10Popular.map(a => a.usos),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                            '#9966FF', '#FF9F40', '#8AC926', '#1982C4',
+                            '#6A4C93', '#F15BB5'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const arq = top10Popular[context.dataIndex];
+                                    return `${arq.nombre}: ${arq.usos} usos (${arq.popularidad}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de win rate (top 10 por win rate)
+            const top10WinRate = [...arquetipoArray]
+                .sort((a, b) => b.winRate - a.winRate)
+                .slice(0, 10);
+            const winRateCtx = document.getElementById('arquetipoWinRateChart').getContext('2d');
+            
+            if (charts.arquetipoWinRateChart) {
+                charts.arquetipoWinRateChart.destroy();
+            }
+            
+            charts.arquetipoWinRateChart = new Chart(winRateCtx, {
+                type: 'bar',
+                data: {
+                    labels: top10WinRate.map(a => a.nombre),
+                    datasets: [{
+                        label: 'Win Rate %',
+                        data: top10WinRate.map(a => parseFloat(a.winRate)),
+                        backgroundColor: top10WinRate.map((a, i) => 
+                            parseFloat(a.winRate) > 55 ? '#27ae60' : 
+                            parseFloat(a.winRate) > 50 ? '#f39c12' : '#e74c3c'
+                        )
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Win Rate %'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const arq = top10WinRate[context.dataIndex];
+                                    return `Win Rate: ${arq.winRate}% | Usos: ${arq.usos} | Pts Avg: ${arq.puntosPromedio}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Actualizar tabla general
+        function updateGeneralTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            // Ordenar por fecha (más reciente primero)
+            const sortedData = [...filteredData].sort((a, b) => {
+                const dateA = new Date(a.Fecha.split('/').reverse().join('-'));
+                const dateB = new Date(b.Fecha.split('/').reverse().join('-'));
+                return dateB - dateA;
+            });
+            
+            sortedData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.Puesto}</td>
+                    <td><strong>${item.Nombre}</strong></td>
+                    <td>${item.Puntos}</td>
+                    <td>${item["V/D/E"]}</td>
+                    <td>${item["%VPO"]}%</td>
+                    <td>${item["%JG"]}%</td>
+                    <td>${item["%JGO"]}%</td>
+                    <td><span class="badge-arquetipo">${item.Arquetipo || 'N/A'}</span></td>
+                    <td>${item.Fecha}</td>
+                    <td>${item.Evento}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Actualizar gráficos adicionales
+        function updateCharts() {
+            updateMonthlyTrendChart();
+            updateEventPerformanceChart();
+            updatePointsDistributionChart();
+        }
+
+        // Gráfico de tendencia mensual
+        function updateMonthlyTrendChart() {
+            // Agrupar por mes
+            const monthlyData = {};
+            
+            filteredData.forEach(item => {
+                const fechaParts = item.Fecha.split('/');
+                const mes = parseInt(fechaParts[1]);
+                const año = parseInt(fechaParts[2]);
+                const key = `${año}-${mes}`;
+                
+                if (!monthlyData[key]) {
+                    monthlyData[key] = {
+                        puntos: [],
+                        winRate: [],
+                        count: 0
+                    };
+                }
+                
+                monthlyData[key].puntos.push(item.Puntos);
+                monthlyData[key].winRate.push(item["%VPO"]);
+                monthlyData[key].count++;
+            });
+            
+            // Preparar datos para el gráfico
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const labels = [];
+            const puntosPromedio = [];
+            const winRatePromedio = [];
+            
+            // Ordenar por clave (año-mes)
+            const sortedKeys = Object.keys(monthlyData).sort();
+            
+            sortedKeys.forEach(key => {
+                const [año, mes] = key.split('-');
+                const mesNombre = meses[parseInt(mes) - 1];
+                labels.push(`${mesNombre} ${año}`);
+                
+                const data = monthlyData[key];
+                puntosPromedio.push((data.puntos.reduce((a, b) => a + b, 0) / data.puntos.length).toFixed(1));
+                winRatePromedio.push((data.winRate.reduce((a, b) => a + b, 0) / data.winRate.length).toFixed(1));
+            });
+            
+            // Crear gráfico
+            const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+            
+            if (charts.monthlyTrendChart) {
+                charts.monthlyTrendChart.destroy();
+            }
+            
+            charts.monthlyTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Puntos Promedio',
+                            data: puntosPromedio,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Win Rate Promedio',
+                            data: winRatePromedio,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.3,
+                            fill: false,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Valor'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de performance por evento
+        function updateEventPerformanceChart() {
+            // Agrupar por evento
+            const eventData = {};
+            
+            filteredData.forEach(item => {
+                if (!eventData[item.Evento]) {
+                    eventData[item.Evento] = {
+                        puntos: [],
+                        winRate: [],
+                        count: 0
+                    };
+                }
+                
+                eventData[item.Evento].puntos.push(item.Puntos);
+                eventData[item.Evento].winRate.push(item["%VPO"]);
+                eventData[item.Evento].count++;
+            });
+            
+            // Preparar datos
+            const labels = Object.keys(eventData);
+            const puntosPromedio = [];
+            const participaciones = [];
+            
+            labels.forEach(evento => {
+                const data = eventData[evento];
+                puntosPromedio.push((data.puntos.reduce((a, b) => a + b, 0) / data.puntos.length).toFixed(1));
+                participaciones.push(data.count);
+            });
+            
+            // Crear gráfico
+            const ctx = document.getElementById('eventPerformanceChart').getContext('2d');
+            
+            if (charts.eventPerformanceChart) {
+                charts.eventPerformanceChart.destroy();
+            }
+            
+            charts.eventPerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Puntos Promedio',
+                            data: puntosPromedio,
+                            backgroundColor: '#3498db',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Participaciones',
+                            data: participaciones,
+                            backgroundColor: '#2ecc71',
+                            type: 'line',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Puntos Promedio'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Participaciones'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de distribución de puntos
+        function updatePointsDistributionChart() {
+            // Contar frecuencia de puntos
+            const pointDistribution = {};
+            
+            filteredData.forEach(item => {
+                if (!pointDistribution[item.Puntos]) {
+                    pointDistribution[item.Puntos] = 0;
+                }
+                pointDistribution[item.Puntos]++;
+            });
+            
+            // Preparar datos
+            const labels = Object.keys(pointDistribution).sort((a, b) => a - b);
+            const data = labels.map(p => pointDistribution[p]);
+            
+            // Crear gráfico
+            const ctx = document.getElementById('pointsDistributionChart').getContext('2d');
+            
+            if (charts.pointsDistributionChart) {
+                charts.pointsDistributionChart.destroy();
+            }
+            
+            charts.pointsDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Frecuencia',
+                        data: data,
+                        backgroundColor: labels.map(p => 
+                            p >= 10 ? '#27ae60' : 
+                            p >= 7 ? '#f39c12' : 
+                            p >= 4 ? '#3498db' : '#e74c3c'
+                        )
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cantidad de Resultados'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Puntos Obtenidos'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Actualizar insights
+        function updateInsights() {
+            // Calcular jugadores más consistentes
+            const playerConsistency = {};
+            
+            filteredData.forEach(item => {
+                if (!playerConsistency[item.Nombre]) {
+                    playerConsistency[item.Nombre] = [];
+                }
+                playerConsistency[item.Nombre].push(item.Puntos);
+            });
+            
+            // Filtrar jugadores con al menos 3 torneos
+            const consistentPlayers = Object.keys(playerConsistency)
+                .filter(player => playerConsistency[player].length >= 3)
+                .map(player => {
+                    const puntos = playerConsistency[player];
+                    const promedio = puntos.reduce((a, b) => a + b, 0) / puntos.length;
+                    const desviacion = Math.sqrt(
+                        puntos.map(p => Math.pow(p - promedio, 2)).reduce((a, b) => a + b, 0) / puntos.length
+                    );
+                    const coefVariacion = (desviacion / promedio) * 100;
+                    
+                    return {
+                        nombre: player,
+                        promedio: promedio.toFixed(1),
+                        coefVariacion: coefVariacion.toFixed(1),
+                        torneos: puntos.length
+                    };
+                })
+                .sort((a, b) => a.coefVariacion - b.coefVariacion)
+                .slice(0, 5);
+            
+            // Mostrar jugadores consistentes
+            const consistentContainer = document.getElementById('consistent-players');
+            consistentContainer.innerHTML = '';
+            
+            consistentPlayers.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'mb-2';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <span>${player.nombre}</span>
+                        <small class="text-muted">CV: ${player.coefVariacion}%</small>
+                    </div>
+                    <small class="text-muted">${player.torneos} torneos | Prom: ${player.promedio} pts</small>
+                `;
+                consistentContainer.appendChild(div);
+            });
+            
+            // Jugadores en racha positiva (últimos torneos)
+            const lastTournaments = [...filteredData]
+                .sort((a, b) => {
+                    const dateA = new Date(a.Fecha.split('/').reverse().join('-'));
+                    const dateB = new Date(b.Fecha.split('/').reverse().join('-'));
+                    return dateB - dateA;
+                });
+            
+            // Agrupar por jugador y ver últimos 3 torneos
+            const playerLastResults = {};
+            
+            lastTournaments.forEach(item => {
+                if (!playerLastResults[item.Nombre]) {
+                    playerLastResults[item.Nombre] = [];
+                }
+                if (playerLastResults[item.Nombre].length < 3) {
+                    playerLastResults[item.Nombre].push(item.Puntos);
+                }
+            });
+            
+            // Calcular promedio de últimos 3 torneos
+            const hotStreakPlayers = Object.keys(playerLastResults)
+                .filter(player => playerLastResults[player].length >= 2)
+                .map(player => {
+                    const puntos = playerLastResults[player];
+                    const promedio = puntos.reduce((a, b) => a + b, 0) / puntos.length;
+                    const tendencia = puntos.length >= 2 ? 
+                        (puntos[0] > puntos[puntos.length - 1] ? '↑' : puntos[0] < puntos[puntos.length - 1] ? '↓' : '→') : '→';
+                    
+                    return {
+                        nombre: player,
+                        promedio: promedio.toFixed(1),
+                        tendencia: tendencia,
+                        ultimo: puntos[0]
+                    };
+                })
+                .filter(p => p.tendencia === '↑')
+                .sort((a, b) => b.promedio - a.promedio)
+                .slice(0, 5);
+            
+            // Mostrar jugadores en racha
+            const hotStreakContainer = document.getElementById('hot-streak-players');
+            hotStreakContainer.innerHTML = '';
+            
+            hotStreakPlayers.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'mb-2';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <span>${player.nombre}</span>
+                        <span class="text-success">${player.tendencia}</span>
+                    </div>
+                    <small class="text-muted">Último: ${player.ultimo} pts | Prom: ${player.promedio}</small>
+                `;
+                hotStreakContainer.appendChild(div);
+            });
+            
+            // Jugadores con mayor mejora (comparar primeros vs últimos torneos)
+            const mostImprovedContainer = document.getElementById('most-improved-players');
+            mostImprovedContainer.innerHTML = `
+                <div class="text-center text-muted">
+                    <small>Análisis de mejora requiere datos históricos completos</small>
+                </div>
+            `;
+        }
+
+        // Mostrar detalle de jugador
+        function showPlayerDetail(playerName) {
+            const playerData = filteredData.filter(item => item.Nombre === playerName);
+            
+            if (playerData.length === 0) return;
+            
+            // Calcular estadísticas del jugador
+            const puntosTotales = playerData.reduce((sum, item) => sum + item.Puntos, 0);
+            const torneos = playerData.length;
+            const winRatePromedio = (playerData.reduce((sum, item) => sum + item["%VPO"], 0) / torneos).toFixed(1);
+            const puntosPromedio = (puntosTotales / torneos).toFixed(1);
+            
+            // Arquetipos usados
+            const arquetipos = {};
+            playerData.forEach(item => {
+                if (item.Arquetipo) {
+                    if (!arquetipos[item.Arquetipo]) {
+                        arquetipos[item.Arquetipo] = 0;
+                    }
+                    arquetipos[item.Arquetipo]++;
+                }
+            });
+            
+            const mainArquetipo = Object.keys(arquetipos).length > 0 ? 
+                Object.keys(arquetipos).reduce((a, b) => arquetipos[a] > arquetipos[b] ? a : b) : 'N/A';
+            
+            // Actualizar título
+            document.getElementById('player-detail-title').textContent = `Detalle: ${playerName}`;
+            
+            // Actualizar estadísticas
+            const statsDetail = document.getElementById('player-stats-detail');
+            statsDetail.innerHTML = `
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Puntos Totales</div>
+                            <div class="metric-value">${puntosTotales}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Torneos</div>
+                            <div class="metric-value">${torneos}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Puntos Promedio</div>
+                            <div class="metric-value">${puntosPromedio}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Win Rate Promedio</div>
+                            <div class="metric-value">${winRatePromedio}%</div>
+                        </div>
+                    </div>
+                </div>
+                <h6>Arquetipos Utilizados</h6>
+                <div class="mt-2">
+                    ${Object.keys(arquetipos).map(arq => 
+                        `<span class="badge-arquetipo me-2 mb-2">${arq} (${arquetipos[arq]})</span>`
+                    ).join('')}
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">Arquetipo principal: <strong>${mainArquetipo}</strong></small>
+                </div>
+            `;
+            
+            // Crear gráfico de torneos del jugador
+            const tournamentDates = playerData.map(item => item.Fecha);
+            const tournamentPoints = playerData.map(item => item.Puntos);
+            
+            const ctx = document.getElementById('player-tournament-chart').getContext('2d');
+            
+            if (charts.playerTournamentChart) {
+                charts.playerTournamentChart.destroy();
+            }
+            
+            charts.playerTournamentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tournamentDates,
+                    datasets: [{
+                        label: 'Puntos por Torneo',
+                        data: tournamentPoints,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            title: {
+                                display: true,
+                                text: 'Puntos'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Mostrar sección
+            document.getElementById('player-detail-section').style.display = 'block';
+        }
+
+        // Exportar a CSV
+        function exportToCSV() {
+            // Crear contenido CSV
+            const headers = ['Puesto', 'Nombre', 'Puntos', 'V/D/E', '%VPO', '%JG', '%JGO', 'Arquetipo', 'Fecha', 'Evento'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(item => [
+                    item.Puesto,
+                    `"${item.Nombre}"`,
+                    item.Puntos,
+                    `"${item["V/D/E"]}"`,
+                    item["%VPO"],
+                    item["%JG"],
+                    item["%JGO"],
+                    `"${item.Arquetipo || ''}"`,
+                    `"${item.Fecha}"`,
+                    `"${item.Evento}"`
+                ].join(','))
+            ].join('\n');
+            
+            // Crear y descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `torneos_magic_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

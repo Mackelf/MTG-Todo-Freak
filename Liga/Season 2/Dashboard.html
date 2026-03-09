@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Pauper Edge MTG T2</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --accent: #ffcc00;
+      --accent-dark: #d4a600;
+      --text: #ffffff;
+      --card-bg: #111111;
+      --card-border: #ffcc00;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: #000000;
+      border-bottom: 4px solid var(--accent);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 900;
+      font-size: 24px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 1px;
+      color: var(--accent);
+    }
+
+    header span {
+      font-size: 12px;
+      color: #ddd;
+    }
+
+    .container {
+      padding: 16px 24px 32px;
+      display: grid;
+      grid-template-columns: 280px 1.5fr 1.5fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpis {
+      display: grid;
+      gap: 10px;
+    }
+
+    .kpi-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #191919;
+      border: 1px solid #333;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: #cccccc;
+    }
+
+    .kpi-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #333;
+      padding: 4px 6px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #1a1a1a;
+      color: var(--accent);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th[data-active="true"][data-dir="desc"]::after {
+      content: " ▼";
+      font-size: 9px;
+      color: var(--accent);
+    }
+
+    th[data-active="true"][data-dir="asc"]::after {
+      content: " ▲";
+      font-size: 9px;
+      color: var(--accent);
+    }
+
+    tr:nth-child(even) td {
+      background: #121212;
+    }
+
+    tr:hover td {
+      background: #222222;
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-dark);
+      font-size: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tables-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 70vh;
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      max-height: 62vh;
+      overflow: auto;
+      border-radius: 6px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .filters label {
+      font-size: 11px;
+      color: #cccccc;
+    }
+
+    .filters select {
+      background: #111;
+      border: 1px solid #555;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .chart {
+      height: 200px;
+      margin-top: 8px;
+      background: radial-gradient(circle at top, #444 0, #000 55%);
+      border-radius: 6px;
+      border: 1px dashed #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #bbbbbb;
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #555;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #cccccc;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Reemplaza por tu logo real -->
+    <div class="logo">T</div>
+    <div>
+      <h1>Pauper Edge MTG T2 – Season 2</h1>
+      <span>Dashboard de rendimiento por jugadores y mazos</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Columna izquierda: KPIs -->
+    <section class="card">
+      <h2>Resumen general</h2>
+
+      <div class="filters">
+        <div>
+          <label for="evento">Evento</label><br />
+          <select id="evento">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+        <div>
+          <label for="fecha">Fecha</label><br />
+          <select id="fecha">
+            <option value="todas">Todas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi-item">
+          <span class="kpi-label">Jugadores únicos</span>
+          <span class="kpi-value" id="kpi-jugadores">0</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Mazos únicos</span>
+          <span class="kpi-value" id="kpi-mazos">0</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Winrate medio general</span>
+          <span class="kpi-value" id="kpi-winrate">0%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna central: Jugadores -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2>Jugadores</h2>
+        <span class="pill">V / (V + D + E)</span>
+      </div>
+
+      <div class="tables-wrapper">
+        <div class="table-scroll">
+          <table id="tabla-jugadores">
+            <thead>
+              <tr>
+                <th data-key="Nombre">Jugador</th>
+                <th data-key="Puntos">Puntos</th>
+                <th data-key="V">V</th>
+                <th data-key="D">D</th>
+                <th data-key="E">E</th>
+                <th data-key="Juegos">Juegos</th>
+                <th data-key="Rendimiento">Rendimiento</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="chart">
+          Gráfico de barras: rendimiento por jugador (placeholder)
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna derecha: Mazos -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2>Mazos (Arquetipos)</h2>
+        <span class="tag">Copias y rendimiento</span>
+      </div>
+
+      <div class="tables-wrapper">
+        <div class="table-scroll">
+          <table id="tabla-mazos">
+            <thead>
+              <tr>
+                <th data-key="Arquetipo">Arquetipo</th>
+                <th data-key="Copias">Copias</th>
+                <th data-key="V">V</th>
+                <th data-key="D">D</th>
+                <th data-key="E">E</th>
+                <th data-key="Juegos">Juegos</th>
+                <th data-key="Rendimiento">Rendimiento</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="chart">
+          Gráfico de barras: rendimiento por mazo (placeholder)
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ==== DATOS JSON (ya calculados) ====
+    const jugadores = [
+      {"Nombre": "Alexander Ghio' The Fury", "Puntos": 7, "V": 2, "D": 0, "E": 1, "Juegos": 3, "Rendimiento": 0.666667},
+      {"Nombre": "Alvaro Pizarro", "Puntos": 7, "V": 2, "D": 4, "E": 1, "Juegos": 7, "Rendimiento": 0.285714},
+      {"Nombre": "Claudio Olguín Pizarro", "Puntos": 12, "V": 4, "D": 4, "E": 0, "Juegos": 8, "Rendimiento": 0.5},
+      {"Nombre": "Cristian Cruz Calderón", "Puntos": 7, "V": 2, "D": 1, "E": 1, "Juegos": 4, "Rendimiento": 0.5},
+      {"Nombre": "Cristian Valenzuela", "Puntos": 7, "V": 2, "D": 2, "E": 1, "Juegos": 5, "Rendimiento": 0.4},
+      {"Nombre": "Dustin Aranda", "Puntos": 24, "V": 7, "D": 3, "E": 3, "Juegos": 13, "Rendimiento": 0.538462},
+      {"Nombre": "Franco Biggio (Naivak) 🐸", "Puntos": 19, "V": 6, "D": 4, "E": 1, "Juegos": 11, "Rendimiento": 0.545455},
+      {"Nombre": "Gregori Bruna", "Puntos": 21, "V": 7, "D": 1, "E": 0, "Juegos": 8, "Rendimiento": 0.875},
+      {"Nombre": "Hugo Torres", "Puntos": 6, "V": 2, "D": 1, "E": 0, "Juegos": 3, "Rendimiento": 0.666667},
+      {"Nombre": "Ignacio Javier Villacura de la Paz", "Puntos": 0, "V": 0, "D": 2, "E": 0, "Juegos": 2, "Rendimiento": 0.0},
+      {"Nombre": "Ignacio Valenzuela", "Puntos": 19, "V": 6, "D": 2, "E": 1, "Juegos": 9, "Rendimiento": 0.666667},
+      {"Nombre": "Javier Ferreira", "Puntos": 6, "V": 2, "D": 2, "E": 0, "Juegos": 4, "Rendimiento": 0.5},
+      {"Nombre": "Jonathan Sepulveda Sobarzo", "Puntos": 28, "V": 9, "D": 4, "E": 1, "Juegos": 14, "Rendimiento": 0.642857},
+      {"Nombre": "José Miguel Reyes", "Puntos": 3, "V": 1, "D": 3, "E": 0, "Juegos": 4, "Rendimiento": 0.25},
+      {"Nombre": "Juan Rivera", "Puntos": 13, "V": 4, "D": 5, "E": 1, "Juegos": 10, "Rendimiento": 0.4},
+      {"Nombre": "Julian Prado", "Puntos": 10, "V": 3, "D": 2, "E": 1, "Juegos": 6, "Rendimiento": 0.5},
+      {"Nombre": "Marcelo López Lagos", "Puntos": 3, "V": 1, "D": 3, "E": 0, "Juegos": 4, "Rendimiento": 0.25},
+      {"Nombre": "Marco Alvarez", "Puntos": 7, "V": 2, "D": 0, "E": 1, "Juegos": 3, "Rendimiento": 0.666667},
+      {"Nombre": "Mario Canto", "Puntos": 8, "V": 2, "D": 3, "E": 2, "Juegos": 7, "Rendimiento": 0.285714},
+      {"Nombre": "Mario Vega", "Puntos": 25, "V": 8, "D": 5, "E": 1, "Juegos": 14, "Rendimiento": 0.571429},
+      {"Nombre": "Pedro Aravena Gonzalez", "Puntos": 3, "V": 1, "D": 3, "E": 0, "Juegos": 4, "Rendimiento": 0.25},
+      {"Nombre": "TBE Felipe Hidalgo", "Puntos": 9, "V": 3, "D": 6, "E": 0, "Juegos": 9, "Rendimiento": 0.333333}
+    ];
+
+    const mazos = [
+      {"Arquetipo": "4c Control", "Copias": 2, "V": 2, "D": 3, "E": 2, "Juegos": 7, "Rendimiento": 0.2857142857142857},
+      {"Arquetipo": "4c control", "Copias": 1, "V": 3, "D": 2, "E": 1, "Juegos": 6, "Rendimiento": 0.5},
+      {"Arquetipo": "5c Ally", "Copias": 2, "V": 3, "D": 4, "E": 0, "Juegos": 7, "Rendimiento": 0.42857142857142855},
+      {"Arquetipo": "Azorius Artifact", "Copias": 1, "V": 4, "D": 2, "E": 1, "Juegos": 7, "Rendimiento": 0.5714285714285714},
+      {"Arquetipo": "Azorius Tempo", "Copias": 1, "V": 2, "D": 1, "E": 1, "Juegos": 4, "Rendimiento": 0.5},
+      {"Arquetipo": "Boros Mice", "Copias": 1, "V": 2, "D": 2, "E": 0, "Juegos": 4, "Rendimiento": 0.5},
+      {"Arquetipo": "Dimir Midrange", "Copias": 3, "V": 5, "D": 5, "E": 1, "Juegos": 11, "Rendimiento": 0.45454545454545453},
+      {"Arquetipo": "Dimir Mill", "Copias": 2, "V": 2, "D": 4, "E": 1, "Juegos": 7, "Rendimiento": 0.2857142857142857},
+      {"Arquetipo": "Izzet Lessons", "Copias": 1, "V": 3, "D": 0, "E": 1, "Juegos": 4, "Rendimiento": 0.75},
+      {"Arquetipo": "Izzet Looting", "Copias": 2, "V": 3, "D": 6, "E": 0, "Juegos": 9, "Rendimiento": 0.3333333333333333},
+      {"Arquetipo": "Izzet Riddler", "Copias": 1, "V": 1, "D": 3, "E": 0, "Juegos": 4, "Rendimiento": 0.25},
+      {"Arquetipo": "Izzet lessons", "Copias": 2, "V": 4, "D": 5, "E": 0, "Juegos": 9, "Rendimiento": 0.4444444444444444},
+      {"Arquetipo": "Jeskai Artifact", "Copias": 1, "V": 2, "D": 2, "E": 0, "Juegos": 4, "Rendimiento": 0.5},
+      {"Arquetipo": "Jeskai Control", "Copias": 1, "V": 2, "D": 2, "E": 1, "Juegos": 5, "Rendimiento": 0.4},
+      {"Arquetipo": "Juez", "Copias": 1, "V": 0, "D": 0, "E": 0, "Juegos": 0, "Rendimiento": null},
+      {"Arquetipo": "Mono Red Aggro", "Copias": 5, "V": 11, "D": 7, "E": 2, "Juegos": 20, "Rendimiento": 0.55},
+      {"Arquetipo": "Mono Red Coyote", "Copias": 1, "V": 5, "D": 1, "E": 1, "Juegos": 7, "Rendimiento": 0.7142857142857143},
+      {"Arquetipo": "Monoblack Demons", "Copias": 1, "V": 2, "D": 2, "E": 0, "Juegos": 4, "Rendimiento": 0.5},
+      {"Arquetipo": "Naya Yuna", "Copias": 2, "V": 7, "D": 1, "E": 0, "Juegos": 8, "Rendimiento": 0.875},
+      {"Arquetipo": "Orzhov lifegain", "Copias": 1, "V": 0, "D": 2, "E": 0, "Juegos": 2, "Rendimiento": 0.0},
+      {"Arquetipo": "Simic Aggro", "Copias": 2, "V": 5, "D": 2, "E": 0, "Juegos": 7, "Rendimiento": 0.7142857142857143},
+      {"Arquetipo": "Sultai Reanimator", "Copias": 3, "V": 7, "D": 3, "E": 3, "Juegos": 13, "Rendimiento": 0.5384615384615384},
+      {"Arquetipo": "Tuti-frutech", "Copias": 1, "V": 1, "D": 1, "E": 1, "Juegos": 3, "Rendimiento": 0.3333333333333333}
+    ];
+
+    function formatoPorcentaje(value) {
+      if (value == null || isNaN(value)) return "0%";
+      return (value * 100).toFixed(1) + "%";
+    }
+
+    // Estado de orden
+    const sortState = {
+      jugadores: { column: "Rendimiento", direction: "desc" },
+      mazos: { column: "Copias", direction: "desc" }
+    };
+
+    function marcarHeaderActivo(tableId, columnKey, direction) {
+      const table = document.getElementById(tableId);
+      const ths = table.querySelectorAll("th");
+      ths.forEach(th => {
+        th.dataset.active = "false";
+        th.dataset.dir = "";
+      });
+
+      ths.forEach(th => {
+        if (th.dataset.key === columnKey) {
+          th.dataset.active = "true";
+          th.dataset.dir = direction;
+        }
+      });
+    }
+
+    function renderJugadores() {
+      const tbody = document.querySelector("#tabla-jugadores tbody");
+      tbody.innerHTML = "";
+
+      const { column, direction } = sortState.jugadores;
+      const factor = direction === "asc" ? 1 : -1;
+
+      const dataOrdenada = [...jugadores].sort((a, b) => {
+        const va = a[column];
+        const vb = b[column];
+
+        if (typeof va === "number" && typeof vb === "number") {
+          return (va - vb) * factor;
+        }
+        return String(va).localeCompare(String(vb)) * factor;
+      });
+
+      dataOrdenada.forEach(j => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${j.Nombre}</td>
+          <td>${j.Puntos}</td>
+          <td>${j.V}</td>
+          <td>${j.D}</td>
+          <td>${j.E}</td>
+          <td>${j.Juegos}</td>
+          <td>${formatoPorcentaje(j.Rendimiento)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      marcarHeaderActivo("tabla-jugadores", column, direction);
+    }
+
+    function renderMazos() {
+      const tbody = document.querySelector("#tabla-mazos tbody");
+      tbody.innerHTML = "";
+
+      const { column, direction } = sortState.mazos;
+      const factor = direction === "asc" ? 1 : -1;
+
+      const dataOrdenada = [...mazos].sort((a, b) => {
+        const va = a[column];
+        const vb = b[column];
+
+        if (typeof va === "number" && typeof vb === "number") {
+          return (va - vb) * factor;
+        }
+        return String(va).localeCompare(String(vb)) * factor;
+      });
+
+      dataOrdenada.forEach(m => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${m.Arquetipo}</td>
+          <td>${m.Copias}</td>
+          <td>${m.V}</td>
+          <td>${m.D}</td>
+          <td>${m.E}</td>
+          <td>${m.Juegos}</td>
+          <td>${formatoPorcentaje(m.Rendimiento)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      marcarHeaderActivo("tabla-mazos", column, direction);
+    }
+
+    function actualizarKPIs() {
+      const kpiJugadores = document.getElementById("kpi-jugadores");
+      const kpiMazos = document.getElementById("kpi-mazos");
+      const kpiWinrate = document.getElementById("kpi-winrate");
+
+      kpiJugadores.textContent = jugadores.length;
+      kpiMazos.textContent = mazos.length;
+
+      const totalJuegos = jugadores.reduce((acc, j) => acc + j.Juegos, 0);
+      const totalVictorias = jugadores.reduce((acc, j) => acc + j.V, 0);
+      const winrateGlobal = totalJuegos ? totalVictorias / totalJuegos : 0;
+
+      kpiWinrate.textContent = formatoPorcentaje(winrateGlobal);
+    }
+
+    function setupSorting() {
+      document.querySelectorAll("#tabla-jugadores thead th").forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.key;
+          if (!key) return;
+
+          const state = sortState.jugadores;
+          if (state.column === key) {
+            state.direction = state.direction === "asc" ? "desc" : "asc";
+          } else {
+            state.column = key;
+            state.direction = "desc";
+          }
+          renderJugadores();
+        });
+      });
+
+      document.querySelectorAll("#tabla-mazos thead th").forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.key;
+          if (!key) return;
+
+          const state = sortState.mazos;
+          if (state.column === key) {
+            state.direction = state.direction === "asc" ? "desc" : "asc";
+          } else {
+            state.column = key;
+            state.direction = "desc";
+          }
+          renderMazos();
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupSorting();
+      renderJugadores();
+      renderMazos();
+      actualizarKPIs();
+    });
+  </script>
+</body>
+</html>
