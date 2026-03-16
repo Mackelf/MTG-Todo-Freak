@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S3 · Season 3 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --border: #2e2e2e;
+    --border-bright: #3d3d3d;
+    --yellow: #f5c800;
+    --yellow-light: #ffd93d;
+    --yellow-dark: #c9a200;
+    --red: #e03030;
+    --text: #f0f0f0;
+    --muted: #999999;
+    --muted2: #666666;
+    --win: #44cc77;
+    --loss: #e03030;
+    --draw: #f5c800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -55deg,
+      transparent,
+      transparent 40px,
+      rgba(245,200,0,0.018) 40px,
+      rgba(245,200,0,0.018) 41px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── UPLOAD ZONE ── */
+  #uploadZone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 28px;
+    padding: 40px 20px;
+  }
+
+  .upload-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 72px);
+    letter-spacing: 6px;
+    color: var(--yellow);
+    line-height: 1;
+    text-align: center;
+  }
+  .upload-logo span { color: var(--text); }
+
+  .upload-box {
+    width: 100%;
+    max-width: 480px;
+    border: 2px dashed var(--border-bright);
+    background: var(--surface);
+    padding: 48px 36px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .upload-box:hover,
+  .upload-box.drag-over {
+    border-color: var(--yellow);
+    background: rgba(245,200,0,0.04);
+  }
+  .upload-box input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .upload-icon {
+    font-size: 44px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .upload-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .upload-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    line-height: 1.6;
+  }
+  .upload-sub strong {
+    color: var(--yellow);
+    font-weight: 700;
+  }
+
+  .upload-hint {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .upload-error {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--red);
+    letter-spacing: 1px;
+    text-align: center;
+    display: none;
+  }
+  .upload-error.visible { display: block; }
+
+  /* ── DASHBOARD (hidden until data loads) ── */
+  #dashboard { display: none; }
+  #dashboard.visible { display: block; }
+
+  /* Change-file button */
+  .change-file-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-left: 16px;
+    vertical-align: middle;
+  }
+  .change-file-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  /* ── HEADER BANNER ── */
+  .header {
+    background: var(--yellow);
+    padding: 0;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -40px;
+    width: 300px; height: 200px;
+    background: rgba(0,0,0,0.08);
+    transform: rotate(-15deg);
+  }
+  .header-inner {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .header-left {
+    padding: 24px 32px;
+    background: #000;
+    clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    padding-right: 60px;
+    min-width: 340px;
+  }
+  .season-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 7vw, 68px);
+    line-height: 0.92;
+    letter-spacing: 3px;
+    color: #fff;
+  }
+  .header h1 span { color: var(--yellow); }
+  .header-meta {
+    padding: 24px 32px;
+    text-align: right;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: rgba(0,0,0,0.65);
+    line-height: 2;
+    font-weight: 600;
+    letter-spacing: 1px;
+    align-self: center;
+  }
+  .header-meta span { color: #000; font-weight: 800; }
+
+  .inner { padding: 0 28px; }
+
+  /* ── STAT CARDS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-top: 3px solid var(--yellow);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 94% 100%, 0 100%);
+  }
+  .stat-card.alt { border-top-color: var(--muted2); }
+  .stat-card.red-top { border-top-color: var(--red); }
+  .stat-card.green-top { border-top-color: var(--win); }
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    line-height: 1;
+    color: var(--yellow);
+  }
+  .stat-card.alt .stat-value { color: var(--text); }
+  .stat-card.red-top .stat-value { color: var(--red); font-size: 22px; padding-top: 8px; }
+  .stat-card.green-top .stat-value { color: var(--win); }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    color: var(--text);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 20px;
+    background: var(--yellow);
+    flex-shrink: 0;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── PLAYER TABLE ── */
+  .player-table-wrap {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-left: 4px solid var(--yellow);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead { background: #000; border-bottom: 2px solid var(--yellow); }
+  th {
+    padding: 11px 16px;
+    text-align: left;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(245,200,0,0.04); }
+  .player-name { font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .attendance-badge {
+    background: var(--yellow);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+  }
+  .attendance-badge.one {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    clip-path: none;
+  }
+  .wde-bar { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 9px; height: 9px; display: inline-block; }
+  .dot.w { background: var(--win); }
+  .dot.l { background: var(--loss); }
+  .dot.d { background: var(--draw); }
+  .wde-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--muted); margin-left: 4px; letter-spacing: 1px; }
+  .pts-badge { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--yellow); }
+  .rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--muted2); width: 28px; }
+  .rank-num.top { color: var(--yellow); }
+  .wr-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .wr-bar-bg { flex: 1; height: 5px; background: var(--border); overflow: hidden; }
+  .wr-bar-fill { height: 100%; background: linear-gradient(90deg, var(--yellow-dark), var(--yellow-light)); transition: width 1s ease; }
+  .wr-pct { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); min-width: 38px; text-align: right; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ARCHETYPES */
+  .arch-grid { background: var(--surface); border: 2px solid var(--border); border-left: 4px solid var(--yellow); overflow: hidden; }
+  .arch-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid var(--border); gap: 12px; transition: background 0.15s; }
+  .arch-row:last-child { border-bottom: none; }
+  .arch-row:hover { background: rgba(245,200,0,0.05); }
+  .arch-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .arch-color-dot { width: 6px; height: 22px; flex-shrink: 0; }
+  .arch-count { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted); min-width: 60px; text-align: right; letter-spacing: 1px; }
+  .arch-wr { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; min-width: 42px; text-align: right; letter-spacing: 1px; }
+  .arch-bar-wrap { width: 55px; }
+
+  /* TOP PERFORMERS */
+  .perf-grid { display: flex; flex-direction: column; background: var(--surface); border: 2px solid var(--border); border-left: 4px solid var(--yellow); overflow: hidden; }
+  .perf-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid var(--border); gap: 14px; }
+  .perf-row:first-child { background: rgba(245,200,0,0.06); }
+  .perf-row:last-child { border-bottom: none; }
+  .perf-medal { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+  .perf-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .perf-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); }
+  .perf-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  /* WEEK CARDS */
+  .week-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .week-grid { grid-template-columns: 1fr; } }
+  .week-card { background: var(--surface); border: 2px solid var(--border); overflow: hidden; }
+  .week-header { background: #000; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--yellow); }
+  .week-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--yellow); }
+  .week-date { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted); letter-spacing: 2px; font-weight: 700; }
+  .week-podium { padding: 14px 16px; }
+  .podium-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .podium-row:last-child { margin-bottom: 0; }
+  .podium-pos { font-family: 'Bebas Neue', sans-serif; font-size: 17px; color: var(--muted2); width: 22px; }
+  .podium-pos.gold { color: var(--yellow); }
+  .podium-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .podium-deck { font-size: 12px; color: var(--muted); font-style: italic; }
+  .podium-pts { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); }
+
+  /* CUMULATIVE */
+  .cumul-section { margin-bottom: 28px; }
+  .cumul-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .cumul-name { width: 160px; font-size: 14px; font-weight: 600; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; }
+  .cumul-bar-bg { flex: 1; height: 30px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; position: relative; }
+  .cumul-bar-fill { height: 100%; background: linear-gradient(90deg, #2a2200 0%, var(--yellow-dark) 40%, var(--yellow) 100%); display: flex; align-items: center; padding-left: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: #000; letter-spacing: 1px; white-space: nowrap; transition: width 1.3s cubic-bezier(.16,1,.3,1); }
+  .cumul-pts { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); width: 44px; text-align: right; flex-shrink: 0; }
+
+  /* FACTS */
+  .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 28px; }
+  .fact-card { background: var(--surface); border: 2px solid var(--border); border-bottom: 3px solid var(--yellow); padding: 18px 20px; position: relative; overflow: hidden; }
+  .fact-card::before { content: attr(data-icon); position: absolute; right: 10px; top: 8px; font-size: 32px; opacity: 0.1; }
+  .fact-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .fact-value { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--yellow); line-height: 1; margin-bottom: 5px; }
+  .fact-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+  /* FOOTER */
+  .footer { border-top: 2px solid var(--border); padding-top: 20px; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--muted2); text-transform: uppercase; }
+  .footer span { color: var(--yellow); }
+
+  .tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; padding: 2px 8px; border: 1px solid var(--yellow); color: var(--yellow); letter-spacing: 2px; margin-left: 8px; }
+
+  .ver-mas-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 0;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .ver-mas-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .stat-card:nth-child(1) { animation-delay: 0.04s; }
+  .stat-card:nth-child(2) { animation-delay: 0.08s; }
+  .stat-card:nth-child(3) { animation-delay: 0.12s; }
+  .stat-card:nth-child(4) { animation-delay: 0.16s; }
+  .stat-card:nth-child(5) { animation-delay: 0.20s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ══════════════════════════════════════
+       UPLOAD ZONE — visible antes de cargar
+  ══════════════════════════════════════ -->
+  <div id="uploadZone">
+
+    <div class="upload-logo">TODO FREAK<br><span>STORE</span></div>
+
+    <label class="upload-box" id="uploadBox">
+      <input type="file" id="jsonInput" accept=".json">
+      <span class="upload-icon">📂</span>
+      <div class="upload-title">Cargar resultados</div>
+      <div class="upload-sub">
+        Arrastra tu archivo <strong>.json</strong> aquí<br>
+        o haz clic para seleccionarlo
+      </div>
+    </label>
+
+    <div class="upload-hint">Formato esperado · Array de objetos con Puesto, Nombre, Puntos, Fecha…</div>
+    <div class="upload-error" id="uploadError">⚠ El archivo no tiene el formato correcto. Revisa que sea un JSON válido con los campos requeridos.</div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       DASHBOARD — oculto hasta cargar datos
+  ══════════════════════════════════════ -->
+  <div id="dashboard">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-inner">
+        <div class="header-left">
+          <div class="season-label">Todo Freak Store · Season 3</div>
+          <h1>STANDINGS<br><span>DASHBOARD</span></h1>
+        </div>
+        <div class="header-meta" id="headerMeta">
+          <!-- llenado dinámicamente -->
+        </div>
+      </div>
+    </div>
+
+    <div class="inner">
+
+      <!-- STAT CARDS -->
+      <div class="stats-row" id="statsRow"></div>
+
+      <!-- RANKING ACUMULADO -->
+      <div class="cumul-section">
+        <div class="section-title">Ranking Acumulado <span class="tag" id="cumulTag"></span></div>
+        <div id="cumulBars"></div>
+      </div>
+
+      <!-- PLAYER TABLE -->
+      <div class="section-title">Jugadores · Asistencia y Rendimiento
+        <button class="change-file-btn" id="changeFileBtn">↩ Cambiar archivo</button>
+      </div>
+      <div class="player-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>Asistencias</th>
+              <th>Pts Totales</th>
+              <th>W·D·L (total)</th>
+              <th>%JG (win rate)</th>
+              <th>Mejor Puesto</th>
+            </tr>
+          </thead>
+          <tbody id="playerTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- ARQUETIPOS -->
+      <div class="section-title">Arquetipos</div>
+      <div class="arch-grid" id="archetypeGrid" style="margin-bottom:28px"></div>
+
+      <!-- POR SEMANA -->
+      <div class="section-title">Resultados por Semana</div>
+      <div class="week-grid" id="weekGrid"></div>
+
+      <!-- DATOS CURIOSOS -->
+      <div class="section-title">Datos Curiosos</div>
+      <div class="facts-grid" id="factsGrid"></div>
+
+      <div class="footer">
+        <span>Todo Freak Store</span> · Season 3 · Magic: The Gathering · Dashboard generado automáticamente
+      </div>
+
+    </div><!-- /inner -->
+  </div><!-- /dashboard -->
+
+</div><!-- /container -->
+
+<script>
+// ══════════════════════════════════════════
+//   CARGA DE ARCHIVO
+// ══════════════════════════════════════════
+
+const jsonInput  = document.getElementById('jsonInput');
+const uploadZone = document.getElementById('uploadZone');
+const uploadBox  = document.getElementById('uploadBox');
+const uploadError= document.getElementById('uploadError');
+const dashboard  = document.getElementById('dashboard');
+const changeBtn  = document.getElementById('changeFileBtn');
+
+// Drag & drop visual feedback
+uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('drag-over'); });
+uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
+uploadBox.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadBox.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) readFile(file);
+});
+
+jsonInput.addEventListener('change', e => {
+  if (e.target.files[0]) readFile(e.target.files[0]);
+});
+
+changeBtn.addEventListener('click', () => {
+  // Volver a la pantalla de carga y limpiar todo
+  dashboard.classList.remove('visible');
+  uploadZone.style.display = 'flex';
+  uploadError.classList.remove('visible');
+  limpiarDashboard();
+  // reset input para que dispare change aunque sea el mismo archivo
+  jsonInput.value = '';
+});
+
+function readFile(file) {
+  if (!file.name.endsWith('.json')) {
+    mostrarError();
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw = JSON.parse(ev.target.result);
+      if (!Array.isArray(raw) || !raw[0]?.Nombre) throw new Error('formato inválido');
+      uploadError.classList.remove('visible');
+      uploadZone.style.display = 'none';
+      dashboard.classList.add('visible');
+      renderDashboard(raw);
+    } catch {
+      mostrarError();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function mostrarError() {
+  uploadError.classList.add('visible');
+}
+
+function limpiarDashboard() {
+  ['statsRow','cumulBars','playerTableBody','archetypeGrid','topPerformers','weekGrid','factsGrid','headerMeta']
+    .forEach(id => { document.getElementById(id).innerHTML = ''; });
+}
+
+// ══════════════════════════════════════════
+//   RENDER DASHBOARD
+// ══════════════════════════════════════════
+
+function renderDashboard(raw) {
+
+  // ── Procesar por jugador
+  const byPlayer = {};
+  raw.forEach(r => {
+    const n = r.Nombre;
+    if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], totalPts: 0, totalW: 0, totalD: 0, totalL: 0, bestPos: 99, decks: [] };
+    byPlayer[n].entries.push(r);
+    byPlayer[n].totalPts += r.Puntos;
+    byPlayer[n].totalW += parseInt(r.V);
+    byPlayer[n].totalD += parseInt(r.E);
+    byPlayer[n].totalL += parseInt(r.D);
+    if (r.Puesto < byPlayer[n].bestPos) byPlayer[n].bestPos = r.Puesto;
+    byPlayer[n].decks.push(r.Arquetipo);
+  });
+
+  const players = Object.values(byPlayer).sort((a,b) => b.totalPts - a.totalPts);
+
+  // ── Semanas
+  const weeks = {};
+  raw.forEach(r => {
+    const d = r.Fecha.slice(0,10);
+    if (!weeks[d]) weeks[d] = [];
+    weeks[d].push(r);
+  });
+  const weekKeys = Object.keys(weeks).sort();
+  const numWeeks = weekKeys.length;
+
+  // ── Arquetipos
+  const byArch = {};
+  raw.forEach(r => {
+    const a = r.Arquetipo;
+    if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
+    byArch[a].count++;
+    byArch[a].wins += parseInt(r.V);
+    byArch[a].games += parseInt(r.V) + parseInt(r.D) + parseInt(r.E);
+  });
+  const archs = Object.values(byArch).sort((a,b) => b.count - a.count);
+
+  // ── Jugador más consistente (2+ torneos)
+  const consistentPlayers = players.filter(p => p.entries.length >= 2);
+  let mostConsistent = null, bestAvg = 99;
+  consistentPlayers.forEach(p => {
+    const avg = p.entries.reduce((s,e) => s + e.Puesto, 0) / p.entries.length;
+    if (avg < bestAvg) { bestAvg = avg; mostConsistent = p; }
+  });
+
+  // ── Jugadores únicos por semana
+  const playersPerWeek = weekKeys.map(k => weeks[k].length);
+  const uniquePlayers = Object.keys(byPlayer).length;
+
+  // ── Destaque (top 3 en más semanas)
+  let destacado = null, destacadoCount = 0;
+  players.forEach(p => {
+    const top3 = p.entries.filter(e => e.Puesto <= 3).length;
+    if (top3 > destacadoCount) { destacadoCount = top3; destacado = p; }
+  });
+
+  // ══ HEADER META ══
+  const lastDate = new Date(weekKeys[weekKeys.length - 1]);
+  const lastDateStr = lastDate.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  document.getElementById('headerMeta').innerHTML = `
+    <div>Semanas <span>${weekKeys.map((_,i)=>'W'+(i+1)).join(' + ')}</span></div>
+    <div>Torneos <span>${numWeeks}</span></div>
+    <div>Última fecha <span>${lastDateStr}</span></div>
+    <div>Jugadores únicos <span>${uniquePlayers}</span></div>
+  `;
+
+  // ══ STAT CARDS ══
+  const statsRow = document.getElementById('statsRow');
+  const partidas = raw.length;
+  const weekLabel = weekKeys.map((_,i) => `${players.filter(p=>p.entries.some(e=>e.Fecha.startsWith(weekKeys[i]))).length} en W${i+1}`).join(' · ');
+  statsRow.innerHTML = `
+    <div class="stat-card alt">
+      <div class="stat-label">Jugadores únicos</div>
+      <div class="stat-value">${uniquePlayers}</div>
+      <div class="stat-sub">${weekLabel}</div>
+    </div>
+    <div class="stat-card green-top">
+      <div class="stat-label">Arquetipos distintos</div>
+      <div class="stat-value">${archs.length}</div>
+      <div class="stat-sub">En ${numWeeks} semana${numWeeks>1?'s':''}</div>
+    </div>
+    <div class="stat-card red-top">
+      <div class="stat-label">Jugador destacado</div>
+      <div class="stat-value">${destacado ? destacado.name.split(' ')[0]+' '+destacado.name.split(' ')[1] : '—'}</div>
+      <div class="stat-sub">Top 3 en ${destacadoCount} semana${destacadoCount!==1?'s':''}</div>
+    </div>
+  `;
+
+  // ══ CUMULATIVE RANKING ══
+  document.getElementById('cumulTag').textContent = weekKeys.map((_,i)=>'W'+(i+1)).join(' + ');
+  const maxPts = players[0].totalPts;
+  const cumulContainer = document.getElementById('cumulBars');
+  players.forEach((p, i) => {
+    const pct = (p.totalPts / (maxPts > 0 ? maxPts : 1)) * 100;
+    const shortName = p.name.replace(/\s\(.*\)/, '').replace(' 🐸','');
+    const row = document.createElement('div');
+    row.className = 'cumul-bar-row';
+    row.innerHTML = `
+      <div class="cumul-name" title="${p.name}">${i+1}. ${shortName}</div>
+      <div class="cumul-bar-bg">
+        <div class="cumul-bar-fill" style="width:0%" data-pct="${pct}">
+          ${p.entries.length} torneo${p.entries.length>1?'s':''}
+        </div>
+      </div>
+      <div class="cumul-pts">${p.totalPts}</div>
+    `;
+    cumulContainer.appendChild(row);
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.cumul-bar-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+  }, 100);
+
+  // ══ PLAYER TABLE ══
+  const tbody = document.getElementById('playerTableBody');
+  players.forEach((p, i) => {
+    const att = p.entries.length;
+    const jg = p.entries.reduce((s,e) => s + parseFloat(e['%JG']), 0) / p.entries.length;
+    const shortName = p.name.replace(' 🐸','');
+    const deckStr = [...new Set(p.decks)].join(', ');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="player-name">
+          <span class="rank-num ${i<3?'top':''}">${i+1}</span>
+          ${shortName}
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;padding-left:28px;font-style:italic">${deckStr}</div>
+      </td>
+      <td><span class="attendance-badge ${att<2?'one':''}">${att >= 2 ? '✦ '+att+' torneos' : '1 torneo'}</span></td>
+      <td><span class="pts-badge">${p.totalPts}</span></td>
+      <td>
+        <div class="wde-bar">
+          ${Array(p.totalW).fill('<span class="dot w"></span>').join('')}
+          ${Array(p.totalD).fill('<span class="dot d"></span>').join('')}
+          ${Array(p.totalL).fill('<span class="dot l"></span>').join('')}
+          <span class="wde-text">${p.totalW}W · ${p.totalD}E · ${p.totalL}L</span>
+        </div>
+      </td>
+      <td>
+        <div class="wr-bar-wrap">
+          <div class="wr-bar-bg"><div class="wr-bar-fill" style="width:${jg}%"></div></div>
+          <span class="wr-pct">${jg.toFixed(1)}%</span>
+        </div>
+      </td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:${p.bestPos<=3?'var(--yellow)':'var(--muted)'}">#${p.bestPos}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // ══ ARCHETIPOS ══
+  const archColors = ['#e8ff47','#7b61ff','#ff4757','#3ddc84','#ffb830','#38b2ff','#ff6b9d','#a78bfa','#ff9f43','#00d2d3'];
+  const archGrid = document.getElementById('archetypeGrid');
+  archs.forEach((a, i) => {
+    const wr = a.games > 0 ? Math.round((a.wins/a.games)*100) : 0;
+    const wrColor = wr >= 55 ? 'var(--win)' : wr >= 45 ? 'var(--yellow)' : 'var(--loss)';
+    const row = document.createElement('div');
+    row.className = 'arch-row';
+    row.innerHTML = `
+      <div class="arch-color-dot" style="background:${archColors[i%archColors.length]}"></div>
+      <div class="arch-name">${a.name}</div>
+      <div class="arch-bar-wrap">
+        <div class="wr-bar-bg" style="width:60px">
+          <div class="wr-bar-fill" style="width:${wr}%;background:${archColors[i%archColors.length]}"></div>
+        </div>
+      </div>
+      <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
+      <div class="arch-count">${a.count}× jugado</div>
+    `;
+    archGrid.appendChild(row);
+  });
+
+  // ══ WEEK GRID ══
+  const weekGrid = document.getElementById('weekGrid');
+  weekKeys.forEach((k, wi) => {
+    const entries = weeks[k].sort((a,b) => a.Puesto - b.Puesto);
+    const dateObj = new Date(k);
+    const dateStr = dateObj.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});
+    const card = document.createElement('div');
+    card.className = 'week-card';
+    const top3 = entries.slice(0,3);
+    const rest = entries.slice(3);
+    const podiumRows = top3.map((e, pi) => {
+      const shortName = e.Nombre.replace(/\s\(.*\)/, '').replace(' 🐸','').split(' ').slice(0,2).join(' ');
+      return `<div class="podium-row">
+        <div class="podium-pos ${pi===0?'gold':''}">#${e.Puesto}</div>
+        <div>
+          <div class="podium-name">${shortName}</div>
+          <div class="podium-deck">${e.Arquetipo}</div>
+        </div>
+        <div class="podium-pts">${e.Puntos}</div>
+      </div>`;
+    }).join('');
+
+    const restRows = rest.map(e => {
+      const shortName = e.Nombre.replace(/\s\(.*\)/, '').replace(' 🐸','').split(' ').slice(0,2).join(' ');
+      return `<div class="podium-row">
+        <div class="podium-pos">#${e.Puesto}</div>
+        <div>
+          <div class="podium-name">${shortName}</div>
+          <div class="podium-deck">${e.Arquetipo}</div>
+        </div>
+        <div class="podium-pts">${e.Puntos}</div>
+      </div>`;
+    }).join('');
+
+    const uid = `week-extra-${wi}`;
+    card.innerHTML = `
+      <div class="week-header">
+        <div class="week-title">WEEK ${wi+1}</div>
+        <div class="week-date">${dateStr} · ${entries.length} jugadores</div>
+      </div>
+      <div class="week-podium">
+        ${podiumRows}
+        ${rest.length > 0 ? `
+          <div id="${uid}" style="display:none">${restRows}</div>
+          <button class="ver-mas-btn" onclick="
+            const el=document.getElementById('${uid}');
+            const open=el.style.display!=='none'&&el.style.display!=='';
+            el.style.display=open?'none':'block';
+            this.textContent=open?'▾ Ver más (${rest.length})':'▴ Ocultar';
+          ">▾ Ver más (${rest.length})</button>
+        ` : ''}
+      </div>
+    `;
+    weekGrid.appendChild(card);
+  });
+
+  // ══ FUN FACTS ══
+  const topArch = archs[0];
+
+  // Nuevos jugadores — los que solo aparecen en la última semana
+  const lastWeek = weekKeys[weekKeys.length-1];
+  const prevWeekPlayers = new Set(raw.filter(r=>r.Fecha.startsWith(weekKeys.slice(0,-1).join('|').split('|')[0]||'')).map(r=>r.Nombre));
+  const newPlayers = [...new Set(weeks[lastWeek].map(r=>r.Nombre))].filter(n => {
+    return !weekKeys.slice(0,-1).some(wk => weeks[wk].some(r=>r.Nombre===n));
+  });
+
+  const facts = [
+    {
+      icon: '🎯', title: 'Arquetipo más popular',
+      value: topArch.name.split(' ').slice(-1)[0],
+      desc: `${topArch.name} jugado ${topArch.count} veces`
+    },
+    {
+      icon: '📈', title: 'Jugador más consistente',
+      value: mostConsistent ? mostConsistent.name.split(' ')[0] : '—',
+      desc: mostConsistent ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} torneos` : 'Sin datos suficientes'
+    },
+    {
+      icon: '🆕', title: `Nuevos en W${numWeeks}`,
+      value: newPlayers.length || '—',
+      desc: newPlayers.length > 0
+        ? newPlayers.map(n=>n.split(' ')[0]).join(', ') + ' se incorporaron esta semana'
+        : 'Mismos jugadores que la semana anterior'
+    },
+  ];
+
+  const factsGrid = document.getElementById('factsGrid');
+  facts.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'fact-card';
+    card.setAttribute('data-icon', f.icon);
+    card.innerHTML = `
+      <div class="fact-title">${f.title}</div>
+      <div class="fact-value">${f.value}</div>
+      <div class="fact-desc">${f.desc}</div>
+    `;
+    factsGrid.appendChild(card);
+  });
+
+} // fin renderDashboard
+</script>
+</body>
+</html>
