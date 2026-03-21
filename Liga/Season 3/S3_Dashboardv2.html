@@ -144,11 +144,10 @@
   }
   .upload-error.visible { display: block; }
 
-  /* ── DASHBOARD (hidden until data loads) ── */
+  /* ── DASHBOARD ── */
   #dashboard { display: none; }
   #dashboard.visible { display: block; }
 
-  /* Change-file button */
   .change-file-btn {
     display: inline-flex;
     align-items: center;
@@ -368,6 +367,123 @@
   .arch-wr { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; min-width: 42px; text-align: right; letter-spacing: 1px; }
   .arch-bar-wrap { width: 55px; }
 
+  /* ── RANKING ACUMULADO — diseño nuevo ── */
+  .cumul-section { margin-bottom: 28px; }
+
+  .cumul-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+  .cumul-row:hover { border-color: var(--border-bright); }
+  .cumul-row:first-child { border-color: rgba(245,200,0,0.5); }
+
+  /* La barra de fondo queda DETRÁS de todo el contenido */
+  .cumul-bar-track {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(245,200,0,0.10) 0%, rgba(245,200,0,0.04) 100%);
+    transition: width 1.3s cubic-bezier(.16,1,.3,1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cumul-row:first-child .cumul-bar-track {
+    background: linear-gradient(90deg, rgba(245,200,0,0.18) 0%, rgba(245,200,0,0.06) 100%);
+  }
+
+  /* Número de posición */
+  .cumul-pos {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--muted2);
+    width: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    border-right: 1px solid var(--border);
+  }
+  .cumul-row:first-child .cumul-pos { color: var(--yellow); }
+  .cumul-row:nth-child(2) .cumul-pos { color: #ccc; }
+  .cumul-row:nth-child(3) .cumul-pos { color: #a0816c; }
+
+  /* Nombre — protagonista */
+  .cumul-name-block {
+    flex: 1;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+  .cumul-name-main {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+  }
+  .cumul-row:first-child .cumul-name-main {
+    font-size: 26px;
+    color: var(--yellow);
+  }
+  .cumul-name-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Puntos — número grande a la derecha */
+  .cumul-pts-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 12px 20px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    border-left: 1px solid var(--border);
+    min-width: 72px;
+  }
+  .cumul-pts-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: var(--yellow);
+  }
+  .cumul-row:first-child .cumul-pts-num { font-size: 40px; }
+  .cumul-pts-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
   /* TOP PERFORMERS */
   .perf-grid { display: flex; flex-direction: column; background: var(--surface); border: 2px solid var(--border); border-left: 4px solid var(--yellow); overflow: hidden; }
   .perf-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid var(--border); gap: 14px; }
@@ -394,15 +510,7 @@
   .podium-deck { font-size: 12px; color: var(--muted); font-style: italic; }
   .podium-pts { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); }
 
-  /* CUMULATIVE */
-  .cumul-section { margin-bottom: 28px; }
-  .cumul-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .cumul-name { width: 160px; font-size: 14px; font-weight: 600; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; }
-  .cumul-bar-bg { flex: 1; height: 30px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; position: relative; }
-  .cumul-bar-fill { height: 100%; background: linear-gradient(90deg, #2a2200 0%, var(--yellow-dark) 40%, var(--yellow) 100%); display: flex; align-items: center; padding-left: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: #000; letter-spacing: 1px; white-space: nowrap; transition: width 1.3s cubic-bezier(.16,1,.3,1); }
-  .cumul-pts { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); width: 44px; text-align: right; flex-shrink: 0; }
-
-  /* FACTS */
+  /* DATOS CURIOSOS */
   .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 28px; }
   .fact-card { background: var(--surface); border: 2px solid var(--border); border-bottom: 3px solid var(--yellow); padding: 18px 20px; position: relative; overflow: hidden; }
   .fact-card::before { content: attr(data-icon); position: absolute; right: 10px; top: 8px; font-size: 32px; opacity: 0.1; }
@@ -445,13 +553,9 @@
 <body>
 <div class="container">
 
-  <!-- ══════════════════════════════════════
-       UPLOAD ZONE — visible antes de cargar
-  ══════════════════════════════════════ -->
+  <!-- UPLOAD ZONE -->
   <div id="uploadZone">
-
     <div class="upload-logo">TODO FREAK<br><span>STORE</span></div>
-
     <label class="upload-box" id="uploadBox">
       <input type="file" id="jsonInput" accept=".json">
       <span class="upload-icon">📂</span>
@@ -461,33 +565,25 @@
         o haz clic para seleccionarlo
       </div>
     </label>
-
     <div class="upload-hint">Formato esperado · Array de objetos con Puesto, Nombre, Puntos, Fecha…</div>
     <div class="upload-error" id="uploadError">⚠ El archivo no tiene el formato correcto. Revisa que sea un JSON válido con los campos requeridos.</div>
-
   </div>
 
-  <!-- ══════════════════════════════════════
-       DASHBOARD — oculto hasta cargar datos
-  ══════════════════════════════════════ -->
+  <!-- DASHBOARD -->
   <div id="dashboard">
 
-    <!-- HEADER -->
     <div class="header">
       <div class="header-inner">
         <div class="header-left">
           <div class="season-label">Todo Freak Store · Season 3</div>
           <h1>STANDINGS<br><span>DASHBOARD</span></h1>
         </div>
-        <div class="header-meta" id="headerMeta">
-          <!-- llenado dinámicamente -->
-        </div>
+        <div class="header-meta" id="headerMeta"></div>
       </div>
     </div>
 
     <div class="inner">
 
-      <!-- STAT CARDS -->
       <div class="stats-row" id="statsRow"></div>
 
       <!-- RANKING ACUMULADO -->
@@ -532,16 +628,12 @@
         <span>Todo Freak Store</span> · Season 3 · Magic: The Gathering · Dashboard generado automáticamente
       </div>
 
-    </div><!-- /inner -->
-  </div><!-- /dashboard -->
+    </div>
+  </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
-// ══════════════════════════════════════════
-//   CARGA DE ARCHIVO
-// ══════════════════════════════════════════
-
 const jsonInput  = document.getElementById('jsonInput');
 const uploadZone = document.getElementById('uploadZone');
 const uploadBox  = document.getElementById('uploadBox');
@@ -549,7 +641,6 @@ const uploadError= document.getElementById('uploadError');
 const dashboard  = document.getElementById('dashboard');
 const changeBtn  = document.getElementById('changeFileBtn');
 
-// Drag & drop visual feedback
 uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('drag-over'); });
 uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
 uploadBox.addEventListener('drop', e => {
@@ -564,20 +655,15 @@ jsonInput.addEventListener('change', e => {
 });
 
 changeBtn.addEventListener('click', () => {
-  // Volver a la pantalla de carga y limpiar todo
   dashboard.classList.remove('visible');
   uploadZone.style.display = 'flex';
   uploadError.classList.remove('visible');
   limpiarDashboard();
-  // reset input para que dispare change aunque sea el mismo archivo
   jsonInput.value = '';
 });
 
 function readFile(file) {
-  if (!file.name.endsWith('.json')) {
-    mostrarError();
-    return;
-  }
+  if (!file.name.endsWith('.json')) { mostrarError(); return; }
   const reader = new FileReader();
   reader.onload = ev => {
     try {
@@ -587,29 +673,20 @@ function readFile(file) {
       uploadZone.style.display = 'none';
       dashboard.classList.add('visible');
       renderDashboard(raw);
-    } catch {
-      mostrarError();
-    }
+    } catch { mostrarError(); }
   };
   reader.readAsText(file);
 }
 
-function mostrarError() {
-  uploadError.classList.add('visible');
-}
+function mostrarError() { uploadError.classList.add('visible'); }
 
 function limpiarDashboard() {
-  ['statsRow','cumulBars','playerTableBody','archetypeGrid','topPerformers','weekGrid','factsGrid','headerMeta']
+  ['statsRow','cumulBars','playerTableBody','archetypeGrid','weekGrid','factsGrid','headerMeta']
     .forEach(id => { document.getElementById(id).innerHTML = ''; });
 }
 
-// ══════════════════════════════════════════
-//   RENDER DASHBOARD
-// ══════════════════════════════════════════
-
 function renderDashboard(raw) {
 
-  // ── Procesar por jugador
   const byPlayer = {};
   raw.forEach(r => {
     const n = r.Nombre;
@@ -625,7 +702,6 @@ function renderDashboard(raw) {
 
   const players = Object.values(byPlayer).sort((a,b) => b.totalPts - a.totalPts);
 
-  // ── Semanas
   const weeks = {};
   raw.forEach(r => {
     const d = r.Fecha.slice(0,10);
@@ -635,7 +711,6 @@ function renderDashboard(raw) {
   const weekKeys = Object.keys(weeks).sort();
   const numWeeks = weekKeys.length;
 
-  // ── Arquetipos
   const byArch = {};
   raw.forEach(r => {
     const a = r.Arquetipo;
@@ -646,7 +721,6 @@ function renderDashboard(raw) {
   });
   const archs = Object.values(byArch).sort((a,b) => b.count - a.count);
 
-  // ── Jugador más consistente (2+ torneos)
   const consistentPlayers = players.filter(p => p.entries.length >= 2);
   let mostConsistent = null, bestAvg = 99;
   consistentPlayers.forEach(p => {
@@ -654,18 +728,15 @@ function renderDashboard(raw) {
     if (avg < bestAvg) { bestAvg = avg; mostConsistent = p; }
   });
 
-  // ── Jugadores únicos por semana
-  const playersPerWeek = weekKeys.map(k => weeks[k].length);
   const uniquePlayers = Object.keys(byPlayer).length;
 
-  // ── Destaque (top 3 en más semanas)
   let destacado = null, destacadoCount = 0;
   players.forEach(p => {
     const top3 = p.entries.filter(e => e.Puesto <= 3).length;
     if (top3 > destacadoCount) { destacadoCount = top3; destacado = p; }
   });
 
-  // ══ HEADER META ══
+  // HEADER META
   const lastDate = new Date(weekKeys[weekKeys.length - 1]);
   const lastDateStr = lastDate.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
   document.getElementById('headerMeta').innerHTML = `
@@ -675,9 +746,8 @@ function renderDashboard(raw) {
     <div>Jugadores únicos <span>${uniquePlayers}</span></div>
   `;
 
-  // ══ STAT CARDS ══
+  // STAT CARDS
   const statsRow = document.getElementById('statsRow');
-  const partidas = raw.length;
   const weekLabel = weekKeys.map((_,i) => `${players.filter(p=>p.entries.some(e=>e.Fecha.startsWith(weekKeys[i]))).length} en W${i+1}`).join(' · ');
   statsRow.innerHTML = `
     <div class="stat-card alt">
@@ -697,31 +767,41 @@ function renderDashboard(raw) {
     </div>
   `;
 
-  // ══ CUMULATIVE RANKING ══
+  // ── RANKING ACUMULADO (nuevo diseño) ──
   document.getElementById('cumulTag').textContent = weekKeys.map((_,i)=>'W'+(i+1)).join(' + ');
   const maxPts = players[0].totalPts;
   const cumulContainer = document.getElementById('cumulBars');
+
   players.forEach((p, i) => {
     const pct = (p.totalPts / (maxPts > 0 ? maxPts : 1)) * 100;
     const shortName = p.name.replace(/\s\(.*\)/, '').replace(' 🐸','');
+    const torneos = p.entries.length;
+
     const row = document.createElement('div');
-    row.className = 'cumul-bar-row';
+    row.className = 'cumul-row';
     row.innerHTML = `
-      <div class="cumul-name" title="${p.name}">${i+1}. ${shortName}</div>
-      <div class="cumul-bar-bg">
-        <div class="cumul-bar-fill" style="width:0%" data-pct="${pct}">
-          ${p.entries.length} torneo${p.entries.length>1?'s':''}
-        </div>
+      <div class="cumul-bar-track" data-pct="${pct}"></div>
+      <div class="cumul-pos">${i+1}</div>
+      <div class="cumul-name-block">
+        <div class="cumul-name-main">${shortName}</div>
+        <div class="cumul-name-sub">${torneos} torneo${torneos>1?'s':''}</div>
       </div>
-      <div class="cumul-pts">${p.totalPts}</div>
+      <div class="cumul-pts-block">
+        <div class="cumul-pts-num">${p.totalPts}</div>
+        <div class="cumul-pts-label">pts</div>
+      </div>
     `;
     cumulContainer.appendChild(row);
   });
+
+  // Animar barras de fondo
   setTimeout(() => {
-    document.querySelectorAll('.cumul-bar-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+    document.querySelectorAll('.cumul-bar-track').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
   }, 100);
 
-  // ══ PLAYER TABLE ══
+  // PLAYER TABLE
   const tbody = document.getElementById('playerTableBody');
   players.forEach((p, i) => {
     const att = p.entries.length;
@@ -758,7 +838,7 @@ function renderDashboard(raw) {
     tbody.appendChild(tr);
   });
 
-  // ══ ARCHETIPOS ══
+  // ARQUETIPOS
   const archColors = ['#e8ff47','#7b61ff','#ff4757','#3ddc84','#ffb830','#38b2ff','#ff6b9d','#a78bfa','#ff9f43','#00d2d3'];
   const archGrid = document.getElementById('archetypeGrid');
   archs.forEach((a, i) => {
@@ -780,7 +860,7 @@ function renderDashboard(raw) {
     archGrid.appendChild(row);
   });
 
-  // ══ WEEK GRID ══
+  // WEEK GRID
   const weekGrid = document.getElementById('weekGrid');
   weekKeys.forEach((k, wi) => {
     const entries = weeks[k].sort((a,b) => a.Puesto - b.Puesto);
@@ -836,14 +916,11 @@ function renderDashboard(raw) {
     weekGrid.appendChild(card);
   });
 
-  // ══ FUN FACTS ══
+  // FUN FACTS
   const topArch = archs[0];
-
-  // Nuevos jugadores — los que solo aparecen en la última semana
   const lastWeek = weekKeys[weekKeys.length-1];
-  const prevWeekPlayers = new Set(raw.filter(r=>r.Fecha.startsWith(weekKeys.slice(0,-1).join('|').split('|')[0]||'')).map(r=>r.Nombre));
   const newPlayers = [...new Set(weeks[lastWeek].map(r=>r.Nombre))].filter(n => {
-    return !weekKeys.slice(0,-1).some(wk => weeks[wk].some(r=>r.Nombre===n));
+    return !weekKeys.slice(0,-1).some(wk => weeks[wk] && weeks[wk].some(r=>r.Nombre===n));
   });
 
   const facts = [
@@ -879,7 +956,7 @@ function renderDashboard(raw) {
     factsGrid.appendChild(card);
   });
 
-} // fin renderDashboard
+}
 </script>
 </body>
 </html>
