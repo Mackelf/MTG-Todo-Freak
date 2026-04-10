@@ -804,13 +804,7 @@
       </div><!-- /viewAcum -->
 
       <!-- VIEW: ESTA SEMANA -->
-      <div id="viewWeek" style="display:none">
-        <div class="section-title">Resultados <span class="tag" id="weekViewTag"></span></div>
-        <div id="weekDetailPodium" style="margin-bottom:28px"></div>
-
-        <div class="section-title">Arquetipos <span class="tag">ESTA SEMANA</span></div>
-        <div class="arch-grid" id="weekArchGrid" style="margin-bottom:28px"></div>
-      </div>
+    
 
       <div class="footer">
         <span>Todo Freak Store</span> · Season 3 · Magic: The Gathering · Dashboard generado automáticamente
@@ -839,7 +833,7 @@ const WEEKS = [
 // ─────────────────────────────────────────────────────────
 
 let allData   = [];   // datos acumulados de todas las semanas cargadas
-let weekData  = {};   // { 'Week N': [...] }
+
 
 let availableWeeks = [];
 
@@ -901,7 +895,7 @@ function renderWeekView() {
   const w   = availableWeeks[idx];
   const data = w.data;
 
-  document.getElementById('weekViewTag').textContent = w.label.toUpperCase();
+  
 
   // Stat cards solo de esta semana
   const statsRow = document.getElementById('statsRow');

@@ -1156,15 +1156,11 @@ tr:hover td {
           <div class="section-title">Resultados por Torneo</div>
           <div class="week-grid" id="weekGrid"></div>
 
-          <div class="section-title">
-            Resultados <span class="tag" id="weekViewTag"></span>
-          </div>
-          <div id="weekDetailPodium" style="margin-bottom: 28px"></div>
+          
+          
 
-          <div class="section-title">
-            Arquetipos <span class="tag">TORNEO SELECCIONADO</span>
-          </div>
-          <div class="arch-grid" id="weekArchGrid" style="margin-bottom: 28px"></div>
+        
+          
 
           <div class="section-title">Datos Curiosos</div>
           <div class="facts-grid" id="factsGrid"></div>
@@ -1277,104 +1273,10 @@ tr:hover td {
 
       function renderDashboard() {
         renderAcumView();
-        renderWeekView();
+        
       }
 
-      function renderWeekView() {
-        const data = getFilteredData();
-        const label = selectedDate === "all" ? "TODOS LOS TORNEOS" : formatDate(selectedDate);
-
-        getRequiredEl("weekViewTag").textContent = label;
-
-        const statsRow = getRequiredEl("statsRow");
-        const podiumContainer = getRequiredEl("weekDetailPodium");
-        const weekArchGrid = getRequiredEl("weekArchGrid");
-
-        statsRow.innerHTML = "";
-        podiumContainer.innerHTML = "";
-        weekArchGrid.innerHTML = "";
-
-        if (!data.length) return;
-
-        const sorted = [...data].sort((a, b) => Number(a.Puesto) - Number(b.Puesto));
-        const winner = sorted[0];
-        const avgJG = data.reduce((sum, row) => sum + parseFloat(String(row["%JG"] || "0").replace("%", "")), 0) / data.length;
-
-        const byArch = {};
-        data.forEach((row) => {
-          const key = row.Arquetipo;
-          if (!byArch[key]) byArch[key] = { name: key, count: 0, wins: 0, games: 0 };
-          byArch[key].count++;
-          byArch[key].wins += parseInt(row.V || 0, 10);
-          byArch[key].games += parseInt(row.V || 0, 10) + parseInt(row.D || 0, 10) + parseInt(row.E || 0, 10);
-        });
-
-        const archList = Object.values(byArch).sort((a, b) => b.count - a.count);
-
-        statsRow.innerHTML = `
-          <div class="stat-card alt">
-            <div class="stat-label">Jugadores</div>
-            <div class="stat-value">${data.length}</div>
-            <div class="stat-sub">${selectedDate === "all" ? "Histórico" : formatDate(selectedDate)}</div>
-          </div>
-          <div class="stat-card green-top">
-            <div class="stat-label">Arquetipos</div>
-            <div class="stat-value">${archList.length}</div>
-            <div class="stat-sub">Vista actual</div>
-          </div>
-          <div class="stat-card red-top">
-            <div class="stat-label">Ganador</div>
-            <div class="stat-value">${winner.Nombre.split(" ").slice(0, 2).join(" ")}</div>
-            <div class="stat-sub">${winner.Arquetipo} · ${winner.Puntos} pts</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">WR Promedio</div>
-            <div class="stat-value">${avgJG.toFixed(0)}%</div>
-            <div class="stat-sub">Vista actual</div>
-          </div>
-        `;
-
-        const card = document.createElement("div");
-        card.className = "week-card";
-        card.innerHTML = `
-          <div class="week-podium">
-            ${sorted.map((e, i) => {
-              const shortName = e.Nombre.replace(/\s\(.*\)/, "").replace(" 🐸", "").split(" ").slice(0, 2).join(" ");
-              return `
-                <div class="podium-row">
-                  <div class="podium-pos ${i === 0 ? "gold" : ""}">#${e.Puesto}</div>
-                  <div>
-                    <div class="podium-name">${shortName}</div>
-                    <div class="podium-deck">${e.Arquetipo}</div>
-                  </div>
-                  <div class="podium-pts">${e.Puntos}</div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        `;
-        podiumContainer.appendChild(card);
-
-        const archColors = ["#e8ff47", "#7b61ff", "#ff4757", "#3ddc84", "#ffb830", "#38b2ff", "#ff6b9d", "#a78bfa", "#ff9f43", "#00d2d3"];
-        archList.forEach((a, i) => {
-          const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
-          const wrColor = wr >= 55 ? "var(--win)" : wr >= 45 ? "var(--yellow)" : "var(--loss)";
-          const row = document.createElement("div");
-          row.className = "arch-row";
-          row.innerHTML = `
-            <div class="arch-color-dot" style="background:${archColors[i % archColors.length]}"></div>
-            <div class="arch-name">${a.name}</div>
-            <div class="arch-bar-wrap">
-              <div class="wr-bar-bg" style="width:60px">
-                <div class="wr-bar-fill" style="width:${wr}%;background:${archColors[i % archColors.length]}"></div>
-              </div>
-            </div>
-            <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
-            <div class="arch-count">${a.count}× jugado</div>
-          `;
-          weekArchGrid.appendChild(row);
-        });
-      }
+    
 
       function renderAcumView() {
         const raw = getFilteredData();
