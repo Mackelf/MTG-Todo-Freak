@@ -696,6 +696,367 @@
         .podium-row { grid-template-columns: 44px minmax(0, 1fr) 36px; }
         .cumul-row { grid-template-columns: 42px minmax(0, 1fr) 70px; }
       }
+      /* === PRESET A · limpio / competitivo / elegante === */
+
+/* Base */
+.container {
+  max-width: 1240px;
+}
+
+.inner {
+  padding: 0 32px;
+}
+
+@media (max-width: 768px) {
+  .inner {
+    padding: 0 18px;
+  }
+}
+
+/* Header */
+.header {
+  margin-bottom: 24px;
+}
+
+.header-left {
+  padding: 20px 28px;
+  padding-right: 52px;
+  min-width: 320px;
+}
+
+.season-label {
+  font-size: 10px;
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+
+.header h1 {
+  font-size: clamp(34px, 6vw, 58px);
+  letter-spacing: 2px;
+}
+
+.header-meta {
+  padding: 20px 28px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* Selector */
+.week-selector-bar {
+  padding: 12px 24px;
+  gap: 14px;
+}
+
+.week-dropdown {
+  min-width: 190px;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  padding: 8px 34px 8px 12px;
+}
+
+/* Stats */
+.stats-row {
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  padding: 16px 18px;
+  border-width: 1px;
+  border-top-width: 3px;
+}
+
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 40px;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: #8b8b8b;
+}
+
+/* Títulos */
+.section-title {
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+
+.section-title::before {
+  width: 4px;
+  height: 18px;
+}
+
+.tag {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 2px 7px;
+}
+
+/* Ranking acumulado */
+.cumul-section {
+  margin-bottom: 32px;
+}
+
+.cumul-row {
+  margin-bottom: 8px;
+  min-height: 72px;
+  border-color: #2a2a2a;
+}
+
+.cumul-row:hover {
+  border-color: #4a4a4a;
+}
+
+.cumul-pos {
+  width: 46px;
+  min-width: 46px;
+  font-size: 26px;
+  padding: 12px 0;
+}
+
+.cumul-name-block {
+  padding: 10px 16px;
+  gap: 2px;
+}
+
+.cumul-name-main {
+  font-size: 20px;
+  letter-spacing: 0.3px;
+}
+
+.cumul-row:first-child .cumul-name-main {
+  font-size: 24px;
+}
+
+.cumul-name-sub {
+  font-size: 10px;
+  color: #7b7b7b;
+  letter-spacing: 1.8px;
+}
+
+.cumul-pts-block {
+  min-width: 84px;
+  padding: 10px 18px;
+}
+
+.cumul-pts-num {
+  font-size: 32px;
+}
+
+.cumul-row:first-child .cumul-pts-num {
+  font-size: 38px;
+}
+
+.cumul-pts-label {
+  font-size: 9px;
+  color: #7b7b7b;
+}
+
+/* Barras del acumulado más finas visualmente */
+.cumul-bar-track {
+  opacity: 0.9;
+}
+
+/* Tablas */
+.player-table-wrap,
+.final-rank-wrap,
+.arch-grid {
+  margin-bottom: 32px;
+  border-width: 1px;
+}
+
+thead {
+  border-bottom-width: 1px;
+}
+
+th {
+  padding: 10px 14px;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+}
+
+td {
+  padding: 11px 14px;
+}
+
+tr:hover td {
+  background: rgba(245, 200, 0, 0.035);
+}
+
+.player-name {
+  gap: 10px;
+}
+
+.rank-num {
+  font-size: 18px;
+  width: 24px;
+}
+
+.pts-badge {
+  font-size: 24px;
+}
+
+.attendance-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+}
+
+.wde-text,
+.wr-pct {
+  font-size: 12px;
+}
+
+.wr-bar-bg {
+  height: 4px;
+}
+
+/* Ranking final */
+.final-rank-formula {
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* Arquetipos */
+.arch-row {
+  padding: 12px 15px;
+}
+
+.arch-name {
+  font-size: 13px;
+}
+
+.arch-count,
+.arch-wr {
+  font-size: 12px;
+}
+
+/* Weeks */
+.week-grid {
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.week-card {
+  border-width: 1px;
+}
+
+.week-header {
+  padding: 12px 14px;
+}
+
+.week-title {
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.week-date {
+  font-size: 11px;
+}
+
+.podium-row {
+  padding: 10px 14px;
+}
+
+.podium-name {
+  font-size: 14px;
+}
+
+.podium-deck {
+  font-size: 11px;
+}
+
+.podium-pts {
+  font-size: 22px;
+}
+
+/* Datos curiosos */
+.facts-grid {
+  gap: 12px;
+}
+
+.fact-card {
+  border-width: 1px;
+  padding: 16px 18px;
+}
+
+.fact-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.fact-value {
+  font-size: 30px;
+}
+
+.fact-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8d8d8d;
+}
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  font-size: 11px;
+  color: var(--muted2);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .header-inner {
+    flex-direction: column;
+  }
+
+  .header-left {
+    min-width: 100%;
+    clip-path: none;
+    padding-right: 28px;
+  }
+
+  .header-meta {
+    width: 100%;
+    text-align: left;
+    padding-top: 14px;
+    padding-bottom: 16px;
+  }
+
+  .week-selector-bar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .week-dropdown {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .cumul-row {
+    min-height: 66px;
+  }
+
+  .cumul-name-main {
+    font-size: 18px;
+  }
+
+  .cumul-row:first-child .cumul-name-main {
+    font-size: 21px;
+  }
+
+  .cumul-pts-num {
+    font-size: 28px;
+  }
+
+  .cumul-row:first-child .cumul-pts-num {
+    font-size: 32px;
+  }
+}
     </style>
   </head>
   <body>
