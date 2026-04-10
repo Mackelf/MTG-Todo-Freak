@@ -269,32 +269,6 @@
     pointer-events: none;
   }
 
-  /* Tabs acumulado / semanal */
-  .view-tabs {
-    display: flex;
-    gap: 4px;
-    margin-left: auto;
-  }
-  .view-tab {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 7px 14px;
-    background: none;
-    border: 1.5px solid var(--border);
-    color: var(--muted2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .view-tab:hover { border-color: var(--border-bright); color: var(--muted); }
-  .view-tab.active {
-    background: var(--yellow);
-    border-color: var(--yellow);
-    color: #000;
-  }
-
   .inner { padding: 0 28px; }
 
   /* ── STAT CARDS ── */
@@ -759,10 +733,7 @@
         <select class="week-dropdown" id="weekDropdown"></select>
         <span class="week-dropdown-arrow">▼</span>
       </div>
-      <div class="view-tabs">
-        <button class="view-tab active" id="tabAcum" onclick="setView('acum')">Acumulado</button>
-        <button class="view-tab" id="tabWeek" onclick="setView('week')">Esta semana</button>
-      </div>
+      
     </div>
 
     <div class="inner">
@@ -869,7 +840,7 @@ const WEEKS = [
 
 let allData   = [];   // datos acumulados de todas las semanas cargadas
 let weekData  = {};   // { 'Week N': [...] }
-let currentView = 'acum';
+
 let availableWeeks = [];
 
 const loadingScreen = document.getElementById('loadingScreen');
@@ -922,13 +893,7 @@ async function init() {
   renderWeekView();
 }
 
-function setView(v) {
-  currentView = v;
-  document.getElementById('viewAcum').style.display  = v === 'acum'  ? '' : 'none';
-  document.getElementById('viewWeek').style.display  = v === 'week'  ? '' : 'none';
-  document.getElementById('tabAcum').classList.toggle('active', v === 'acum');
-  document.getElementById('tabWeek').classList.toggle('active', v === 'week');
-}
+
 
 // ── VISTA: ESTA SEMANA ──────────────────────────────────
 function renderWeekView() {
