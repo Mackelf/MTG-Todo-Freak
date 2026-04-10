@@ -1176,145 +1176,165 @@
         </div>
       </div>
     </div>
-    <script>
-      const WEEKS = [
-        { label: "Week 2", file: "data/S3_W2.json" },
-        { label: "Week 3", file: "data/S3_W3.json" },
-        { label: "Week 4", file: "data/S3_W4.json" },
-        { label: "Week 5", file: "data/S3_W5.json" },
-      ];
+<script>
+  const DATA_FILE = "data/season3.json";
 
-      let allData = [];
-      let weekData = {};
-      let currentView = "acum";
-      let availableWeeks = [];
+  let allData = [];
+  let selectedDate = "all";
+  let currentView = "acum";
 
-      function getRequiredEl(id) {
-        const el = document.getElementById(id);
-        if (!el) {
-          throw new Error(`Falta el elemento obligatorio con id: ${id}`);
-        }
-        return el;
+  function getRequiredEl(id) {
+    const el = document.getElementById(id);
+    if (!el) throw new Error(`Falta el elemento con id: ${id}`);
+    return el;
+  }
+
+  function getOptionalEl(id) {
+    return document.getElementById(id);
+  }
+
+  function normalizeDate(value) {
+    return (value || "").slice(0, 10);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("es-CL", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).toUpperCase();
+  }
+
+  function getUniqueDates(data) {
+    return [...new Set(data.map(row => normalizeDate(row.Fecha)))]
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  }
+
+  function getFilteredData() {
+    if (selectedDate === "all") return allData;
+    return allData.filter(row => normalizeDate(row.Fecha) === selectedDate);
+  }
+
+  function groupByTournament(data) {
+    const groups = {};
+
+    data.forEach((row) => {
+      const key = normalizeDate(row.Fecha);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(row);
+    });
+
+    return Object.entries(groups)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([date, entries], index) => ({
+        key: date,
+        label: `Torneo ${index + 1}`,
+        entries: entries.sort((a, b) => Number(a.Puesto) - Number(b.Puesto)),
+      }));
+  }
+
+  async function init() {
+    const loadingScreen = getOptionalEl("loadingScreen");
+    const errorScreen = getOptionalEl("errorScreen");
+    const dashboard = getRequiredEl("dashboard");
+
+    try {
+      const res = await fetch(DATA_FILE);
+      if (!res.ok) throw new Error(`No se pudo cargar ${DATA_FILE}`);
+
+      allData = await res.json();
+      if (!Array.isArray(allData) || !allData.length) {
+        throw new Error("El JSON no contiene un arreglo válido");
       }
 
-      function getOptionalEl(id) {
-        return document.getElementById(id);
-      }
+      renderTournamentDropdown();
 
-      function getTournamentGroupsFromAllData(raw) {
-        const groups = {};
+      if (loadingScreen) loadingScreen.style.display = "none";
+      dashboard.classList.add("visible");
 
-        raw.forEach((r) => {
-          const dateKey = (r.Fecha || "").slice(0, 10);
-          if (!groups[dateKey]) groups[dateKey] = [];
-          groups[dateKey].push(r);
-        });
+      renderAcumView();
+      renderWeekView();
+    } catch (err) {
+      console.error(err);
+      if (loadingScreen) loadingScreen.style.display = "none";
+      if (errorScreen) errorScreen.classList.add("visible");
+    }
+  }
 
-        return Object.entries(groups)
-          .sort((a, b) => a[0].localeCompare(b[0]))
-          .map(([date, entries], idx) => ({
-            key: date,
-            label: `Torneo ${idx + 1}`,
-            entries: entries.sort((a, b) => a.Puesto - b.Puesto),
-          }));
-      }
+  function renderTournamentDropdown() {
+    const dropdown = getRequiredEl("weekDropdown");
+    const dates = getUniqueDates(allData);
 
-      async function init() {
-        const loadingScreen = getOptionalEl("loadingScreen");
-        const errorScreen = getOptionalEl("errorScreen");
-        const dashboard = getRequiredEl("dashboard");
-        const dropdown = getRequiredEl("weekDropdown");
+    dropdown.innerHTML = `
+      <option value="all">Todos los torneos</option>
+      ${dates.map(date => `<option value="${date}">${formatDate(date)}</option>`).join("")}
+    `;
 
-        const loaded = [];
-        allData = [];
-        weekData = {};
-        availableWeeks = [];
-        dropdown.innerHTML = "";
+    dropdown.value = "all";
+    dropdown.addEventListener("change", (e) => {
+      selectedDate = e.target.value;
+      renderAcumView();
+      renderWeekView();
+    });
+  }
 
-        for (const w of WEEKS) {
-          try {
-            const res = await fetch(w.file);
-            if (!res.ok) break;
-            const json = await res.json();
-            if (!Array.isArray(json) || !json[0]?.Nombre) break;
-            loaded.push({ ...w, data: json });
-          } catch (err) {
-            console.error(`Error cargando ${w.file}:`, err);
-            break;
-          }
-        }
+  function setView(v) {
+    currentView = v;
+    getRequiredEl("viewAcum").style.display = v === "acum" ? "" : "none";
+    getRequiredEl("viewWeek").style.display = v === "week" ? "" : "none";
+    getRequiredEl("tabAcum").classList.toggle("active", v === "acum");
+    getRequiredEl("tabWeek").classList.toggle("active", v === "week");
+  }
 
-        if (loaded.length === 0) {
-          if (loadingScreen) loadingScreen.style.display = "none";
-          if (errorScreen) errorScreen.classList.add("visible");
-          return;
-        }
+  function renderWeekView() {
+    const data = getFilteredData();
+    const label = selectedDate === "all" ? "TODOS LOS TORNEOS" : formatDate(selectedDate);
 
-        availableWeeks = loaded;
+    getRequiredEl("weekViewTag").textContent = label;
 
-        loaded.forEach((w, i) => {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.textContent = w.label;
-          if (i === loaded.length - 1) opt.selected = true;
-          dropdown.appendChild(opt);
-        });
+    const statsRow = getRequiredEl("statsRow");
+    const podiumContainer = getRequiredEl("weekDetailPodium");
+    const weekArchGrid = getRequiredEl("weekArchGrid");
 
-        allData = loaded.flatMap((w) => w.data);
-        loaded.forEach((w) => {
-          weekData[w.label] = w.data;
-        });
+    statsRow.innerHTML = "";
+    podiumContainer.innerHTML = "";
+    weekArchGrid.innerHTML = "";
 
-        dropdown.addEventListener("change", renderWeekView);
+    if (!data.length) return;
 
-        if (loadingScreen) loadingScreen.style.display = "none";
-        dashboard.classList.add("visible");
-        renderAcumView();
-        renderWeekView();
-      }
+    const sorted = [...data].sort((a, b) => Number(a.Puesto) - Number(b.Puesto));
+    const winner = sorted[0];
 
-      function setView(v) {
-        currentView = v;
-        getRequiredEl("viewAcum").style.display = v === "acum" ? "" : "none";
-        getRequiredEl("viewWeek").style.display = v === "week" ? "" : "none";
-        getRequiredEl("tabAcum").classList.toggle("active", v === "acum");
-        getRequiredEl("tabWeek").classList.toggle("active", v === "week");
-      }
+    const avgJG =
+      data.reduce((sum, row) => sum + parseFloat(row["%JG"] || 0), 0) / data.length;
 
-      function renderWeekView() {
-        const dropdown = getRequiredEl("weekDropdown");
-        const idx = parseInt(dropdown.value, 10);
-        const w = availableWeeks[idx];
-        if (!w) return;
+    const byArch = {};
+    data.forEach((row) => {
+      const key = row.Arquetipo;
+      if (!byArch[key]) byArch[key] = { name: key, count: 0, wins: 0, games: 0 };
+      byArch[key].count++;
+      byArch[key].wins += parseInt(row.V || 0, 10);
+      byArch[key].games +=
+        parseInt(row.V || 0, 10) +
+        parseInt(row.D || 0, 10) +
+        parseInt(row.E || 0, 10);
+    });
 
-        const data = w.data;
-        getRequiredEl("weekViewTag").textContent = w.label.toUpperCase();
+    const archList = Object.values(byArch).sort((a, b) => b.count - a.count);
 
-        const statsRow = getRequiredEl("statsRow");
-        statsRow.innerHTML = "";
-
-        const sorted = [...data].sort((a, b) => a.Puesto - b.Puesto);
-        const winner = sorted[0];
-        const jgAvg =
-          data.reduce((s, e) => s + parseFloat(e["%JG"] || 0), 0) / data.length;
-
-        const byArchW = {};
-        data.forEach((r) => {
-          const a = r.Arquetipo;
-          if (!byArchW[a]) byArchW[a] = { name: a, count: 0 };
-          byArchW[a].count++;
-        });
-
-        statsRow.innerHTML = `
+    statsRow.innerHTML = `
       <div class="stat-card alt">
         <div class="stat-label">Jugadores</div>
         <div class="stat-value">${data.length}</div>
-        <div class="stat-sub">${w.label}</div>
+        <div class="stat-sub">${selectedDate === "all" ? "Histórico" : formatDate(selectedDate)}</div>
       </div>
       <div class="stat-card green-top">
         <div class="stat-label">Arquetipos</div>
-        <div class="stat-value">${Object.keys(byArchW).length}</div>
-        <div class="stat-sub">Esta semana</div>
+        <div class="stat-value">${archList.length}</div>
+        <div class="stat-sub">Vista actual</div>
       </div>
       <div class="stat-card red-top">
         <div class="stat-label">Ganador</div>
@@ -1323,86 +1343,43 @@
       </div>
       <div class="stat-card">
         <div class="stat-label">WR Promedio</div>
-        <div class="stat-value">${jgAvg.toFixed(0)}%</div>
-        <div class="stat-sub">Win rate del torneo</div>
+        <div class="stat-value">${avgJG.toFixed(0)}%</div>
+        <div class="stat-sub">Vista actual</div>
       </div>
     `;
 
-        const podiumContainer = getRequiredEl("weekDetailPodium");
-        podiumContainer.innerHTML = "";
-
-        const card = document.createElement("div");
-        card.className = "week-card";
-
-        const podiumRows = sorted
-          .map((e, pi) => {
-            const shortName = e.Nombre.replace(/\s\(.*\)/, "")
-              .replace(" 🐸", "")
-              .split(" ")
-              .slice(0, 2)
-              .join(" ");
-
-            return `
-          <div class="podium-row">
-            <div class="podium-pos ${pi === 0 ? "gold" : ""}">#${e.Puesto}</div>
-            <div>
-              <div class="podium-name">${shortName}</div>
-              <div class="podium-deck">${e.Arquetipo}</div>
+    const card = document.createElement("div");
+    card.className = "week-card";
+    card.innerHTML = `
+      <div class="week-podium">
+        ${sorted.map((e, i) => {
+          const shortName = e.Nombre.replace(/\s\(.*\)/, "").replace(" 🐸", "").split(" ").slice(0, 2).join(" ");
+          return `
+            <div class="podium-row">
+              <div class="podium-pos ${i === 0 ? "gold" : ""}">#${e.Puesto}</div>
+              <div>
+                <div class="podium-name">${shortName}</div>
+                <div class="podium-deck">${e.Arquetipo}</div>
+              </div>
+              <div class="podium-pts">${e.Puntos}</div>
             </div>
-            <div class="podium-pts">${e.Puntos}</div>
-          </div>
-        `;
-          })
-          .join("");
+          `;
+        }).join("")}
+      </div>
+    `;
+    podiumContainer.appendChild(card);
 
-        card.innerHTML = `<div class="week-podium">${podiumRows}</div>`;
-        podiumContainer.appendChild(card);
+    const archColors = [
+      "#e8ff47", "#7b61ff", "#ff4757", "#3ddc84", "#ffb830",
+      "#38b2ff", "#ff6b9d", "#a78bfa", "#ff9f43", "#00d2d3",
+    ];
 
-        const archColors = [
-          "#e8ff47",
-          "#7b61ff",
-          "#ff4757",
-          "#3ddc84",
-          "#ffb830",
-          "#38b2ff",
-          "#ff6b9d",
-          "#a78bfa",
-          "#ff9f43",
-          "#00d2d3",
-        ];
-
-        const byArchFull = {};
-        data.forEach((r) => {
-          const a = r.Arquetipo;
-          if (!byArchFull[a]) {
-            byArchFull[a] = { name: a, count: 0, wins: 0, games: 0 };
-          }
-          byArchFull[a].count++;
-          byArchFull[a].wins += parseInt(r.V || 0, 10);
-          byArchFull[a].games +=
-            parseInt(r.V || 0, 10) +
-            parseInt(r.D || 0, 10) +
-            parseInt(r.E || 0, 10);
-        });
-
-        const archs = Object.values(byArchFull).sort(
-          (a, b) => b.count - a.count,
-        );
-        const weekArchGrid = getRequiredEl("weekArchGrid");
-        weekArchGrid.innerHTML = "";
-
-        archs.forEach((a, i) => {
-          const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
-          const wrColor =
-            wr >= 55
-              ? "var(--win)"
-              : wr >= 45
-                ? "var(--yellow)"
-                : "var(--loss)";
-
-          const row = document.createElement("div");
-          row.className = "arch-row";
-          row.innerHTML = `
+    archList.forEach((a, i) => {
+      const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
+      const wrColor = wr >= 55 ? "var(--win)" : wr >= 45 ? "var(--yellow)" : "var(--loss)";
+      const row = document.createElement("div");
+      row.className = "arch-row";
+      row.innerHTML = `
         <div class="arch-color-dot" style="background:${archColors[i % archColors.length]}"></div>
         <div class="arch-name">${a.name}</div>
         <div class="arch-bar-wrap">
@@ -1413,108 +1390,87 @@
         <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
         <div class="arch-count">${a.count}× jugado</div>
       `;
-          weekArchGrid.appendChild(row);
-        });
+      weekArchGrid.appendChild(row);
+    });
+  }
+
+  function renderAcumView() {
+    const raw = getFilteredData();
+    if (!raw.length) return;
+
+    const byPlayer = {};
+    raw.forEach((r) => {
+      const n = r.Nombre;
+      if (!byPlayer[n]) {
+        byPlayer[n] = {
+          name: n,
+          entries: [],
+          totalPts: 0,
+          totalW: 0,
+          totalD: 0,
+          totalL: 0,
+          bestPos: 99,
+          decks: [],
+        };
       }
 
-      function renderAcumView() {
-        const raw = allData;
-        if (!raw.length) return;
+      byPlayer[n].entries.push(r);
+      byPlayer[n].totalPts += Number(r.Puntos || 0);
+      byPlayer[n].totalW += parseInt(r.V || 0, 10);
+      byPlayer[n].totalD += parseInt(r.E || 0, 10);
+      byPlayer[n].totalL += parseInt(r.D || 0, 10);
+      if (Number(r.Puesto) < byPlayer[n].bestPos) byPlayer[n].bestPos = Number(r.Puesto);
+      byPlayer[n].decks.push(r.Arquetipo);
+    });
 
-        const byPlayer = {};
-        raw.forEach((r) => {
-          const n = r.Nombre;
-          if (!byPlayer[n]) {
-            byPlayer[n] = {
-              name: n,
-              entries: [],
-              totalPts: 0,
-              totalW: 0,
-              totalD: 0,
-              totalL: 0,
-              bestPos: 99,
-              decks: [],
-            };
-          }
+    const players = Object.values(byPlayer).sort((a, b) => b.totalPts - a.totalPts);
+    const dates = getUniqueDates(raw);
+    const tournaments = groupByTournament(raw);
 
-          byPlayer[n].entries.push(r);
-          byPlayer[n].totalPts += Number(r.Puntos || 0);
-          byPlayer[n].totalW += parseInt(r.V || 0, 10);
-          byPlayer[n].totalD += parseInt(r.E || 0, 10);
-          byPlayer[n].totalL += parseInt(r.D || 0, 10);
-          if (r.Puesto < byPlayer[n].bestPos) byPlayer[n].bestPos = r.Puesto;
-          byPlayer[n].decks.push(r.Arquetipo);
-        });
+    const byArch = {};
+    raw.forEach((r) => {
+      const a = r.Arquetipo;
+      if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
+      byArch[a].count++;
+      byArch[a].wins += parseInt(r.V || 0, 10);
+      byArch[a].games += parseInt(r.V || 0, 10) + parseInt(r.D || 0, 10) + parseInt(r.E || 0, 10);
+    });
+    const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
 
-        const players = Object.values(byPlayer).sort(
-          (a, b) => b.totalPts - a.totalPts,
-        );
-        const weekKeys = availableWeeks.map((w) => w.label);
-        const numWeeks = availableWeeks.length;
-        const tournamentGroups = getTournamentGroupsFromAllData(raw);
+    const consistentPlayers = players.filter((p) => p.entries.length >= 2);
+    let mostConsistent = null;
+    let bestAvg = 99;
 
-        const byArch = {};
-        raw.forEach((r) => {
-          const a = r.Arquetipo;
-          if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
-          byArch[a].count++;
-          byArch[a].wins += parseInt(r.V || 0, 10);
-          byArch[a].games +=
-            parseInt(r.V || 0, 10) +
-            parseInt(r.D || 0, 10) +
-            parseInt(r.E || 0, 10);
-        });
-        const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
+    consistentPlayers.forEach((p) => {
+      const avg = p.entries.reduce((s, e) => s + Number(e.Puesto), 0) / p.entries.length;
+      if (avg < bestAvg) {
+        bestAvg = avg;
+        mostConsistent = p;
+      }
+    });
 
-        const consistentPlayers = players.filter((p) => p.entries.length >= 2);
-        let mostConsistent = null;
-        let bestAvg = 99;
-        consistentPlayers.forEach((p) => {
-          const avg =
-            p.entries.reduce((s, e) => s + e.Puesto, 0) / p.entries.length;
-          if (avg < bestAvg) {
-            bestAvg = avg;
-            mostConsistent = p;
-          }
-        });
-
-        const uniquePlayers = Object.keys(byPlayer).length;
-
-        const lastLoadedWeek = availableWeeks[availableWeeks.length - 1];
-        const lastWeekData = lastLoadedWeek?.data || [];
-        const lastWeekDate = lastWeekData[0]?.Fecha
-          ? new Date(lastWeekData[0].Fecha)
-          : null;
-        const lastDateStr = lastWeekDate
-          ? lastWeekDate
-              .toLocaleDateString("es-CL", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })
-              .toUpperCase()
-          : "—";
-
-        getRequiredEl("headerMeta").innerHTML = `
-      <div>Semanas <span>${weekKeys.join(" + ")}</span></div>
-      <div>Torneos <span>${numWeeks}</span></div>
-      <div>Última fecha <span>${lastDateStr}</span></div>
-      <div>Jugadores únicos <span>${uniquePlayers}</span></div>
+    getRequiredEl("headerMeta").innerHTML = `
+      <div>Filtro <span>${selectedDate === "all" ? "Todos" : formatDate(selectedDate)}</span></div>
+      <div>Torneos <span>${dates.length}</span></div>
+      <div>Jugadores únicos <span>${players.length}</span></div>
+      <div>Fechas <span>${dates.length ? formatDate(dates[0]) : "—"} → ${dates.length ? formatDate(dates[dates.length - 1]) : "—"}</span></div>
     `;
 
-        getRequiredEl("cumulTag").textContent = weekKeys.join(" + ");
+    getRequiredEl("cumulTag").textContent =
+      selectedDate === "all" ? "Histórico completo" : formatDate(selectedDate);
 
-        const maxPts = players[0]?.totalPts || 1;
-        const cumulContainer = getRequiredEl("cumulBars");
-        cumulContainer.innerHTML = "";
+    const maxPts = players[0]?.totalPts || 1;
+    const cumulBars = getRequiredEl("cumulBars");
+    cumulBars.innerHTML = "";
 
-        players.forEach((p, i) => {
-          const pct = (p.totalPts / maxPts) * 100;
-          const shortName = p.name.replace(/\s\(.*\)/, "").replace(" 🐸", "");
-          const torneos = p.entries.length;
-          const row = document.createElement("div");
-          row.className = "cumul-row";
-          row.innerHTML = `
+    players.forEach((p, i) => {
+      const pct = (p.totalPts / maxPts) * 100;
+      const shortName = p.name.replace(/\s\(.*\)/, "").replace(" 🐸", "");
+      const torneos = p.entries.length;
+
+      const row = document.createElement("div");
+      row.className = "cumul-row";
+      row.innerHTML = `
         <div class="cumul-bar-track" data-pct="${pct}"></div>
         <div class="cumul-pos">${i + 1}</div>
         <div class="cumul-name-block">
@@ -1526,25 +1482,26 @@
           <div class="cumul-pts-label">pts</div>
         </div>
       `;
-          cumulContainer.appendChild(row);
-        });
+      cumulBars.appendChild(row);
+    });
 
-        setTimeout(() => {
-          document.querySelectorAll(".cumul-bar-track").forEach((el) => {
-            el.style.width = el.dataset.pct + "%";
-          });
-        }, 100);
+    setTimeout(() => {
+      document.querySelectorAll(".cumul-bar-track").forEach((el) => {
+        el.style.width = el.dataset.pct + "%";
+      });
+    }, 100);
 
-        const tbody = getRequiredEl("playerTableBody");
-        tbody.innerHTML = "";
-        players.forEach((p, i) => {
-          const att = p.entries.length;
-          const jg =
-            p.entries.reduce((s, e) => s + parseFloat(e["%JG"] || 0), 0) / att;
-          const shortName = p.name.replace(" 🐸", "");
-          const deckStr = [...new Set(p.decks)].join(", ");
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
+    const tbody = getRequiredEl("playerTableBody");
+    tbody.innerHTML = "";
+
+    players.forEach((p, i) => {
+      const att = p.entries.length;
+      const jg = p.entries.reduce((s, e) => s + parseFloat(e["%JG"] || 0), 0) / att;
+      const shortName = p.name.replace(" 🐸", "");
+      const deckStr = [...new Set(p.decks)].join(", ");
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td>
           <div class="player-name">
             <span class="rank-num ${i < 3 ? "top" : ""}">${i + 1}</span>
@@ -1570,25 +1527,26 @@
         </td>
         <td style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:${p.bestPos <= 3 ? "var(--yellow)" : "var(--muted)"}">#${p.bestPos}</td>
       `;
-          tbody.appendChild(tr);
-        });
+      tbody.appendChild(tr);
+    });
 
-        const finalPlayers = players
-          .map((p) => {
-            const att = p.entries.length;
-            const bonus = Math.floor(att / 4);
-            const finalPts = p.totalPts + att + bonus;
-            return { ...p, att, bonus, finalPts };
-          })
-          .sort((a, b) => b.finalPts - a.finalPts);
+    const finalPlayers = players
+      .map((p) => {
+        const att = p.entries.length;
+        const bonus = Math.floor(att / 4);
+        const finalPts = p.totalPts + att + bonus;
+        return { ...p, att, bonus, finalPts };
+      })
+      .sort((a, b) => b.finalPts - a.finalPts);
 
-        const finalBody = getRequiredEl("finalRankBody");
-        finalBody.innerHTML = "";
-        finalPlayers.forEach((p, i) => {
-          const shortName = p.name.replace(" 🐸", "");
-          const isLeader = i === 0;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
+    const finalBody = getRequiredEl("finalRankBody");
+    finalBody.innerHTML = "";
+
+    finalPlayers.forEach((p, i) => {
+      const shortName = p.name.replace(" 🐸", "");
+      const isLeader = i === 0;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td>
           <div class="player-name">
             <span class="rank-num ${i < 3 ? "top" : ""}">${i + 1}</span>
@@ -1606,34 +1564,23 @@
           <div class="final-breakdown">${p.totalPts} + ${p.att} + ${p.bonus}</div>
         </td>
       `;
-          finalBody.appendChild(tr);
-        });
+      finalBody.appendChild(tr);
+    });
 
-        const archColors = [
-          "#e8ff47",
-          "#7b61ff",
-          "#ff4757",
-          "#3ddc84",
-          "#ffb830",
-          "#38b2ff",
-          "#ff6b9d",
-          "#a78bfa",
-          "#ff9f43",
-          "#00d2d3",
-        ];
-        const archGrid = getRequiredEl("archetypeGrid");
-        archGrid.innerHTML = "";
-        archs.forEach((a, i) => {
-          const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
-          const wrColor =
-            wr >= 55
-              ? "var(--win)"
-              : wr >= 45
-                ? "var(--yellow)"
-                : "var(--loss)";
-          const row = document.createElement("div");
-          row.className = "arch-row";
-          row.innerHTML = `
+    const archColors = [
+      "#e8ff47", "#7b61ff", "#ff4757", "#3ddc84", "#ffb830",
+      "#38b2ff", "#ff6b9d", "#a78bfa", "#ff9f43", "#00d2d3",
+    ];
+
+    const archGrid = getRequiredEl("archetypeGrid");
+    archGrid.innerHTML = "";
+
+    archs.forEach((a, i) => {
+      const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
+      const wrColor = wr >= 55 ? "var(--win)" : wr >= 45 ? "var(--yellow)" : "var(--loss)";
+      const row = document.createElement("div");
+      row.className = "arch-row";
+      row.innerHTML = `
         <div class="arch-color-dot" style="background:${archColors[i % archColors.length]}"></div>
         <div class="arch-name">${a.name}</div>
         <div class="arch-bar-wrap">
@@ -1644,75 +1591,57 @@
         <div class="arch-wr" style="color:${wrColor}">${wr}%</div>
         <div class="arch-count">${a.count}× jugado</div>
       `;
-          archGrid.appendChild(row);
-        });
+      archGrid.appendChild(row);
+    });
 
-        const weekGrid = getRequiredEl("weekGrid");
-        weekGrid.innerHTML = "";
-        tournamentGroups.forEach((group, wi) => {
-          const entries = [...group.entries].sort(
-            (a, b) => a.Puesto - b.Puesto,
-          );
-          const dateObj = new Date(group.key);
-          const dateStr = dateObj.toLocaleDateString("es-CL", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          });
+    const weekGrid = getRequiredEl("weekGrid");
+    weekGrid.innerHTML = "";
 
-          const card = document.createElement("div");
-          card.className = "week-card";
-          const top3 = entries.slice(0, 3);
-          const rest = entries.slice(3);
+    tournaments.forEach((group, wi) => {
+      const entries = [...group.entries].sort((a, b) => Number(a.Puesto) - Number(b.Puesto));
+      const card = document.createElement("div");
+      card.className = "week-card";
 
-          const podiumRows = top3
-            .map((e, pi) => {
-              const shortName = e.Nombre.replace(/\s\(.*\)/, "")
-                .replace(" 🐸", "")
-                .split(" ")
-                .slice(0, 2)
-                .join(" ");
-              return `
-            <div class="podium-row">
-              <div class="podium-pos ${pi === 0 ? "gold" : ""}">#${e.Puesto}</div>
-              <div>
-                <div class="podium-name">${shortName}</div>
-                <div class="podium-deck">${e.Arquetipo}</div>
-              </div>
-              <div class="podium-pts">${e.Puntos}</div>
+      const top3 = entries.slice(0, 3);
+      const rest = entries.slice(3);
+
+      const topRows = top3.map((e, pi) => {
+        const shortName = e.Nombre.replace(/\s\(.*\)/, "").replace(" 🐸", "").split(" ").slice(0, 2).join(" ");
+        return `
+          <div class="podium-row">
+            <div class="podium-pos ${pi === 0 ? "gold" : ""}">#${e.Puesto}</div>
+            <div>
+              <div class="podium-name">${shortName}</div>
+              <div class="podium-deck">${e.Arquetipo}</div>
             </div>
-          `;
-            })
-            .join("");
+            <div class="podium-pts">${e.Puntos}</div>
+          </div>
+        `;
+      }).join("");
 
-          const restRows = rest
-            .map((e) => {
-              const shortName = e.Nombre.replace(/\s\(.*\)/, "")
-                .replace(" 🐸", "")
-                .split(" ")
-                .slice(0, 2)
-                .join(" ");
-              return `
-            <div class="podium-row">
-              <div class="podium-pos">#${e.Puesto}</div>
-              <div>
-                <div class="podium-name">${shortName}</div>
-                <div class="podium-deck">${e.Arquetipo}</div>
-              </div>
-              <div class="podium-pts">${e.Puntos}</div>
+      const restRows = rest.map((e) => {
+        const shortName = e.Nombre.replace(/\s\(.*\)/, "").replace(" 🐸", "").split(" ").slice(0, 2).join(" ");
+        return `
+          <div class="podium-row">
+            <div class="podium-pos">#${e.Puesto}</div>
+            <div>
+              <div class="podium-name">${shortName}</div>
+              <div class="podium-deck">${e.Arquetipo}</div>
             </div>
-          `;
-            })
-            .join("");
+            <div class="podium-pts">${e.Puntos}</div>
+          </div>
+        `;
+      }).join("");
 
-          const uid = `week-extra-${wi}`;
-          card.innerHTML = `
+      const uid = `week-extra-${wi}`;
+
+      card.innerHTML = `
         <div class="week-header">
           <div class="week-title">${group.label}</div>
-          <div class="week-date">${dateStr} · ${entries.length} jugadores</div>
+          <div class="week-date">${formatDate(group.key)} · ${entries.length} jugadores</div>
         </div>
         <div class="week-podium">
-          ${podiumRows}
+          ${topRows}
           ${
             rest.length > 0
               ? `
@@ -1728,75 +1657,63 @@
           }
         </div>
       `;
-          weekGrid.appendChild(card);
-        });
+      weekGrid.appendChild(card);
+    });
 
-        const topArch = archs[0];
-        const lastTournament = tournamentGroups[tournamentGroups.length - 1];
-        const previousTournaments = tournamentGroups.slice(0, -1);
-        const newPlayers = lastTournament
-          ? [...new Set(lastTournament.entries.map((r) => r.Nombre))].filter(
-              (n) => {
-                return !previousTournaments.some((tg) =>
-                  tg.entries.some((r) => r.Nombre === n),
-                );
-              },
-            )
-          : [];
+    const topArch = archs[0];
+    const lastTournament = tournaments[tournaments.length - 1];
+    const previousTournaments = tournaments.slice(0, -1);
+    const newPlayers = lastTournament
+      ? [...new Set(lastTournament.entries.map((r) => r.Nombre))].filter((n) => {
+          return !previousTournaments.some((tg) =>
+            tg.entries.some((r) => r.Nombre === n)
+          );
+        })
+      : [];
 
-        const facts = [
-          {
-            icon: "🎯",
-            title: "Arquetipo más popular",
-            value: topArch ? topArch.name.split(" ").slice(-1)[0] : "—",
-            desc: topArch
-              ? `${topArch.name} jugado ${topArch.count} veces`
-              : "Sin datos",
-          },
-          {
-            icon: "📈",
-            title: "Jugador más consistente",
-            value: mostConsistent ? mostConsistent.name.split(" ")[0] : "—",
-            desc: mostConsistent
-              ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} torneos`
-              : "Sin datos suficientes",
-          },
-          {
-            icon: "🆕",
-            title: `Nuevos en T${tournamentGroups.length}`,
-            value: newPlayers.length || "—",
-            desc:
-              newPlayers.length > 0
-                ? newPlayers.map((n) => n.split(" ")[0]).join(", ") +
-                  " se incorporaron en el último torneo"
-                : "Sin jugadores nuevos en el último torneo",
-          },
-        ];
+    const facts = [
+      {
+        icon: "🎯",
+        title: "Arquetipo más popular",
+        value: topArch ? topArch.name.split(" ").slice(-1)[0] : "—",
+        desc: topArch ? `${topArch.name} jugado ${topArch.count} veces` : "Sin datos",
+      },
+      {
+        icon: "📈",
+        title: "Jugador más consistente",
+        value: mostConsistent ? mostConsistent.name.split(" ")[0] : "—",
+        desc: mostConsistent
+          ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} torneos`
+          : "Sin datos suficientes",
+      },
+      {
+        icon: "🆕",
+        title: `Nuevos en T${tournaments.length}`,
+        value: newPlayers.length || "—",
+        desc:
+          newPlayers.length > 0
+            ? newPlayers.map((n) => n.split(" ")[0]).join(", ") + " se incorporaron en el último torneo"
+            : "Sin jugadores nuevos en el último torneo",
+      },
+    ];
 
-        const factsGrid = getRequiredEl("factsGrid");
-        factsGrid.innerHTML = "";
-        facts.forEach((f) => {
-          const card = document.createElement("div");
-          card.className = "fact-card";
-          card.setAttribute("data-icon", f.icon);
-          card.innerHTML = `
+    const factsGrid = getRequiredEl("factsGrid");
+    factsGrid.innerHTML = "";
+
+    facts.forEach((f) => {
+      const card = document.createElement("div");
+      card.className = "fact-card";
+      card.setAttribute("data-icon", f.icon);
+      card.innerHTML = `
         <div class="fact-title">${f.title}</div>
         <div class="fact-value">${f.value}</div>
         <div class="fact-desc">${f.desc}</div>
       `;
-          factsGrid.appendChild(card);
-        });
-      }
+      factsGrid.appendChild(card);
+    });
+  }
 
-      document.addEventListener("DOMContentLoaded", () => {
-        init().catch((err) => {
-          console.error(err);
-          const loadingScreen = document.getElementById("loadingScreen");
-          const errorScreen = document.getElementById("errorScreen");
-          if (loadingScreen) loadingScreen.style.display = "none";
-          if (errorScreen) errorScreen.classList.add("visible");
-        });
-      });
-    </script>
+  document.addEventListener("DOMContentLoaded", init);
+</script>
   </body>
 </html>
