@@ -1141,7 +1141,7 @@ tr:hover td {
                 <!--  <th>Asistencias</th>
                   <th>Pts Totales</th>-->
                   <th>W·D·L (total)</th>
-                  <th>%JG (win rate)</th>
+                  <!--<th>%JG (win rate)</th>-->
                   <th>Mejor Puesto</th>
                 </tr>
               </thead>
@@ -1392,10 +1392,11 @@ tr:hover td {
               </div>
             </td>
             <td>
-              <div class="wr-bar-wrap">
+             <!-- <div class="wr-bar-wrap">
                 <div class="wr-bar-bg"><div class="wr-bar-fill" style="width:${jg}%"></div></div>
-                <span class="wr-pct">${jg.toFixed(1)}%</span>
-              </div>
+                <span class="wr-pct">${jg.toFixed(1)}%</span> 
+              </div> 
+              </div>-->
             </td>
             <td style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:${p.bestPos <= 3 ? "var(--yellow)" : "var(--muted)"}">#${p.bestPos}</td>
           `;
