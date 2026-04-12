@@ -1132,14 +1132,14 @@ tr:hover td {
           </div>
 
 
-          <div class="section-title">Jugadores · Asistencia y Rendimiento</div>
+          <div class="section-title">Jugadores · Rendimiento</div>
           <div class="player-table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Jugador</th>
-                  <th>Asistencias</th>
-                  <th>Pts Totales</th>
+                <!--  <th>Asistencias</th>
+                  <th>Pts Totales</th>-->
                   <th>W·D·L (total)</th>
                   <th>%JG (win rate)</th>
                   <th>Mejor Puesto</th>
@@ -1381,8 +1381,8 @@ tr:hover td {
               </div>
               <div style="font-size:12px;color:var(--muted);margin-top:2px;padding-left:28px;font-style:italic">${deckStr}</div>
             </td>
-            <td><span class="attendance-badge ${att < 2 ? "one" : ""}">${att >= 2 ? "✦ " + att + " torneos" : "1 torneo"}</span></td>
-            <td><span class="pts-badge">${p.totalPts}</span></td>
+          <!--  <td><span class="attendance-badge ${att < 2 ? "one" : ""}">${att >= 2 ? "✦ " + att + " torneos" : "1 torneo"}</span></td>
+            <td><span class="pts-badge">${p.totalPts}</span></td>   -->
             <td>
               <div class="wde-bar">
                 ${Array(p.totalW).fill('<span class="dot w"></span>').join("")}
