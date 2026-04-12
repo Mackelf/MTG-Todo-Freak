@@ -1131,7 +1131,7 @@ tr:hover td {
             </table>
           </div>
 
-          
+
           <div class="section-title">Jugadores · Asistencia y Rendimiento</div>
           <div class="player-table-wrap">
             <table>
@@ -1332,7 +1332,7 @@ tr:hover td {
           <div>Fechas <span>${dates.length ? formatDate(dates[0]) : "—"} → ${dates.length ? formatDate(dates[dates.length - 1]) : "—"}</span></div>
         `;
 
-        getRequiredEl("cumulTag").textContent = selectedDate === "all" ? "Histórico completo" : formatDate(selectedDate);
+      /*  getRequiredEl("cumulTag").textContent = selectedDate === "all" ? "Histórico completo" : formatDate(selectedDate);
 
         const maxPts = players[0]?.totalPts || 1;
         const cumulBars = getRequiredEl("cumulBars");
@@ -1357,13 +1357,14 @@ tr:hover td {
           `;
           cumulBars.appendChild(row);
         });
+       
 
         setTimeout(() => {
           document.querySelectorAll(".cumul-bar-track").forEach((el) => {
             el.style.width = el.dataset.pct + "%";
           });
         }, 100);
-
+ */
         const tbody = getRequiredEl("playerTableBody");
         tbody.innerHTML = "";
         players.forEach((p, i) => {
