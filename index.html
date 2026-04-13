@@ -1493,13 +1493,13 @@ const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
 
         const archColors = ["#e8ff47", "#7b61ff", "#ff4757", "#3ddc84", "#ffb830", "#38b2ff", "#ff6b9d", "#a78bfa", "#ff9f43", "#00d2d3"];
         const archGrid = getRequiredEl("archetypeGrid");
-        archGrid.innerHTML = `
+archGrid.innerHTML = `
   <div class="arch-row arch-header">
     <div></div>
     <div>Mazo</div>
-    <div></div>
-    <div>Rendimiento</div>
-    <div>Cantidad</div>
+    <div style="text-align:center">Rendimiento</div>
+    <div style="text-align:right">%</div>
+    <div style="text-align:right">Cantidad</div>
   </div>
 `;
         archs.forEach((a, i) => {
