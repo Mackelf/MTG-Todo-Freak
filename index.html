@@ -1167,6 +1167,11 @@ tr:hover td {
           </div>
           <div class="arch-grid" id="archetypeGrid" style="margin-bottom: 28px"></div>
 
+        <div id="metaPieChart" style="margin-bottom: 28px;">
+          <canvas id="pieCanvas" width="500" height="500" style="max-width:100%;display:block;margin:0 auto;"></canvas>
+        </div>
+
+
           <div class="section-title">Resultados por Torneo</div>
           <div class="week-grid" id="weekGrid"></div>
 
@@ -1469,6 +1474,48 @@ tr:hover td {
           `;
           archGrid.appendChild(row);
         });
+
+        // --- PIE CHART ---
+(function drawPie(archs, colors) {
+  const canvas = document.getElementById("pieCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const total = archs.reduce((s, a) => s + a.count, 0);
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = Math.min(cx, cy) - 40;
+
+  let angle = -Math.PI / 2;
+  archs.forEach((a, i) => {
+    const slice = (a.count / total) * 2 * Math.PI;
+    // Sector
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = "#0d0d0d";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label % si el slice es suficientemente grande
+    if (slice > 0.15) {
+      const mid = angle + slice / 2;
+      const lx = cx + Math.cos(mid) * (r * 0.65);
+      const ly = cy + Math.sin(mid) * (r * 0.65);
+      const pct = Math.round((a.count / total) * 100);
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 13px Barlow Condensed, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(pct + "%", lx, ly);
+    }
+
+    angle += slice;
+  });
+})(archs, ["#e8ff47","#7b61ff","#ff4757","#3ddc84","#ffb830","#38b2ff","#ff6b9d","#a78bfa","#ff9f43","#00d2d3"]);
+
 
         const weekGrid = getRequiredEl("weekGrid");
         weekGrid.innerHTML = "";
