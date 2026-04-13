@@ -1163,7 +1163,7 @@ tr:hover td {
        
 
           <div class="section-title">
-            Arquetipos <span class="tag">VISTA ACTUAL</span>
+            Arquetipos <span class="tag">TOP 8</span>
           </div>
           <div class="arch-grid" id="archetypeGrid" style="margin-bottom: 28px"></div>
 
@@ -1329,7 +1329,7 @@ tr:hover td {
         const players = Object.values(byPlayer).sort((a, b) => b.totalPts - a.totalPts);
         const dates = getUniqueDates(raw);
         const tournaments = groupByTournament(raw);
-
+/*
         const byArch = {};
         raw.forEach((r) => {
           const a = r.Arquetipo;
@@ -1339,6 +1339,19 @@ tr:hover td {
           byArch[a].games += parseInt(r.V || 0, 10) + parseInt(r.D || 0, 10) + parseInt(r.E || 0, 10);
         });
         const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
+*/
+
+const byArch = {};
+raw.forEach((r) => {
+  if (Number(r.Puesto) > 8) return; // ← solo top 8 por torneo
+  const a = r.Arquetipo;
+  if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
+  byArch[a].count++;
+  byArch[a].wins += parseInt(r.V || 0, 10);
+  byArch[a].games += parseInt(r.V || 0, 10) + parseInt(r.D || 0, 10) + parseInt(r.E || 0, 10);
+});
+const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
+
 
         const consistentPlayers = players.filter((p) => p.entries.length >= 2);
         let mostConsistent = null;
