@@ -1171,6 +1171,16 @@ tr:hover td {
           <canvas id="pieCanvas" width="500" height="500" style="max-width:100%;display:block;margin:0 auto;"></canvas>
         </div>
 
+        <div id="pieLegend" style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px 16px;
+            margin-top: 20px;
+            padding: 14px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+          ">
+        </div>
 
           <div class="section-title">Resultados por Torneo</div>
           <div class="week-grid" id="weekGrid"></div>
@@ -1514,6 +1524,25 @@ tr:hover td {
 
     angle += slice;
   });
+
+// --- LEYENDA ---
+const legend = document.getElementById("pieLegend");
+if (legend) {
+  legend.innerHTML = "";
+  archs.forEach((a, i) => {
+    const total = archs.reduce((s, x) => s + x.count, 0);
+    const pct = Math.round((a.count / total) * 100);
+    const item = document.createElement("div");
+    item.style.cssText = "display:flex;align-items:center;gap:8px;";
+    item.innerHTML = `
+      <span style="width:10px;height:10px;border-radius:50%;background:${colors[i % colors.length]};flex-shrink:0;display:inline-block;"></span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;">${pct}% · ${a.count}×</span>
+    `;
+    legend.appendChild(item);
+  });
+}
+
 })(archs, ["#e8ff47","#7b61ff","#ff4757","#3ddc84","#ffb830","#38b2ff","#ff6b9d","#a78bfa","#ff9f43","#00d2d3"]);
 
 
