@@ -1118,15 +1118,7 @@ tr:hover td {
             <span class="week-dropdown-arrow">▼</span>
           </div>
         </div>
-
- <div class="week-dropdown-wrap">
-  <select class="week-dropdown" id="topFilter">
-    <option value="4">Top 4</option>
-    <option value="8" selected>Top 8</option>
-    <option value="16">Top 16</option>
-  </select>
-  <span class="week-dropdown-arrow">▼</span>
-</div>       
+     
 <!--
         <div class="inner">
           <div style="margin-top: 24px"></div>
@@ -1183,8 +1175,25 @@ tr:hover td {
        
 
           <div class="section-title">
-            Arquetipos <span class="tag" id="topTag">TOP 8</span>
-          </div>
+  Arquetipos
+  <select id="topFilter" style="
+    appearance: none;
+    background: #000;
+    border: 1.5px solid var(--border-bright);
+    color: var(--yellow);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    cursor: pointer;
+    outline: none;
+  ">
+    <option value="4">TOP 4</option>
+    <option value="8" selected>TOP 8</option>
+    <option value="16">TOP 16</option>
+  </select>
+</div>
           <div class="arch-grid" id="archetypeGrid" style="margin-bottom: 28px"></div>
 
         <div id="metaPieChart" style="margin-bottom: 28px;">
@@ -1338,9 +1347,7 @@ tr:hover td {
     
 
       function renderAcumView() {
-        const TopTag = document.getElementById("topTag");
-        if (TopTag) TopTag.textContent = `TOP ${selectedTop}`;
-
+   
         const raw = getFilteredData();
         if (!raw.length) return;
 
