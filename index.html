@@ -1118,6 +1118,15 @@ tr:hover td {
             <span class="week-dropdown-arrow">▼</span>
           </div>
         </div>
+
+ <div class="week-dropdown-wrap">
+  <select class="week-dropdown" id="topFilter">
+    <option value="4">Top 4</option>
+    <option value="8" selected>Top 8</option>
+    <option value="16">Top 16</option>
+  </select>
+  <span class="week-dropdown-arrow">▼</span>
+</div>       
 <!--
         <div class="inner">
           <div style="margin-top: 24px"></div>
@@ -1174,7 +1183,7 @@ tr:hover td {
        
 
           <div class="section-title">
-            Arquetipos <span class="tag">TOP 8</span>
+            Arquetipos <span class="tag" id="topTag">TOP 8</span>
           </div>
           <div class="arch-grid" id="archetypeGrid" style="margin-bottom: 28px"></div>
 
@@ -1217,6 +1226,7 @@ tr:hover td {
 
       let allData = [];
       let selectedDate = "all";
+      let selectedTop = 16;
 
       function getRequiredEl(id) {
         const el = document.getElementById(id);
@@ -1309,6 +1319,15 @@ tr:hover td {
           selectedDate = e.target.value;
           renderDashboard();
         });
+
+        const topFilter = document.getElementById("topFilter");
+        if (topFilter) {
+          topFilter.addEventListener ("change", (e) => {
+            selectedTop = Number(e.target.value);
+            renderDashboard();
+          })
+        }
+
       }
 
       function renderDashboard() {
@@ -1319,6 +1338,9 @@ tr:hover td {
     
 
       function renderAcumView() {
+        const TopTag = getElementById("topTag");
+        if (TopTag) TopTag.textContent = `TOP ${selectedTop}`;
+
         const raw = getFilteredData();
         if (!raw.length) return;
 
@@ -1353,12 +1375,12 @@ tr:hover td {
 */
 
 // Tomar solo top 8 de cada torneo individualmente, luego aplanar
-const top8PerTournament = tournaments.flatMap((group) =>
-  group.entries.filter((r) => Number(r.Puesto) <= 8)
+const topNPerTournament = tournaments.flatMap((group) =>
+  group.entries.filter((r) => Number(r.Puesto) <= selectedDate)
 );
 
 const byArch = {};
-top8PerTournament.forEach((r) => {
+topNPerTournament.forEach((r) => {
   const a = r.Arquetipo;
   if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
   byArch[a].count++;
