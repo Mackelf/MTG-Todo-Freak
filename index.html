@@ -1338,7 +1338,7 @@ tr:hover td {
     
 
       function renderAcumView() {
-        const TopTag = getElementById("topTag");
+        const TopTag = document.getElementById("topTag");
         if (TopTag) TopTag.textContent = `TOP ${selectedTop}`;
 
         const raw = getFilteredData();
