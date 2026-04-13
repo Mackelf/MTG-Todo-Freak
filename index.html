@@ -552,14 +552,20 @@
         display: grid;
         gap: 10px;
       }
-      .arch-row {
-        display: grid;
-        grid-template-columns: 14px minmax(0, 1fr) 80px 50px 110px;
-        gap: 10px;
-        align-items: center;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 10px;
-      }
+    .arch-row {
+  display: grid;
+  /* Nueva distribución: Punto | Nombre (flexible) | Barra | % | Veces jugado */
+  grid-template-columns: 14px 1.5fr 100px 60px 100px; 
+  gap: 15px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 15px;
+}
+.arch-bar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
       .arch-row:last-child { border-bottom: none; padding-bottom: 0; }
       .arch-color-dot { width: 10px; height: 10px; border-radius: 50%; }
       .arch-name { font-weight: 700; }
@@ -567,12 +573,14 @@
         font-family: "Barlow Condensed", sans-serif;
         font-weight: 700;
         text-align: right;
+        min-width: 45px;
       }
       .arch-count {
         font-family: "Barlow Condensed", sans-serif;
         color: var(--muted);
         font-size: 13px;
         text-align: right;
+        white-space: nowrap;
       }
       .week-grid {
         display: grid;
