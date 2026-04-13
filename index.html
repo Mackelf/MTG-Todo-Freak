@@ -553,7 +553,18 @@
         gap: 10px;
         grid-template-columns: repeat(2, 1fr); /* ← esto es lo nuevo */
       }
-
+.arch-header {
+  border-bottom: 2px solid var(--yellow) !important;
+  padding-bottom: 8px;
+}
+.arch-header div {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
         .arch-row {
           display: grid;
           grid-template-columns: 14px 1fr 120px 52px 90px; /* ← ajustado */
@@ -1482,7 +1493,15 @@ const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
 
         const archColors = ["#e8ff47", "#7b61ff", "#ff4757", "#3ddc84", "#ffb830", "#38b2ff", "#ff6b9d", "#a78bfa", "#ff9f43", "#00d2d3"];
         const archGrid = getRequiredEl("archetypeGrid");
-        archGrid.innerHTML = "";
+        archGrid.innerHTML = `
+  <div class="arch-row arch-header">
+    <div></div>
+    <div>Mazo</div>
+    <div></div>
+    <div>Rendimiento</div>
+    <div>Cantidad</div>
+  </div>
+`;
         archs.forEach((a, i) => {
           const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
           const wrColor = wr >= 55 ? "var(--win)" : wr >= 45 ? "var(--yellow)" : "var(--loss)";
