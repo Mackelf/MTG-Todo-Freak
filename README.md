@@ -1,33 +1,39 @@
 # Todo Freak Store · Season 3 Dashboard
 
-Dashboard estático para visualizar la Season 3 de torneos de Magic: The Gathering en Todo Freak Store, con foco en standings acumulados, asistencia, rendimiento y arquetipos, usando un solo JSON central (`data/season3.json`). [file:55]
+Dashboard estático para visualizar la Season 3 de torneos de Magic: The Gathering en Todo Freak Store, con foco en standings acumulados, asistencia, rendimiento y arquetipos, usando un solo JSON central (`data/season3.json`).
+
+---
 
 ## Características principales
 
-- **Carga única de datos** desde `data/season3.json`.  
+- **Carga única de datos** desde `data/season3.json`.
 - **Filtro por torneo/fecha** mediante un dropdown:
   - Opción `Todos los torneos`.
-  - Una opción por cada fecha de torneo encontrada en el JSON. [file:55]
+  - Una opción por cada fecha de torneo encontrada en el JSON.
+- **Filtro de Top N por Arquetipos**: selector integrado en la sección de Arquetipos para visualizar solo los mazos que aparecieron en las mejores N posiciones de cada torneo (Top 4 / Top 8 / Top 16).
 - **Vista única depurada** (sin tabs ni vistas duplicadas):
   - Ranking acumulado histórico/filtrado.
   - Tabla de jugadores con asistencia y rendimiento.
   - Ranking final con bonus por asistencia.
-  - Arquetipos (meta) de la vista actual.
+  - Arquetipos (meta) filtrados por top N posiciones.
+  - Gráfico de torta con distribución de arquetipos (top N por torneo).
   - Resultados por torneo (cards por fecha).
-  - Datos curiosos. [file:55]
+  - Datos curiosos.
+
+---
 
 ## Estructura de la UI
 
-En orden de aparición dentro de `paste.txt`: [file:55]
+En orden de aparición:
 
 1. **Pantalla de carga**
-   - Logo “TODO FREAK S3”.
-   - Spinner y texto “Cargando dashboard”.
-   - Desaparece al cargar los datos correctamente. [file:55]
+   - Logo "TODO FREAK S3".
+   - Spinner y texto "Cargando dashboard".
+   - Desaparece al cargar los datos correctamente.
 
 2. **Pantalla de error**
    - Muestra un mensaje si falla la carga de `data/season3.json`.
-   - Texto guía para verificar archivo y servidor local. [file:55]
+   - Texto guía para verificar archivo y servidor local.
 
 3. **Header**
    - Título: `STANDINGS / DASHBOARD`.
@@ -36,71 +42,60 @@ En orden de aparición dentro de `paste.txt`: [file:55]
      - Filtro actual (Todos o fecha).
      - Cantidad de torneos.
      - Jugadores únicos.
-     - Rango de fechas. [file:55]
+     - Rango de fechas.
 
 4. **Selector de torneo/fecha**
-   - Barra sticky con label “Torneo” y `<select id="weekDropdown">`.
-   - Opciones generadas desde las fechas únicas del JSON. [file:55]
+   - Barra sticky con label "Torneo" y `<select id="weekDropdown">`.
+   - Opciones generadas desde las fechas únicas del JSON.
 
-5. **Resumen de stats (`#statsRow`)**
-   - Tarjetas con:
-     - Jugadores.
-     - Torneos.
-     - Arquetipos.
-     - Jugador más consistente, etc. (según datos calculados). [file:55]
-
-6. **Ranking Acumulado**
-   - Título: `Ranking Acumulado` + tag (`Histórico completo` o fecha filtrada).
-   - Lista de barras (`.cumul-row`) con:
-     - Posición.
-     - Nombre del jugador.
-     - Cantidad de torneos jugados.
-     - Puntos acumulados (y barra animada proporcional). [file:55]
-
-7. **Jugadores · Asistencia y Rendimiento**
-   - Tabla (`#playerTableBody`) con columnas:
-     - Jugador.
-     - Asistencias (badge).
-     - Pts Totales.
-     - W·D·L total (dibujo de dots).
-     - %JG (win rate) promedio.
-     - Mejor puesto. [file:55]
-
-8. **Ranking Final**
+5. **Ranking Final**
    - Título + tag `PTS + ASISTENCIA + BONUS`.
-   - Fórmula: `Pts Totales + Asistencias + Bonus` con `+1 pt por cada 4 asistencias`.  
+   - Fórmula: `Pts Totales + Asistencias + Bonus` con `+1 pt por cada 4 asistencias`.
    - Tabla (`#finalRankBody`) con:
      - Jugador.
      - Pts Torneo.
      - Asistencias.
      - Bonus Asistencia.
-     - Pts Final (badge, resaltando al líder). [file:55]
+     - Pts Final (badge, resaltando al líder).
 
-9. **Arquetipos (Vista actual)**
-   - Título: `Arquetipos · VISTA ACTUAL`.
-   - Grid (`#archetypeGrid`) con filas:
-     - Color de arquetipo.
-     - Nombre.
+6. **Jugadores · Rendimiento**
+   - Tabla (`#playerTableBody`) con columnas:
+     - Jugador.
+     - W·D·L total.
+     - Mejor puesto.
+
+7. **Arquetipos (Top N)**
+   - Título: `Arquetipos` + selector inline `<select id="topFilter">` con opciones Top 4 / Top 8 / Top 16.
+   - Al cambiar el selector, recalcula y rerenderiza la tabla y el gráfico.
+   - Grid (`#archetypeGrid`) con encabezados **Mazo · Rendimiento · Cantidad** y filas con:
+     - Color dot del arquetipo.
+     - Nombre del mazo.
      - Barra de winrate.
-     - %WR coloreado según desempeño.
-     - Cantidad de veces jugado. [file:55]
+     - % WR coloreado según desempeño.
+     - Cantidad de veces que apareció en el top N.
 
-10. **Resultados por Torneo**
-    - Título: `Resultados por Torneo`.
-    - Grid de tarjetas (`#weekGrid`), una por cada fecha/torneo:
-      - Header con `Torneo N` y fecha + cantidad de jugadores.
-      - Top 3 con posición, nombre, arquetipo y puntos.
-      - Resto de posiciones colapsable con botón “Ver más / Ocultar”. [file:55]
+8. **Gráfico de torta (Meta)**
+   - Canvas (`#pieCanvas`) con distribución porcentual de arquetipos.
+   - Calcula solo con los registros del top N de **cada torneo individualmente**.
+   - Leyenda debajo (`#pieLegend`) con color, nombre, porcentaje y conteo.
+   - Etiquetas de porcentaje dentro de cada sector (si el slice es suficientemente grande).
 
-11. **Datos Curiosos**
-    - Título: `Datos Curiosos`.
+9. **Resultados por Torneo**
+   - Grid de tarjetas (`#weekGrid`), una por cada fecha/torneo:
+     - Header con `Torneo N`, fecha y cantidad de jugadores.
+     - Top 3 con posición, nombre, arquetipo y puntos.
+     - Resto de posiciones colapsable con botón "Ver más / Ocultar".
+
+10. **Datos Curiosos**
     - Cards (`#factsGrid`) con:
       - Arquetipo más popular.
       - Jugador más consistente.
-      - Nuevos jugadores en el último torneo, etc. [file:55]
+      - Nuevos jugadores en el último torneo.
 
-12. **Footer**
-    - Texto: `Todo Freak Store · Season 3 · Magic: The Gathering · Dashboard generado automáticamente`. [file:55]
+11. **Footer**
+    - Texto: `Todo Freak Store · Season 3 · Magic: The Gathering · Dashboard generado automáticamente`.
+
+---
 
 ## Lógica de datos
 
@@ -108,93 +103,126 @@ En orden de aparición dentro de `paste.txt`: [file:55]
 
 - `DATA_FILE = "data/season3.json"`.
 - `allData`: arreglo base con todos los registros del JSON.
-- `selectedDate`: `"all"` o una fecha `YYYY-MM-DD`.  
-- `normalizeDate(row.Fecha)`: usa los primeros 10 caracteres para trabajar con fechas consistentes. [file:55]
+- `selectedDate`: `"all"` o una fecha `YYYY-MM-DD`.
+- `selectedTop`: número entero (`4`, `8` o `16`), por defecto `8`.
+- `normalizeDate(row.Fecha)`: usa los primeros 10 caracteres para trabajar con fechas consistentes.
 
-### Filtro
-
-- `getUniqueDates(allData)`:  
-  - Saca fechas únicas.
-  - Filtra falsy.
-  - Ordena alfabéticamente. [file:55]
+### Filtros
 
 - `getFilteredData()`:
   - Si `selectedDate === "all"` → devuelve `allData`.
-  - Si no, filtra por `normalizeDate(row.Fecha) === selectedDate`. [file:55]
+  - Si no, filtra por `normalizeDate(row.Fecha) === selectedDate`.
+
+- `getUniqueDates(allData)`:
+  - Saca fechas únicas, filtra falsy, ordena alfabéticamente.
 
 ### Agrupaciones y cálculos
 
 - `groupByTournament(data)`:
   - Agrupa por fecha.
   - Ordena fechas.
-  - Para cada grupo arma:
-    - `key` (fecha).
-    - `label` (`Torneo 1`, `Torneo 2`, ...).
-    - `entries` ordenadas por `Puesto`. [file:55]
+  - Para cada grupo arma `key`, `label` y `entries` ordenadas por `Puesto`.
 
 - En `renderAcumView()` se calculan:
-  - `players`:
-    - Total de puntos por jugador.
-    - W/D/L totales.
-    - Mejor puesto.
-    - Listado de arquetipos usados. [file:55]
-  - `archs`:
-    - Conteo de arquetipos.
-    - Partidas y wins para winrate. [file:55]
-  - `finalPlayers`:
-    - `finalPts = totalPts + asistencias + bonus`.
-    - Ordenados por `finalPts` descendente. [file:55]
-  - `facts`:
-    - Arquetipo más jugado.
-    - Jugador más consistente (mejor promedio de puesto con mínimo 2 torneos).
-    - Nuevos jugadores en el último torneo. [file:55]
+  - `players`: puntos totales, W/D/L, mejor puesto y arquetipos usados por jugador.
+  - `tournaments`: grupos por fecha/torneo a partir de `raw`.
+  - `topNPerTournament`: aplana los registros cuyo `Puesto <= selectedTop` de **cada torneo por separado**, usando `tournaments.flatMap(group => group.entries.filter(r => Number(r.Puesto) <= selectedTop))`.
+  - `archs`: conteo de arquetipos, partidas y wins para winrate, calculado sobre `topNPerTournament`.
+  - `finalPlayers`: `finalPts = totalPts + asistencias + bonus`, ordenados por `finalPts` descendente.
+  - `facts`: arquetipo más jugado, jugador más consistente, nuevos jugadores en el último torneo.
 
-## Decisiones de depuración
+### Filtro Top N — comportamiento
 
-Cambios claves que hicimos respecto a versiones anteriores:
-
-- Eliminada la lógica de múltiples vistas (`viewAcum` / `viewWeek`) basada en tabs. [file:54][file:55]
-- Eliminado el bloque HTML redundante:
-  - `Resultados` (vista de torneo seleccionado).
-  - `Arquetipos · TORNEO SELECCIONADO`. [file:54]
-- Eliminadas funciones JS asociadas a esa vista:
-  - `setView(...)`, `renderWeekView(...)`, `currentView`, y referencias a `weekViewTag`, `weekDetailPodium`, `weekArchGrid`, `tabAcum`, `tabWeek`. [file:54][file:55]
-- Reemplazo del sistema de `WEEKS` + múltiples JSON individuales por:
-  - un solo archivo `season3.json`,
-  - más un dropdown alimentado por fechas reales de los datos. [file:55]
-- Limpieza de duplicidad de secciones (“Resultados” y “Arquetipos” extra) para dejar:
-  - Ranking Acumulado.
-  - Jugadores.
-  - Ranking Final.
-  - Arquetipos.
-  - Resultados por Torneo.
-  - Datos Curiosos. [file:55]
-
-## Estilos y preset visual
-
-- Tema **oscuro**, con amarillo como color principal, tipografías:
-  - `Bebas Neue` para títulos y números grandes.
-  - `Barlow` y `Barlow Condensed` para texto y labels. [file:55]
-- Fondo con patrón diagonal suave.
-- Componentes principales:
-  - Tarjetas con bordes, clips, y barras animadas.
-  - Badges recortados para asistencia/bonus/puntos.
-  - Tablas estilizadas para standings. [file:55]
-- Se aplicó un **preset de refinado visual** al final del CSS:
-  - Ajustes de padding, tamaños de fuente, separación entre secciones.
-  - Bordes más sutiles.
-  - Secciones más compactas y limpias, manteniendo el carácter competitivo. [file:55]
-
-## Cómo correr el dashboard
-
-1. Colocar el archivo HTML y `data/season3.json` en un mismo proyecto. [file:55]
-2. Levantar un servidor local (por ejemplo, con VS Code Live Server o `npx serve`). [file:55]
-3. Abrir el HTML en el navegador.
-4. Si `data/season3.json` no se carga:
-   - La pantalla de error indica revisar:
-     - que el archivo exista en `data/season3.json`,
-     - que el proyecto se esté abriendo con servidor local. [file:55]
+| Escenario | Resultado |
+|---|---|
+| "Todos los torneos" + Top 8 | Top 8 de **cada** torneo, todos combinados |
+| Torneo individual + Top 4 | Solo los 4 primeros puestos de ese torneo |
+| Torneo con menos de N jugadores | Toma todos los disponibles |
 
 ---
 
-Este README resume el estado actual depurado. Si quieres, puedo agregar una sección con **ejemplo de estructura del JSON** (`season3.json`) para documentar cómo debes exportar los torneos desde tu fuente de datos.
+## Decisiones de diseño y depuración
+
+- Eliminada la lógica de múltiples vistas (`viewAcum` / `viewWeek`) basada en tabs.
+- Eliminado el bloque HTML redundante de "Resultados" y "Arquetipos · TORNEO SELECCIONADO".
+- Eliminadas funciones JS: `setView()`, `renderWeekView()`, `currentView` y referencias a tabs.
+- Reemplazo del sistema de `WEEKS` + múltiples JSON individuales por un solo `season3.json` con dropdown por fechas.
+- El filtro Top N usa `Puesto` del JSON directamente, no posición relativa en el array, para evitar bugs con datos desordenados.
+- El selector `#topFilter` vive dentro del `section-title` de Arquetipos para mantener la relación visual directa con lo que controla.
+- El gráfico de torta y la tabla de arquetipos comparten el mismo `archs` calculado — cambiar el selector actualiza ambos simultáneamente.
+
+---
+
+## Estilos y preset visual
+
+- Tema **oscuro**, amarillo como color principal.
+- Tipografías:
+  - `Bebas Neue` para títulos y números grandes.
+  - `Barlow` y `Barlow Condensed` para texto y labels.
+- Fondo con patrón diagonal suave.
+- Componentes principales:
+  - Tarjetas con bordes, clips y barras animadas.
+  - Badges recortados para asistencia/bonus/puntos.
+  - Tablas estilizadas para standings.
+  - Gráfico de torta con Canvas API nativo (sin librerías externas).
+
+---
+
+## Estructura de archivos
+
+```
+MTG-Todo-Freak/
+├── index.html          # Dashboard completo (HTML + CSS + JS en un solo archivo)
+└── data/
+    └── season3.json    # Datos de todos los torneos de la Season 3
+```
+
+---
+
+## Estructura del JSON (`season3.json`)
+
+El archivo debe ser un arreglo de objetos con la siguiente estructura:
+
+```json
+[
+  {
+    "Fecha": "2025-03-15",
+    "Puesto": 1,
+    "Nombre": "Nombre Jugador",
+    "Arquetipo": "Temur Prowess",
+    "Puntos": 12,
+    "V": 4,
+    "E": 0,
+    "D": 1
+  }
+]
+```
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `Fecha` | `string` (YYYY-MM-DD) | Fecha del torneo |
+| `Puesto` | `number` | Posición final del jugador |
+| `Nombre` | `string` | Nombre del jugador |
+| `Arquetipo` | `string` | Nombre del mazo |
+| `Puntos` | `number` | Puntos obtenidos en el torneo |
+| `V` | `number` | Victorias |
+| `E` | `number` | Empates |
+| `D` | `number` | Derrotas |
+
+---
+
+## Cómo correr el dashboard
+
+1. Colocar `index.html` y `data/season3.json` en el mismo proyecto.
+2. Levantar un servidor local:
+   ```bash
+   npx serve .
+   # o con VS Code: botón Live Server
+   ```
+3. Abrir el HTML en el navegador.
+
+> ⚠️ El dashboard **no funciona abriendo el HTML directamente** como archivo local (`file://`) porque el fetch a `season3.json` es bloqueado por el navegador. Siempre usar servidor local.
+
+---
+
+*© Todo Freak Store · Season 3 · Magic: The Gathering*
