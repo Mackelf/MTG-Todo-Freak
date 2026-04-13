@@ -1341,9 +1341,16 @@ tr:hover td {
         const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
 */
 
+// Tomar solo top 8 de cada torneo individualmente, luego aplanar
+const top8PerTournament = tournaments.flatMap((group) =>
+  group.entries
+    .slice()
+    .sort((a, b) => Number(a.Puesto) - Number(b.Puesto))
+    .slice(0, 8)
+);
+
 const byArch = {};
-raw.forEach((r) => {
-  if (Number(r.Puesto) > 8) return; // ← solo top 8 por torneo
+top8PerTournament.forEach((r) => {
   const a = r.Arquetipo;
   if (!byArch[a]) byArch[a] = { name: a, count: 0, wins: 0, games: 0 };
   byArch[a].count++;
