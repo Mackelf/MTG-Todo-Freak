@@ -1343,10 +1343,7 @@ tr:hover td {
 
 // Tomar solo top 8 de cada torneo individualmente, luego aplanar
 const top8PerTournament = tournaments.flatMap((group) =>
-  group.entries
-    .slice()
-    .sort((a, b) => Number(a.Puesto) - Number(b.Puesto))
-    .slice(0, 8)
+  group.entries.filter((r) => Number(r.Puesto) <= 8)
 );
 
 const byArch = {};
