@@ -1080,13 +1080,29 @@ tr.row-leader .rank-num { color: var(--yellow); font-size: 24px; }
 
       }
 
-      function renderDashboard() {
-        const el1 = document.getElementById("metaTotalPlayers");
-const el2 = document.getElementById("metaTotalTournaments");
-if (el1) el1.textContent = players.length;
-if (el2) el2.textContent = tournaments.length;
-        renderAcumView();
+function renderDashboard() {
+        // 1. Obtener los datos filtrados primero
+        const raw = getFilteredData();
         
+        // 2. Calcular 'players' y 'tournaments' antes de usarlos
+        const byPlayer = {};
+        raw.forEach((r) => {
+          if (!byPlayer[r.Nombre]) {
+            byPlayer[r.Nombre] = { name: r.Nombre };
+          }
+        });
+        
+        const players = Object.values(byPlayer);
+        const tournaments = groupByTournament(raw);
+
+        // 3. Ahora ya puedes acceder a ellos de forma segura
+        const el1 = document.getElementById("metaTotalPlayers");
+        const el2 = document.getElementById("metaTotalTournaments");
+        
+        if (el1) el1.textContent = players.length;
+        if (el2) el2.textContent = tournaments.length;
+        
+        renderAcumView();
       }
 
     
