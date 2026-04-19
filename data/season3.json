@@ -796,5 +796,61 @@
     "E": "0",
     "Arquetipo": "Bant Rhythm",
     "Fecha": "2026-04-11T04:00:00.000Z"
+  },
+  {
+    "Puesto": 1,
+    "Nombre": "Gregori Bruna",
+    "Puntos": 9,
+    "V/D/E": "3/0/0",
+    "%VPO": "33.3%",
+    "%JG": "75.0%",
+    "%JGO": "41.1%",
+    "V": "3",
+    "D": "0",
+    "E": "0",
+    "Arquetipo": "Naya Yuna",
+    "Fecha": "2026-04-18T04:00:00.000Z"
+  },
+  {
+    "Puesto": 2,
+    "Nombre": "Jonathan Sepulveda Sobarzo",
+    "Puntos": 3,
+    "V/D/E": "1/2/0",
+    "%VPO": "55.6%",
+    "%JG": "42.9%",
+    "%JGO": "51.8%",
+    "V": "1",
+    "D": "2",
+    "E": "0",
+    "Arquetipo": "Mono Red Aggro",
+    "Fecha": "2026-04-18T04:00:00.000Z"
+  },
+  {
+    "Puesto": 3,
+    "Nombre": "Claudio Olguín Pizarro",
+    "Puntos": 3,
+    "V/D/E": "1/2/0",
+    "%VPO": "55.6%",
+    "%JG": "42.9%",
+    "%JGO": "51.8%",
+    "V": "1",
+    "D": "2",
+    "E": "0",
+    "Arquetipo": "Izzet Self-Bounce ",
+    "Fecha": "2026-04-18T04:00:00.000Z"
+  },
+  {
+    "Puesto": 4,
+    "Nombre": "Mario Vega",
+    "Puntos": 3,
+    "V/D/E": "1/2/0",
+    "%VPO": "55.6%",
+    "%JG": "37.5%",
+    "%JGO": "53.6%",
+    "V": "1",
+    "D": "2",
+    "E": "0",
+    "Arquetipo": "Simic Aggro",
+    "Fecha": "2026-04-18T04:00:00.000Z"
   }
 ]
