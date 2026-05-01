@@ -1146,7 +1146,7 @@ tr.row-leader .player-name { color: var(--yellow); font-size: 15px; }
     const byPlayer = {};
     raw.forEach(r => {
       const n = r.Nombre;
-      // DESPUÉS:
+      
 if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], pts: 0, ptsRaw: 0, w: 0, d: 0, l: 0, best: 99, decks: [] };
       const p = byPlayer[n];
       const multiplier = r.REL === "Competitivo" ? 2: 1;
@@ -1211,7 +1211,7 @@ if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], pts: 0, ptsRaw: 0, w: 0,
         <td><div class="player-name">
           <span class="rank-num ${rankClass}">${i + 1}</span>${name}
         </div></td>
-        // DESPUÉS:
+        
         <td><span class="pts-big">${p.ptsRaw}</span></td>
         <td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">✦ ${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
         <td>
