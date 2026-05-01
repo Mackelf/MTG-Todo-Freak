@@ -11,7 +11,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Temur Prowess",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -25,7 +26,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -39,7 +41,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Izzet Spellementals",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -53,7 +56,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -67,7 +71,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Simic Ouroboroid",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -81,7 +86,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -95,7 +101,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Jeskai Artifact",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -109,7 +116,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Boros Dragons",
-    "Fecha": "2026-02-28T03:00:00.000Z"
+    "Fecha": "2026-02-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -123,7 +131,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -137,7 +146,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Simic Ouroboroid",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -151,7 +161,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Temur Prowess",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -165,7 +176,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Izzet Spellementals",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -179,7 +191,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -193,7 +206,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -207,7 +221,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -221,7 +236,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 9,
@@ -235,7 +251,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-03-07T03:00:00.000Z"
+    "Fecha": "2026-03-07T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -249,7 +266,8 @@
     "D": "0",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -263,7 +281,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Mono Green Landfall",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -277,7 +296,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Boros Dragons",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -291,7 +311,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "4c Elementals",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -305,7 +326,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -319,7 +341,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -333,7 +356,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Temur Prowess",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -347,7 +371,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 9,
@@ -361,7 +386,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-03-14T03:00:00.000Z"
+    "Fecha": "2026-03-14T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -375,7 +401,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Dimir Excruciator",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -389,7 +416,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Temur Prowess",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -403,7 +431,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Jeskai Control",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -417,7 +446,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Bant Rhythm",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -431,7 +461,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Lessons",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -445,7 +476,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Azorius Tempo",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -459,7 +491,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Spellementals",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -473,7 +506,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "4c Rhythm",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 9,
@@ -487,7 +521,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 10,
@@ -501,7 +536,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 11,
@@ -515,7 +551,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-03-21T03:00:00.000Z"
+    "Fecha": "2026-03-21T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -529,7 +566,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Dimir Excruciator",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -543,7 +581,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Mono Green Landfall",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -557,7 +596,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Boros Dragons",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -571,7 +611,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -585,7 +626,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Spellementals",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -599,7 +641,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "4c Elementals",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -613,7 +656,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Temur Harmonizer Combo",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -627,7 +671,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Bant Rhythm",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 9,
@@ -641,7 +686,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 10,
@@ -655,7 +701,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 11,
@@ -669,7 +716,8 @@
     "D": "4",
     "E": "0",
     "Arquetipo": "Azorius Tempo",
-    "Fecha": "2026-03-28T03:00:00.000Z"
+    "Fecha": "2026-03-28T03:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -683,7 +731,8 @@
     "D": "0",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -697,7 +746,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Dimir Midrange",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -711,7 +761,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Izzet Prowess",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -725,7 +776,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Rakdos Aggro Discard",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -739,7 +791,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Self-Bounce ",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -753,7 +806,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Grixis Control",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 7,
@@ -767,7 +821,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "4c Elementals",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 8,
@@ -781,7 +836,8 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Boros Dragons",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 9,
@@ -795,7 +851,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Bant Rhythm",
-    "Fecha": "2026-04-11T04:00:00.000Z"
+    "Fecha": "2026-04-11T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -809,7 +866,8 @@
     "D": "0",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-04-18T04:00:00.000Z"
+    "Fecha": "2026-04-18T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -823,7 +881,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-04-18T04:00:00.000Z"
+    "Fecha": "2026-04-18T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -837,7 +896,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Self-Bounce ",
-    "Fecha": "2026-04-18T04:00:00.000Z"
+    "Fecha": "2026-04-18T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -851,7 +911,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Simic Aggro",
-    "Fecha": "2026-04-18T04:00:00.000Z"
+    "Fecha": "2026-04-18T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 1,
@@ -865,7 +926,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Dimir Excruciator",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 2,
@@ -879,7 +941,8 @@
     "D": "0",
     "E": "1",
     "Arquetipo": "Izzet Spellementals",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 3,
@@ -893,7 +956,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Naya Yuna",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 4,
@@ -907,7 +971,8 @@
     "D": "1",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 5,
@@ -921,7 +986,8 @@
     "D": "2",
     "E": "0",
     "Arquetipo": "Izzet Prowess",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
   },
   {
     "Puesto": 6,
@@ -935,6 +1001,52 @@
     "D": "3",
     "E": "0",
     "Arquetipo": "Mono Red Aggro",
-    "Fecha": "2026-04-25T04:00:00.000Z"
+    "Fecha": "2026-04-25T04:00:00.000Z",
+    "REL": "Regular"
+  },
+  {
+    "Puesto": 1,
+    "Nombre": "Borrar 1",
+    "Puntos": 9,
+    "V/D/E": "3/0/0",
+    "%VPO": "",
+    "%JG": "",
+    "%JGO": "",
+    "V": "3",
+    "D": "0",
+    "E": "0",
+    "Arquetipo": "UR Pro tour",
+    "Fecha": "2026-05-01T04:00:00.000Z",
+    "REL": "Competitivo"
+  },
+  {
+    "Puesto": 2,
+    "Nombre": "Borrar 2",
+    "Puntos": 6,
+    "V/D/E": "2/0/1",
+    "%VPO": "",
+    "%JG": "",
+    "%JGO": "",
+    "V": "2",
+    "D": "0",
+    "E": "1",
+    "Arquetipo": "UR Pro tour",
+    "Fecha": "2026-05-01T04:00:00.000Z",
+    "REL": "Competitivo"
+  },
+  {
+    "Puesto": 3,
+    "Nombre": "Borrar 3",
+    "Puntos": 1,
+    "V/D/E": "0/0/1",
+    "%VPO": "",
+    "%JG": "",
+    "%JGO": "",
+    "V": "0",
+    "D": "0",
+    "E": "1",
+    "Arquetipo": "UR Pro tour",
+    "Fecha": "2026-05-01T04:00:00.000Z",
+    "REL": "Competitivo"
   }
 ]

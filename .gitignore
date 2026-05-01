@@ -1,5 +1,6 @@
 desktop.ini
 Thumbs.db
+*.ini
 
 # Sistema operativo
 .DS_Store

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Todo Freak · S3 Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1145,10 +1146,13 @@ tr.row-leader .player-name { color: var(--yellow); font-size: 15px; }
     const byPlayer = {};
     raw.forEach(r => {
       const n = r.Nombre;
-      if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], pts: 0, w: 0, d: 0, l: 0, best: 99, decks: [] };
+      // DESPUÉS:
+if (!byPlayer[n]) byPlayer[n] = { name: n, entries: [], pts: 0, ptsRaw: 0, w: 0, d: 0, l: 0, best: 99, decks: [] };
       const p = byPlayer[n];
+      const multiplier = r.REL === "Competitivo" ? 2: 1;
       p.entries.push(r);
-      p.pts  += Number(r.Puntos || 0);
+      p.pts  += Number(r.Puntos || 0) * multiplier;
+      p.ptsRaw += Number(r.Puntos || 0);
       p.w    += parseInt(r.V || 0, 10);
       p.d    += parseInt(r.E || 0, 10);
       p.l    += parseInt(r.D || 0, 10);
@@ -1207,7 +1211,8 @@ tr.row-leader .player-name { color: var(--yellow); font-size: 15px; }
         <td><div class="player-name">
           <span class="rank-num ${rankClass}">${i + 1}</span>${name}
         </div></td>
-        <td><span class="pts-big">${p.pts}</span></td>
+        // DESPUÉS:
+        <td><span class="pts-big">${p.ptsRaw}</span></td>
         <td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">✦ ${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
         <td>
           <span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">+${p.bonus}</span>
