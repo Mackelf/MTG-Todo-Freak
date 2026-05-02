@@ -1003,50 +1003,5 @@
     "Arquetipo": "Mono Red Aggro",
     "Fecha": "2026-04-25T04:00:00.000Z",
     "REL": "Regular"
-  },
-  {
-    "Puesto": 1,
-    "Nombre": "Borrar 1",
-    "Puntos": 9,
-    "V/D/E": "3/0/0",
-    "%VPO": "",
-    "%JG": "",
-    "%JGO": "",
-    "V": "3",
-    "D": "0",
-    "E": "0",
-    "Arquetipo": "UR Pro tour",
-    "Fecha": "2026-05-01T04:00:00.000Z",
-    "REL": "Competitivo"
-  },
-  {
-    "Puesto": 2,
-    "Nombre": "Borrar 2",
-    "Puntos": 6,
-    "V/D/E": "2/0/1",
-    "%VPO": "",
-    "%JG": "",
-    "%JGO": "",
-    "V": "2",
-    "D": "0",
-    "E": "1",
-    "Arquetipo": "UR Pro tour",
-    "Fecha": "2026-05-01T04:00:00.000Z",
-    "REL": "Competitivo"
-  },
-  {
-    "Puesto": 3,
-    "Nombre": "Borrar 3",
-    "Puntos": 1,
-    "V/D/E": "0/0/1",
-    "%VPO": "",
-    "%JG": "",
-    "%JGO": "",
-    "V": "0",
-    "D": "0",
-    "E": "1",
-    "Arquetipo": "UR Pro tour",
-    "Fecha": "2026-05-01T04:00:00.000Z",
-    "REL": "Competitivo"
   }
 ]
