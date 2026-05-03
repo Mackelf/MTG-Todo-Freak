@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Todo Freak S3 Dashboard</title>
+
+    <title>Todo Freak · S3 Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,31 +12,55 @@
       rel="stylesheet"
     />
     <style>
+      /* ============================================================
+   TODO FREAK S3 — Dashboard CSS v3
+   Identidad: Negro · Amarillo · Blanco
+   Jerarquía mejorada · Código depurado
+   ============================================================ */
+
+      /* TODO FREAK S3 Dashboard CSS v4
+   Ajuste de legibilidad, contraste y homologación tipográfica */
+
       :root {
+        /* Surfaces */
         --bg: #0a0a0a;
         --surface: #141414;
         --surface-2: #1c1c1c;
         --surface-3: #242424;
+
+        /* Borders */
         --border: rgba(255, 255, 255, 0.08);
         --border-mid: rgba(255, 255, 255, 0.14);
         --border-strong: rgba(255, 255, 255, 0.22);
+
+        /* Brand */
         --yellow: #f5c800;
         --yellow-dim: rgba(245, 200, 0, 0.12);
         --yellow-glow: rgba(245, 200, 0, 0.06);
+
+        /* Text */
         --text: #f2f2f2;
         --text-muted: #b8b8b8;
         --text-faint: #8a8a8a;
+
+        /* Semantic */
         --win: #44cc77;
         --loss: #e03030;
         --draw: #f5c800;
+
+        /* Type */
         --font-display: "Bebas Neue", sans-serif;
         --font-ui: "Barlow Condensed", sans-serif;
         --font-body: "Barlow", sans-serif;
-        --fs-xs: 0.75rem;
-        --fs-sm: 0.875rem;
-        --fs-md: 1rem;
-        --fs-lg: 1.125rem;
-        --fs-xl: 1.5rem;
+
+        /* Font scale */
+        --fs-xs: 0.75rem; /* 12px */
+        --fs-sm: 0.875rem; /* 14px */
+        --fs-md: 1rem; /* 16px */
+        --fs-lg: 1.125rem; /* 18px */
+        --fs-xl: 1.5rem; /* 24px */
+
+        /* Spacing */
         --sp-1: 4px;
         --sp-2: 8px;
         --sp-3: 12px;
@@ -45,9 +70,13 @@
         --sp-8: 32px;
         --sp-10: 40px;
         --sp-12: 48px;
+
+        /* Radius */
         --r-sm: 2px;
         --r-md: 4px;
       }
+
+      /* --- BASE --- */
       *,
       *::before,
       *::after {
@@ -55,11 +84,13 @@
         margin: 0;
         padding: 0;
       }
+
       html {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         scroll-behavior: smooth;
       }
+
       body {
         background: var(--bg);
         color: var(--text);
@@ -69,6 +100,7 @@
         min-height: 100vh;
         overflow-x: hidden;
       }
+
       body::before {
         content: "";
         position: fixed;
@@ -83,21 +115,26 @@
         pointer-events: none;
         z-index: 0;
       }
+
       img,
       svg {
         display: block;
         max-width: 100%;
       }
+
       button {
         cursor: pointer;
         font: inherit;
         border: none;
         background: none;
       }
+
       table {
         width: 100%;
         border-collapse: collapse;
       }
+
+      /* --- LAYOUT --- */
       .page-wrap {
         max-width: 1280px;
         margin: 0 auto;
@@ -105,9 +142,12 @@
         position: relative;
         z-index: 1;
       }
+
       .inner {
         padding: 0 var(--sp-8);
       }
+
+      /* --- LOADING / ERROR --- */
       #loadingScreen {
         display: flex;
         flex-direction: column;
@@ -116,6 +156,7 @@
         min-height: 100vh;
         gap: var(--sp-5);
       }
+
       .screen-logo {
         font-family: var(--font-display);
         font-size: clamp(40px, 8vw, 72px);
@@ -124,10 +165,12 @@
         line-height: 1;
         text-align: center;
       }
+
       .screen-logo em {
         color: var(--text);
         font-style: normal;
       }
+
       .loading-spinner {
         width: 32px;
         height: 32px;
@@ -136,11 +179,13 @@
         border-radius: 50%;
         animation: spin 0.7s linear infinite;
       }
+
       @keyframes spin {
         to {
           transform: rotate(360deg);
         }
       }
+
       .loading-label {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -149,6 +194,7 @@
         color: var(--text-muted);
         text-transform: uppercase;
       }
+
       #errorScreen {
         display: none;
         flex-direction: column;
@@ -158,9 +204,11 @@
         gap: var(--sp-4);
         padding: var(--sp-10) var(--sp-5);
       }
+
       #errorScreen.visible {
         display: flex;
       }
+
       .error-box {
         background: var(--surface);
         border: 1px solid var(--loss);
@@ -168,6 +216,7 @@
         max-width: 500px;
         text-align: center;
       }
+
       .error-box h2 {
         font-family: var(--font-display);
         font-size: 20px;
@@ -175,24 +224,31 @@
         color: var(--loss);
         margin-bottom: var(--sp-3);
       }
+
       .error-box p {
         font-family: var(--font-body);
         font-size: var(--fs-sm);
         color: var(--text-muted);
         line-height: 1.7;
       }
+
+      /* --- DASHBOARD TOGGLE --- */
       #dashboard {
         display: none;
       }
+
       #dashboard.visible {
         display: block;
       }
+
+      /* --- HEADER --- */
       .header {
         background: #000;
         border-bottom: 3px solid var(--yellow);
         position: relative;
         overflow: hidden;
       }
+
       .header::after {
         content: "";
         position: absolute;
@@ -207,16 +263,19 @@
         );
         pointer-events: none;
       }
+
       .header-inner {
         display: flex;
         align-items: stretch;
         justify-content: space-between;
         flex-wrap: wrap;
       }
+
       .header-brand {
         padding: var(--sp-5) var(--sp-8) var(--sp-5) var(--sp-6);
         border-left: 4px solid var(--yellow);
       }
+
       .header-eyebrow {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -226,6 +285,7 @@
         text-transform: uppercase;
         margin-bottom: var(--sp-1);
       }
+
       .header h1 {
         font-family: var(--font-display);
         font-size: clamp(38px, 6vw, 64px);
@@ -233,11 +293,13 @@
         letter-spacing: 2px;
         color: #fff;
       }
+
       .header h1 em {
         color: var(--yellow);
         font-style: normal;
         display: block;
       }
+
       .header-stats {
         display: flex;
         gap: var(--sp-10);
@@ -248,6 +310,7 @@
         align-self: stretch;
         background: rgba(245, 200, 0, 0.03);
       }
+
       .hstat {
         display: flex;
         flex-direction: column;
@@ -255,16 +318,19 @@
         padding-right: var(--sp-10);
         border-right: 1px solid var(--border-mid);
       }
+
       .hstat:last-child {
         border-right: none;
         padding-right: 0;
       }
+
       .hstat-num {
         font-family: var(--font-display);
         font-size: 42px;
         color: var(--yellow);
         line-height: 1;
       }
+
       .hstat-lbl {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -273,6 +339,8 @@
         color: var(--text-muted);
         text-transform: uppercase;
       }
+
+      /* --- NAV BAR --- */
       .nav-bar {
         background: #000;
         border-bottom: 2px solid var(--border-mid);
@@ -285,6 +353,7 @@
         z-index: 100;
         flex-wrap: wrap;
       }
+
       .nav-label {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -294,12 +363,15 @@
         text-transform: uppercase;
         flex-shrink: 0;
       }
+
       .nav-label::before {
         content: "• ";
       }
+
       .dropdown-wrap {
         position: relative;
       }
+
       .dropdown {
         appearance: none;
         background: var(--surface);
@@ -311,6 +383,7 @@
         letter-spacing: 2px;
         text-transform: uppercase;
         padding: 6px 12px;
+        cursor: pointer;
         outline: none;
         min-width: 220px;
         display: flex;
@@ -320,16 +393,19 @@
         transition: background 0.15s;
         width: 100%;
       }
+
       .dropdown:hover,
       .dropdown:focus {
         background: var(--yellow-dim);
       }
+
       .dropdown-arrow {
         font-size: 9px;
         color: var(--yellow);
         pointer-events: none;
         flex-shrink: 0;
       }
+
       .dropdown-menu {
         display: none;
         position: absolute;
@@ -344,9 +420,11 @@
         max-height: 280px;
         overflow-y: auto;
       }
+
       .dropdown-menu.open {
         display: block;
       }
+
       .dropdown-menu li {
         padding: 9px 14px;
         font-family: var(--font-ui);
@@ -361,16 +439,21 @@
           background 0.1s,
           color 0.1s;
       }
+
       .dropdown-menu li:last-child {
         border-bottom: none;
       }
+
       .dropdown-menu li:hover {
         background: var(--yellow-dim);
         color: var(--yellow);
       }
+
       .dropdown-menu li.active {
         color: var(--yellow);
       }
+
+      /* --- SECTION HEADERS --- */
       .section-header {
         margin: var(--sp-10) 0 var(--sp-5);
         padding-bottom: var(--sp-4);
@@ -381,11 +464,13 @@
         gap: var(--sp-4);
         flex-wrap: wrap;
       }
+
       .sh-left {
         display: flex;
         flex-direction: column;
         gap: 3px;
       }
+
       .sh-eyebrow {
         font-family: var(--font-ui);
         font-size: 13px;
@@ -394,6 +479,7 @@
         color: var(--yellow);
         text-transform: uppercase;
       }
+
       .sh-title {
         font-family: var(--font-display);
         font-size: clamp(22px, 3vw, 30px);
@@ -404,6 +490,7 @@
         align-items: center;
         gap: var(--sp-3);
       }
+
       .tag {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -415,11 +502,13 @@
         clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
         white-space: nowrap;
       }
+
       .tag.dim {
         background: var(--surface-3);
         color: var(--text-muted);
         clip-path: none;
       }
+
       .sh-action select {
         appearance: none;
         background: var(--surface);
@@ -436,11 +525,14 @@
           border-color 0.15s,
           color 0.15s;
       }
+
       .sh-action select:hover,
       .sh-action select:focus {
         border-color: var(--yellow);
         color: var(--yellow);
       }
+
+      /* --- FORMULA CALLOUT --- */
       .formula-callout {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid var(--border-mid);
@@ -451,19 +543,24 @@
         color: var(--text-muted);
         line-height: 1.65;
       }
+
       .formula-callout strong {
         color: var(--text);
       }
+
+      /* --- TABLES --- */
       .table-wrap {
         background: var(--surface);
         border: 1px solid var(--border);
         overflow: hidden;
         margin-bottom: var(--sp-8);
       }
+
       thead {
         background: #000;
         border-bottom: 2px solid var(--yellow);
       }
+
       th {
         padding: 10px 16px;
         text-align: left;
@@ -475,6 +572,7 @@
         text-transform: uppercase;
         white-space: nowrap;
       }
+
       td {
         padding: 12px 16px;
         border-bottom: 1px solid var(--border);
@@ -482,23 +580,30 @@
         font-variant-numeric: tabular-nums;
         font-size: var(--fs-sm);
       }
+
       tr:last-child td {
         border-bottom: none;
       }
+
       tr:hover td {
         background: var(--yellow-glow);
       }
+
       tr.row-leader td {
         background: rgba(245, 200, 0, 0.06);
       }
+
       tr.row-leader td:first-child {
         border-left: 2px solid var(--yellow);
       }
+
+      /* --- CELL ELEMENTS --- */
       .player-cell {
         display: flex;
         flex-direction: column;
         gap: 2px;
       }
+
       .player-name {
         display: flex;
         align-items: center;
@@ -508,10 +613,12 @@
         color: var(--text);
         font-size: 0.9375rem;
       }
+
       tr.row-leader .player-name {
         color: var(--yellow);
         font-size: 1rem;
       }
+
       .player-decks {
         font-family: var(--font-body);
         font-size: var(--fs-xs);
@@ -519,6 +626,7 @@
         font-style: normal;
         padding-left: 26px;
       }
+
       .rank-num {
         font-family: var(--font-display);
         font-size: 18px;
@@ -527,27 +635,33 @@
         flex-shrink: 0;
         line-height: 1;
       }
+
       .rank-num.top1 {
         color: var(--yellow);
       }
+
       .rank-num.top3 {
         color: #ccc;
       }
+
       .pts-big {
         font-family: var(--font-display);
         font-size: 26px;
         color: var(--yellow);
         line-height: 1;
       }
+
       .pts-big.leader {
         color: var(--win);
       }
+
       .breakdown {
         font-family: var(--font-body);
         font-size: var(--fs-xs);
         color: var(--text-muted);
         margin-top: 2px;
       }
+
       .badge {
         display: inline-flex;
         align-items: center;
@@ -558,59 +672,72 @@
         padding: 4px 10px;
         white-space: nowrap;
       }
+
       .badge-yellow {
         background: var(--yellow);
         color: #000;
         clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
       }
+
       .badge-dim {
         background: var(--surface-3);
         color: var(--text-muted);
         border: 1px solid var(--border-mid);
       }
+
       .badge-green {
         background: rgba(68, 204, 119, 0.15);
         color: var(--win);
         border: 1px solid rgba(68, 204, 119, 0.3);
       }
+
       .wdl-wrap {
         display: flex;
         align-items: center;
         gap: var(--sp-1);
         flex-wrap: wrap;
       }
+
       .dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
         flex-shrink: 0;
       }
+
       .dot.w {
         background: var(--win);
       }
+
       .dot.l {
         background: var(--loss);
       }
+
       .dot.d {
         background: var(--draw);
       }
+
       .wdl-text {
         font-family: var(--font-body);
         font-size: var(--fs-xs);
         color: var(--text-muted);
         margin-left: var(--sp-1);
       }
+
       .best-pos {
         font-family: var(--font-ui);
         font-size: var(--fs-sm);
         font-weight: 700;
       }
+
+      /* --- ARCHETYPES --- */
       .arch-table-wrap {
         background: var(--surface);
         border: 1px solid var(--border);
         overflow: hidden;
         margin-bottom: var(--sp-8);
       }
+
       .arch-header-row,
       .arch-row {
         display: grid;
@@ -620,17 +747,21 @@
         padding: 10px 16px;
         border-bottom: 1px solid var(--border);
       }
+
       .arch-header-row {
         background: #000;
         border-bottom: 2px solid var(--yellow);
         padding: 9px 16px;
       }
+
       .arch-row:last-child {
         border-bottom: none;
       }
+
       .arch-row:hover {
         background: var(--yellow-glow);
       }
+
       .arch-header-cell {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -639,11 +770,13 @@
         color: var(--yellow);
         text-transform: uppercase;
       }
+
       .arch-dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
       }
+
       .arch-name {
         font-family: var(--font-body);
         font-size: 0.9375rem;
@@ -651,32 +784,39 @@
         letter-spacing: 0.2px;
         color: var(--text);
       }
+
       .arch-bar-wrap {
         display: flex;
         align-items: center;
       }
+
       .arch-bar-bg {
         width: 100%;
         height: 6px;
         background: var(--border-mid);
         overflow: hidden;
       }
+
       .arch-bar-fill {
         height: 100%;
         transition: width 0.8s ease;
       }
+
       .arch-pct {
         font-family: var(--font-ui);
         font-size: 15px;
         font-weight: 700;
         text-align: right;
       }
+
       .arch-count {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
         color: var(--text-muted);
         text-align: right;
       }
+
+      /* --- PIE + LEGEND --- */
       .pie-section {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -687,25 +827,30 @@
         padding: var(--sp-6);
         margin-bottom: var(--sp-8);
       }
+
       #pieCanvas {
         flex-shrink: 0;
       }
+
       .pie-legend {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: var(--sp-2) var(--sp-4);
       }
+
       .pie-legend-item {
         display: flex;
         align-items: center;
         gap: var(--sp-2);
       }
+
       .pie-legend-dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
         flex-shrink: 0;
       }
+
       .pie-legend-name {
         font-family: var(--font-body);
         font-size: var(--fs-lg);
@@ -715,6 +860,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .pie-legend-stat {
         font-family: var(--font-ui);
         font-size: var(--fs-sm);
@@ -722,12 +868,15 @@
         color: var(--text-muted);
         white-space: nowrap;
       }
+
+      /* --- TOURNAMENT RESULTS --- */
       .week-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
         gap: var(--sp-4);
         margin-bottom: var(--sp-8);
       }
+
       .week-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -735,6 +884,7 @@
         display: flex;
         flex-direction: column;
       }
+
       .week-card-header {
         background: #000;
         padding: var(--sp-3) var(--sp-4);
@@ -744,12 +894,14 @@
         border-bottom: 2px solid var(--yellow);
         gap: var(--sp-3);
       }
+
       .week-card-title {
         font-family: var(--font-display);
         font-size: 18px;
         letter-spacing: 2px;
         color: var(--yellow);
       }
+
       .week-card-meta {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -757,21 +909,14 @@
         letter-spacing: 1px;
         text-align: right;
       }
+
       .week-podium {
         padding: var(--sp-3) var(--sp-4);
         display: flex;
         flex-direction: column;
         gap: var(--sp-2);
       }
-      .week-extra {
-        display: flex;
-        flex-direction: column;
-        gap: var(--sp-2);
-        margin-top: var(--sp-2);
-      }
-      .week-extra.is-collapsed {
-        display: none;
-      }
+
       .podium-row {
         display: grid;
         grid-template-columns: 40px 1fr 36px;
@@ -781,24 +926,30 @@
         background: var(--surface-2);
         border: 1px solid var(--border);
       }
+
       .podium-pos {
         font-family: var(--font-display);
         font-size: 20px;
         color: var(--text-faint);
         line-height: 1;
       }
+
       .podium-pos.gold {
         color: var(--yellow);
       }
+
       .podium-pos.silver {
         color: #bbb;
       }
+
       .podium-pos.bronze {
         color: #a0816c;
       }
+
       .podium-info {
         min-width: 0;
       }
+
       .podium-name {
         font-family: var(--font-body);
         font-weight: 600;
@@ -808,6 +959,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .podium-deck {
         font-family: var(--font-body);
         font-size: var(--fs-xs);
@@ -816,12 +968,14 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .podium-pts {
         font-family: var(--font-display);
         font-size: 20px;
         color: var(--yellow);
         text-align: right;
       }
+
       .btn-ver-mas {
         margin: 0 var(--sp-4) var(--sp-3);
         padding: 8px 12px;
@@ -834,22 +988,27 @@
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
+        cursor: pointer;
         transition:
           border-color 0.15s,
           color 0.15s,
           background 0.15s;
       }
+
       .btn-ver-mas:hover {
         border-color: var(--yellow);
         color: var(--yellow);
         background: var(--yellow-glow);
       }
+
+      /* --- FACTS --- */
       .facts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: var(--sp-3);
         margin-bottom: var(--sp-8);
       }
+
       .fact-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -857,9 +1016,11 @@
         padding: var(--sp-4) var(--sp-5);
         transition: border-top-color 0.2s;
       }
+
       .fact-card:hover {
         border-top-color: var(--yellow);
       }
+
       .fact-label {
         font-family: var(--font-ui);
         font-size: var(--fs-xs);
@@ -869,6 +1030,7 @@
         text-transform: uppercase;
         margin-bottom: var(--sp-3);
       }
+
       .fact-value {
         font-family: var(--font-display);
         font-size: 32px;
@@ -876,12 +1038,15 @@
         line-height: 1;
         margin-bottom: var(--sp-2);
       }
+
       .fact-desc {
         font-family: var(--font-body);
         font-size: var(--fs-sm);
         color: var(--text-muted);
         line-height: 1.6;
       }
+
+      /* --- FOOTER --- */
       .footer {
         border-top: 1px solid var(--border);
         padding-top: var(--sp-4);
@@ -891,17 +1056,22 @@
         color: var(--text-muted);
         text-align: center;
       }
+
       .footer em {
         color: var(--yellow);
         font-style: normal;
       }
+
+      /* --- RESPONSIVE --- */
       @media (max-width: 768px) {
         .inner {
           padding: 0 var(--sp-4);
         }
+
         .header-brand {
           padding: var(--sp-4);
         }
+
         .header-stats {
           width: 100%;
           border-left: none;
@@ -909,35 +1079,44 @@
           padding: var(--sp-4);
           gap: var(--sp-6);
         }
+
         .nav-bar {
           padding: var(--sp-3) var(--sp-4);
         }
+
         .dropdown {
           min-width: 100%;
           width: 100%;
         }
+
         .pie-section {
           grid-template-columns: 1fr;
           justify-items: center;
         }
+
         #pieCanvas {
           max-width: 300px;
         }
+
         .arch-header-row,
         .arch-row {
           grid-template-columns: 16px 1fr 54px 54px;
         }
+
         .arch-count {
           display: none;
         }
       }
+
       @media (max-width: 480px) {
         .header h1 {
           font-size: 38px;
         }
+
         .header-stats {
           gap: var(--sp-5);
         }
+
         .section-header {
           flex-direction: column;
           align-items: flex-start;
@@ -947,11 +1126,14 @@
   </head>
   <body>
     <div class="page-wrap">
+      <!-- ── LOADING ─────────────────────────────────── -->
       <div id="loadingScreen">
         <div class="screen-logo">TODO FREAK <em>S3</em></div>
         <div class="loading-spinner"></div>
         <div class="loading-label">Cargando dashboard</div>
       </div>
+
+      <!-- ── ERROR ──────────────────────────────────── -->
       <div id="errorScreen">
         <div class="screen-logo">TODO FREAK <em>S3</em></div>
         <div class="error-box">
@@ -963,7 +1145,10 @@
           </p>
         </div>
       </div>
+
+      <!-- ── DASHBOARD ──────────────────────────────── -->
       <div id="dashboard">
+        <!-- HEADER -->
         <header class="header">
           <div class="header-inner">
             <div class="header-brand">
@@ -972,43 +1157,52 @@
             </div>
             <div class="header-stats" id="headerStats">
               <div class="hstat">
-                <span class="hstat-num" id="metaTotalPlayers"></span
-                ><span class="hstat-lbl">Jugadores</span>
+                <span class="hstat-num" id="metaTotalPlayers">—</span>
+                <span class="hstat-lbl">Jugadores</span>
               </div>
               <div class="hstat">
-                <span class="hstat-num" id="metaTotalTournaments"></span
-                ><span class="hstat-lbl">Torneos</span>
+                <span class="hstat-num" id="metaTotalTournaments">—</span>
+                <span class="hstat-lbl">Torneos</span>
               </div>
               <div class="hstat">
-                <span class="hstat-num">S3</span
-                ><span class="hstat-lbl">Temporada</span>
+                <span class="hstat-num">S3</span>
+                <span class="hstat-lbl">Temporada</span>
               </div>
             </div>
           </div>
         </header>
+
+        <!-- STICKY NAV -->
         <nav class="nav-bar">
-          <span class="nav-label">Torneos</span>
+          <span class="nav-label">Torneo</span>
           <div class="dropdown-wrap" id="dropdownWrap">
             <button class="dropdown" id="dropdownBtn" type="button">
               <span id="dropdownLabel">TODOS LOS TORNEOS</span>
-              <span class="dropdown-arrow">▾</span>
+              <span class="dropdown-arrow">▼</span>
             </button>
             <ul class="dropdown-menu" id="dropdownMenu"></ul>
           </div>
         </nav>
+
+        <!-- CONTENIDO PRINCIPAL -->
         <main class="inner">
+          <!-- 01. RANKING FINAL ───────────────────── -->
           <div class="section-header">
             <div class="sh-left">
               <span class="sh-eyebrow">01 · Clasificación Final</span>
               <div class="sh-title">
-                Ranking Final <span class="tag">PTS + ASISTENCIA + BONUS</span>
+                Ranking Final
+                <span class="tag">PTS + ASISTENCIA + BONUS</span>
               </div>
             </div>
           </div>
+
           <div class="formula-callout">
-            Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong> · Bonus
-            = <strong>+1 pt por cada 4 asistencias</strong>
+            Fórmula:
+            <strong>Pts Totales + Asistencias + Bonus</strong> &nbsp;·&nbsp;
+            Bonus = <strong>+1 pt por cada 4 asistencias</strong>
           </div>
+
           <div class="table-wrap">
             <table>
               <thead>
@@ -1023,12 +1217,15 @@
               <tbody id="finalRankBody"></tbody>
             </table>
           </div>
+
+          <!-- 02. RENDIMIENTO INDIVIDUAL ────────────── -->
           <div class="section-header">
             <div class="sh-left">
               <span class="sh-eyebrow">02 · Rendimiento Individual</span>
               <div class="sh-title">Jugadores</div>
             </div>
           </div>
+
           <div class="table-wrap">
             <table>
               <thead>
@@ -1041,6 +1238,8 @@
               <tbody id="playerTableBody"></tbody>
             </table>
           </div>
+
+          <!-- 03. ARQUETIPOS ────────────────────────── -->
           <div class="section-header" id="archSectionHeader">
             <div class="sh-left">
               <span class="sh-eyebrow">03 · Meta</span>
@@ -1054,6 +1253,7 @@
               </select>
             </div>
           </div>
+
           <div class="arch-table-wrap" id="archetypeGrid">
             <div class="arch-header-row">
               <div></div>
@@ -1067,47 +1267,64 @@
               </div>
             </div>
           </div>
+
+          <!-- PIE CHART -->
           <div class="pie-section">
             <canvas id="pieCanvas" width="280" height="280"></canvas>
             <div class="pie-legend" id="pieLegend"></div>
           </div>
+
+          <!-- 04. RESULTADOS POR TORNEO ─────────────── -->
           <div class="section-header">
             <div class="sh-left">
               <span class="sh-eyebrow">04 · Historial</span>
               <div class="sh-title">Resultados por Torneo</div>
             </div>
           </div>
+
           <div class="week-grid" id="weekGrid"></div>
+
+          <!-- 05. DATOS CURIOSOS ────────────────────── -->
           <div class="section-header">
             <div class="sh-left">
               <span class="sh-eyebrow">05 · Extra</span>
               <div class="sh-title">Datos Curiosos</div>
             </div>
           </div>
+
           <div class="facts-grid" id="factsGrid"></div>
+
+          <!-- FOOTER -->
           <footer class="footer">
-            <em>Todo Freak Store</em> · Season 3 · Magic: The Gathering
+            <em>Todo Freak Store</em> · Season 3 · Magic: The Gathering ·
             Dashboard generado automáticamente
           </footer>
         </main>
       </div>
+      <!-- /dashboard -->
     </div>
+    <!-- /page-wrap -->
+
     <script>
-      const DATAFILE = "data/season3.json";
+      const DATA_FILE = "data/season3.json";
       let allData = [];
       let selectedDate = "all";
       let selectedTop = 8;
+
+      /* ── Helpers ─────────────────────────────────────── */
       const el = (id) => document.getElementById(id);
       const req = (id) => {
         const e = el(id);
-        if (!e) throw new Error("Missing #" + id);
+        if (!e) throw new Error(`Missing #${id}`);
         return e;
       };
+
       function normalizeDate(v) {
         return (v || "").slice(0, 10);
       }
+
       function formatDate(d) {
-        if (!d) return "";
+        if (!d) return "—";
         return new Date(d + "T00:00:00")
           .toLocaleDateString("es-CL", {
             day: "2-digit",
@@ -1116,16 +1333,19 @@
           })
           .toUpperCase();
       }
+
       function getUniqueDates(data) {
-        return [
-          ...new Set(data.map((r) => normalizeDate(r.Fecha)).filter(Boolean)),
-        ].sort((a, b) => a.localeCompare(b));
+        return [...new Set(data.map((r) => normalizeDate(r.Fecha)))]
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b));
       }
+
       function getFiltered() {
         return selectedDate === "all"
           ? allData
           : allData.filter((r) => normalizeDate(r.Fecha) === selectedDate);
       }
+
       function groupByTournament(data) {
         const g = {};
         data.forEach((r) => {
@@ -1134,7 +1354,7 @@
           g[k].push(r);
         });
         return Object.entries(g)
-          .sort((a, b) => a[0].localeCompare(b[0]))
+          .sort(([a], [b]) => a.localeCompare(b))
           .map(([date, entries], i) => ({
             key: date,
             label: `Torneo ${i + 1}`,
@@ -1143,16 +1363,19 @@
             ),
           }));
       }
+
+      /* ── Init ────────────────────────────────────────── */
       async function init() {
         try {
-          const res = await fetch(DATAFILE);
+          const res = await fetch(DATA_FILE);
           if (!res.ok) throw new Error("fetch failed");
           allData = await res.json();
           if (!Array.isArray(allData) || !allData.length)
             throw new Error("empty data");
+
           setupDropdowns();
-          setupTournamentToggle();
           render();
+
           el("loadingScreen").style.display = "none";
           req("dashboard").classList.add("visible");
         } catch (err) {
@@ -1161,26 +1384,33 @@
           el("errorScreen").classList.add("visible");
         }
       }
+
+      /* ── Dropdowns ───────────────────────────────────── */
       function setupDropdowns() {
         const dates = getUniqueDates(allData);
         const menu = req("dropdownMenu");
         const label = req("dropdownLabel");
         const btn = req("dropdownBtn");
         const wrap = req("dropdownWrap");
+
         const options = [
           { value: "all", label: "Todos los torneos" },
           ...dates.map((d) => ({ value: d, label: formatDate(d) })),
         ];
+
         menu.innerHTML = options
           .map(
             (o, i) =>
               `<li data-value="${o.value}" class="${i === 0 ? "active" : ""}">${o.label}</li>`,
           )
           .join("");
+
         btn.addEventListener("click", () => menu.classList.toggle("open"));
+
         document.addEventListener("click", (e) => {
           if (!wrap.contains(e.target)) menu.classList.remove("open");
         });
+
         menu.addEventListener("click", (e) => {
           const li = e.target.closest("li");
           if (!li) return;
@@ -1193,6 +1423,7 @@
           selectedDate = li.dataset.value;
           render();
         });
+
         const tf = el("topFilter");
         if (tf)
           tf.addEventListener("change", (e) => {
@@ -1200,27 +1431,19 @@
             render();
           });
       }
-      function setupTournamentToggle() {
-        const grid = req("weekGrid");
-        grid.addEventListener("click", (e) => {
-          const btn = e.target.closest(".btn-ver-mas");
-          if (!btn) return;
-          const target = el(btn.dataset.uid);
-          if (!target) return;
-          const isCollapsed = target.classList.contains("is-collapsed");
-          target.classList.toggle("is-collapsed");
-          btn.textContent = isCollapsed
-            ? "Ocultar"
-            : `Ver más (${btn.dataset.count})`;
-        });
-      }
+
+      /* ── Main render ─────────────────────────────────── */
       function render() {
         const raw = getFiltered();
         if (!raw.length) return;
+
         const tournaments = groupByTournament(raw);
+
+        /* Aggregate players */
         const byPlayer = {};
         raw.forEach((r) => {
           const n = r.Nombre;
+
           if (!byPlayer[n])
             byPlayer[n] = {
               name: n,
@@ -1245,8 +1468,13 @@
           p.decks.push(r.Arquetipo);
         });
         const players = Object.values(byPlayer).sort((a, b) => b.pts - a.pts);
+
+        /* Header stats */
+        const dates = getUniqueDates(raw);
         req("metaTotalPlayers").textContent = players.length;
         req("metaTotalTournaments").textContent = tournaments.length;
+
+        /* Archetypes (top-N per tournament) */
         const topNRows = tournaments.flatMap((g) =>
           g.entries.filter((r) => Number(r.Puesto) <= selectedTop),
         );
@@ -1262,6 +1490,8 @@
             parseInt(r.E || 0, 10);
         });
         const archs = Object.values(byArch).sort((a, b) => b.count - a.count);
+
+        /* Most consistent */
         let mostConsistent = null,
           bestAvg = 99;
         players
@@ -1275,6 +1505,7 @@
               mostConsistent = p;
             }
           });
+
         renderFinalRank(players);
         renderPlayerTable(players);
         renderArchetypes(archs);
@@ -1282,6 +1513,8 @@
         renderTournaments(tournaments);
         renderFacts(archs, mostConsistent, bestAvg, tournaments);
       }
+
+      /* ── Ranking Final ───────────────────────────────── */
       function renderFinalRank(players) {
         const final = players
           .map((p) => {
@@ -1290,19 +1523,37 @@
             return { ...p, att, bonus, finalPts: p.pts + att + bonus };
           })
           .sort((a, b) => b.finalPts - a.finalPts);
+
         req("finalRankBody").innerHTML = final
           .map((p, i) => {
-            const name = p.name.replace(/\s+/g, " ").trim();
+            const name = p.name.replace(" 🐸", "");
             const isTop = i < 3;
             const rankClass = i === 0 ? "top1" : isTop ? "top3" : "";
-            return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div></td><td><span class="pts-big">${p.ptsRaw}</span></td><td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td><td><span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">${p.bonus}</span><div class="breakdown">${p.att} / 4</div></td><td><span class="pts-big ${i === 0 ? "leader" : ""}">${p.finalPts}</span><div class="breakdown">${p.pts} + ${p.att} + ${p.bonus}</div></td></tr>`;
+            return `<tr${i === 0 ? ' class="row-leader"' : ""}>
+        <td><div class="player-name">
+          <span class="rank-num ${rankClass}">${i + 1}</span>${name}
+        </div></td>
+        
+        <td><span class="pts-big">${p.ptsRaw}</span></td>
+        <td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">✦ ${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
+        <td>
+          <span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">+${p.bonus}</span>
+          <div class="breakdown">${p.att} ÷ 4</div>
+        </td>
+        <td>
+          <span class="pts-big ${i === 0 ? "leader" : ""}">${p.finalPts}</span>
+          <div class="breakdown">${p.pts} + ${p.att} + ${p.bonus}</div>
+        </td>
+      </tr>`;
           })
           .join("");
       }
+
+      /* ── Tabla jugadores ─────────────────────────────── */
       function renderPlayerTable(players) {
         req("playerTableBody").innerHTML = players
           .map((p, i) => {
-            const name = p.name.replace(/\s+/g, " ").trim();
+            const name = p.name.replace(" 🐸", "");
             const deckStr = [...new Set(p.decks)].join(", ");
             const rankClass = i === 0 ? "top1" : i < 3 ? "top3" : "";
             const bestColor =
@@ -1320,11 +1571,29 @@
             const dotsL = Array(Math.min(p.l, 20))
               .fill('<span class="dot l"></span>')
               .join("");
-            return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-cell"><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div><div class="player-decks">${deckStr}</div></div></td><td><div class="wdl-wrap">${dotsW}${dotsD}${dotsL}<span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span></div></td><td><span class="best-pos" style="color:${bestColor}">${p.best}</span></td></tr>`;
+            return `<tr${i === 0 ? ' class="row-leader"' : ""}>
+        <td>
+          <div class="player-cell">
+            <div class="player-name">
+              <span class="rank-num ${rankClass}">${i + 1}</span>${name}
+            </div>
+            <div class="player-decks">${deckStr}</div>
+          </div>
+        </td>
+        <td>
+          <div class="wdl-wrap">
+            ${dotsW}${dotsD}${dotsL}
+            <span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span>
+          </div>
+        </td>
+        <td><span class="best-pos" style="color:${bestColor}">#${p.best}</span></td>
+      </tr>`;
           })
           .join("");
       }
-      const ARCHCOLORS = [
+
+      /* ── Arquetipos ──────────────────────────────────── */
+      const ARCH_COLORS = [
         "#f5c800",
         "#7b61ff",
         "#ff4757",
@@ -1337,26 +1606,38 @@
         "#00d2d3",
       ];
       function wrColor(pct) {
-        if (pct >= 65) return "#44cc77";
-        if (pct >= 55) return "#88cc44";
-        if (pct >= 50) return "#f5c800";
-        if (pct >= 42) return "#f59500";
-        return "#e03030";
+        if (pct >= 65) return "#44cc77"; // verde  — dominante
+        if (pct >= 55) return "#88cc44"; // verde amarillento — bueno
+        if (pct >= 50) return "#f5c800"; // amarillo — parejo
+        if (pct >= 42) return "#f59500"; // naranja — bajo
+        return "#e03030"; // rojo — malo
       }
       function renderArchetypes(archs) {
         const wrap = req("archetypeGrid");
         const header = wrap.querySelector(".arch-header-row");
         wrap.innerHTML = "";
         wrap.appendChild(header);
+
         archs.forEach((a) => {
           const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
           const color = wrColor(wr);
           const row = document.createElement("div");
           row.className = "arch-row";
-          row.innerHTML = `<div class="arch-dot" style="background:${color}"></div><div class="arch-name">${a.name}</div><div class="arch-bar-wrap"><div class="arch-bar-bg"><div class="arch-bar-fill" style="width:${wr}%; background:${color}"></div></div></div><div class="arch-pct" style="color:${color}">${wr}</div><div class="arch-count">${a.count}</div>`;
+          row.innerHTML = `
+        <div class="arch-dot" style="background:${color}"></div>
+        <div class="arch-name">${a.name}</div>
+        <div class="arch-bar-wrap">
+          <div class="arch-bar-bg">
+            <div class="arch-bar-fill" style="width:${wr}%;background:${color}"></div>
+          </div>
+        </div>
+        <div class="arch-pct" style="color:${color}">${wr}%</div>
+        <div class="arch-count">${a.count}×</div>
+      `;
           wrap.appendChild(row);
         });
       }
+      // PIE CHART
       function renderPieChart(archs) {
         const canvas = el("pieCanvas");
         if (!canvas) return;
@@ -1364,22 +1645,31 @@
         const cx = canvas.width / 2,
           cy = canvas.height / 2;
         const r = Math.min(cx, cy) - 20;
-        const TOPN = 8;
-        const top = archs.slice(0, TOPN);
-        const rest = archs.slice(TOPN);
-        const totalAll = archs.reduce((s, a) => s + a.count, 0) || 1;
+
+        // ── Agrupar: top 8 + "Otros" ──────────────────────────
+        const TOP_N = 8;
+        const top = archs.slice(0, TOP_N);
+        const rest = archs.slice(TOP_N);
+
+        const totalAll = archs.reduce((s, a) => s + a.count, 0);
         const othersCount = rest.reduce((s, a) => s + a.count, 0);
+
         const slices =
           othersCount > 0
             ? [...top, { name: "Otros", count: othersCount }]
             : top;
-        const OTHERSCOLOR = "#555";
+
+        const OTROS_COLOR = "#555";
+
+        // ── Dibujar ────────────────────────────────────────────
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let angle = -Math.PI / 2;
+
         slices.forEach((a, i) => {
           const color =
-            i < TOPN ? ARCHCOLORS[i % ARCHCOLORS.length] : OTHERSCOLOR;
+            i < TOP_N ? ARCH_COLORS[i % ARCH_COLORS.length] : OTROS_COLOR;
           const slice = (a.count / totalAll) * 2 * Math.PI;
+
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.arc(cx, cy, r, angle, angle + slice);
@@ -1389,30 +1679,41 @@
           ctx.strokeStyle = "#0a0a0a";
           ctx.lineWidth = 2;
           ctx.stroke();
+
           if (slice > 0.18) {
             const mid = angle + slice / 2;
-            const lx = cx + Math.cos(mid) * r * 0.62;
-            const ly = cy + Math.sin(mid) * r * 0.62;
+            const lx = cx + Math.cos(mid) * (r * 0.62);
+            const ly = cy + Math.sin(mid) * (r * 0.62);
             const pct = Math.round((a.count / totalAll) * 100);
             ctx.fillStyle = "#000";
-            ctx.font = "bold 12px Barlow Condensed, sans-serif";
+            ctx.font = "bold 12px 'Barlow Condensed', sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(pct + "%", lx, ly);
           }
+
           angle += slice;
         });
+
+        // ── Leyenda ────────────────────────────────────────────
         const legend = el("pieLegend");
-        if (legend)
+        if (legend) {
           legend.innerHTML = slices
             .map((a, i) => {
               const color =
-                i < TOPN ? ARCHCOLORS[i % ARCHCOLORS.length] : OTHERSCOLOR;
+                i < TOP_N ? ARCH_COLORS[i % ARCH_COLORS.length] : OTROS_COLOR;
               const pct = Math.round((a.count / totalAll) * 100);
-              return `<div class="pie-legend-item"><span class="pie-legend-dot" style="background:${color}"></span><span class="pie-legend-name">${a.name}</span><span class="pie-legend-stat">${pct}% · ${a.count}</span></div>`;
+              return `<div class="pie-legend-item">
+        <span class="pie-legend-dot" style="background:${color}"></span>
+        <span class="pie-legend-name">${a.name}</span>
+        <span class="pie-legend-stat">${pct}% · ${a.count}×</span>
+      </div>`;
             })
             .join("");
+        }
       }
+
+      /* ── Torneos ─────────────────────────────────────── */
       function renderTournaments(tournaments) {
         const grid = req("weekGrid");
         grid.innerHTML = "";
@@ -1422,72 +1723,106 @@
           );
           const top3 = entries.slice(0, 3);
           const rest = entries.slice(3);
+
           const posClass = (pi) =>
             pi === 0 ? "gold" : pi === 1 ? "silver" : pi === 2 ? "bronze" : "";
+
           const makeRow = (e, pi) => {
-            const name = (e.Nombre || "")
-              .replace(/\./g, "")
-              .replace(/\s+/g, " ")
-              .trim()
+            const name = e.Nombre.replace(/\s\(.*\)/, "")
+              .replace(" 🐸", "")
               .split(" ")
               .slice(0, 2)
               .join(" ");
-            return `<div class="podium-row"><div class="podium-pos ${posClass(pi)}">${e.Puesto}</div><div class="podium-info"><div class="podium-name">${name}</div><div class="podium-deck">${e.Arquetipo}</div></div><div class="podium-pts">${e.Puntos}</div></div>`;
+            return `<div class="podium-row">
+          <div class="podium-pos ${posClass(pi)}">#${e.Puesto}</div>
+          <div class="podium-info">
+            <div class="podium-name">${name}</div>
+            <div class="podium-deck">${e.Arquetipo}</div>
+          </div>
+          <div class="podium-pts">${e.Puntos}</div>
+        </div>`;
           };
+
           const uid = `week-extra-${wi}`;
           const card = document.createElement("div");
           card.className = "week-card";
-          card.innerHTML = `<div class="week-card-header"><div class="week-card-title">${group.label}</div><div class="week-card-meta">${formatDate(group.key)}<br>${entries.length} jugadores</div></div><div class="week-podium">${top3.map((e, pi) => makeRow(e, pi)).join("")}${rest.length > 0 ? `<div id="${uid}" class="week-extra is-collapsed">${rest.map((e, pi) => makeRow(e, pi + 3)).join("")}</div>` : ""}</div>${rest.length > 0 ? `<button class="btn-ver-mas" data-uid="${uid}" data-count="${rest.length}">Ver más (${rest.length})</button>` : ""}`;
+          card.innerHTML = `
+        <div class="week-card-header">
+          <div class="week-card-title">${group.label}</div>
+          <div class="week-card-meta">${formatDate(group.key)}<br>${entries.length} jugadores</div>
+        </div>
+        <div class="week-podium">
+          ${top3.map((e, pi) => makeRow(e, pi)).join("")}
+          ${rest.length > 0 ? `<div id="${uid}" style="display:none">${rest.map((e, pi) => makeRow(e, pi + 3)).join("")}</div>` : ""}
+        </div>
+        ${rest.length > 0 ? `<button class="btn-ver-mas" data-uid="${uid}" data-count="${rest.length}">▾ Ver más (${rest.length})</button>` : ""}
+      `;
           grid.appendChild(card);
         });
+
+        grid.addEventListener("click", (e) => {
+          const btn = e.target.closest(".btn-ver-mas");
+          if (!btn) return;
+          const target = el(btn.dataset.uid);
+          const open =
+            target.style.display !== "none" && target.style.display !== "";
+          target.style.display = open ? "none" : "block";
+          btn.textContent = open
+            ? `▾ Ver más (${btn.dataset.count})`
+            : "▴ Ocultar";
+        });
       }
+
+      /* ── Datos curiosos ──────────────────────────────── */
       function renderFacts(archs, mostConsistent, bestAvg, tournaments) {
         const topArch = archs[0];
         const last = tournaments[tournaments.length - 1];
         const prev = tournaments.slice(0, -1);
         const newPlayers = last
-          ? [
-              ...new Set(
-                last.entries
-                  .map((r) => r.Nombre)
-                  .filter(
-                    (n) =>
-                      !prev.some((t) => t.entries.some((r) => r.Nombre === n)),
-                  ),
-              ),
-            ]
+          ? [...new Set(last.entries.map((r) => r.Nombre))].filter(
+              (n) => !prev.some((t) => t.entries.some((r) => r.Nombre === n)),
+            )
           : [];
+
         const facts = [
           {
             label: "Arquetipo más popular",
             value: topArch ? topArch.name.split(" ").slice(-1)[0] : "—",
             desc: topArch
-              ? `${topArch.name} fue jugado ${topArch.count} veces`
+              ? `${topArch.name} jugado ${topArch.count} veces`
               : "Sin datos",
           },
           {
             label: "Jugador más consistente",
             value: mostConsistent ? mostConsistent.name.split(" ")[0] : "—",
             desc: mostConsistent
-              ? `Promedio de puesto ${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} torneos`
+              ? `Promedio puesto #${bestAvg.toFixed(1)} en ${mostConsistent.entries.length} torneos`
               : "Sin datos suficientes",
           },
           {
             label: `Nuevos en T${tournaments.length}`,
-            value: newPlayers.length || 0,
+            value: newPlayers.length || "0",
             desc:
               newPlayers.length > 0
-                ? `${newPlayers.map((n) => n.split(" ")[0]).join(", ")} se incorporaron en el último torneo`
+                ? newPlayers.map((n) => n.split(" ")[0]).join(", ") +
+                  " se incorporaron en el último torneo"
                 : "Sin jugadores nuevos en el último torneo",
           },
         ];
+
         req("factsGrid").innerHTML = facts
           .map(
-            (f) =>
-              `<div class="fact-card"><div class="fact-label">${f.label}</div><div class="fact-value">${f.value}</div><div class="fact-desc">${f.desc}</div></div>`,
+            (f) => `
+      <div class="fact-card">
+        <div class="fact-label">${f.label}</div>
+        <div class="fact-value">${f.value}</div>
+        <div class="fact-desc">${f.desc}</div>
+      </div>
+    `,
           )
           .join("");
       }
+
       document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>
