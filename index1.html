@@ -370,16 +370,11 @@
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
-        padding: 6px 12px;
+        padding: 6px 32px 6px 12px;
         cursor: pointer;
         outline: none;
         min-width: 220px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--sp-4);
         transition: background 0.15s;
-        width: 100%;
       }
       .dropdown:hover,
       .dropdown:focus {
@@ -387,43 +382,14 @@
       }
 
       .dropdown-arrow {
-        font-size: 9px;
-        color: var(--yellow);
-        pointer-events: none;
-        flex-shrink: 0;
-      }
-
-      .dropdown-menu {
-        display: none;
         position: absolute;
-        top: 100%;
-        left: 0;
-        min-width: 100%;
-        background: var(--surface);
-        border: 1.5px solid var(--yellow);
-        border-top: none;
-        list-style: none;
-        z-index: 200;
-        max-height: 280px;
-        overflow-y: auto;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--yellow);
+        font-size: 9px;
+        pointer-events: none;
       }
-      .dropdown-menu.open { display: block; }
-
-      .dropdown-menu li {
-        padding: 9px 14px;
-        font-family: var(--font-ui);
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--text);
-        cursor: pointer;
-        border-bottom: 1px solid var(--border);
-        transition: background 0.1s, color 0.1s;
-      }
-      .dropdown-menu li:last-child { border-bottom: none; }
-      .dropdown-menu li:hover { background: var(--yellow-dim); color: var(--yellow); }
-      .dropdown-menu li.active { color: var(--yellow); }
 
       /* ============================================================
    SECTION HEADER — eyebrow + título + línea
@@ -1118,12 +1084,9 @@
         <!-- STICKY NAV -->
         <nav class="nav-bar">
           <span class="nav-label">Torneo</span>
-          <div class="dropdown-wrap" id="dropdownWrap">
-            <button class="dropdown" id="dropdownBtn" type="button">
-              <span id="dropdownLabel">TODOS LOS TORNEOS</span>
-              <span class="dropdown-arrow">▼</span>
-            </button>
-            <ul class="dropdown-menu" id="dropdownMenu"></ul>
+          <div class="dropdown-wrap">
+            <select class="dropdown" id="weekDropdown"></select>
+            <span class="dropdown-arrow">▼</span>
           </div>
         </nav>
 
@@ -1330,40 +1293,25 @@
 
       /* ── Dropdowns ───────────────────────────────────── */
       function setupDropdowns() {
-        const dates  = getUniqueDates(allData);
-        const menu   = req("dropdownMenu");
-        const label  = req("dropdownLabel");
-        const btn    = req("dropdownBtn");
-        const wrap   = req("dropdownWrap");
-
-        const options = [
-          { value: "all", label: "Todos los torneos" },
-          ...dates.map(d => ({ value: d, label: formatDate(d) }))
-        ];
-
-        menu.innerHTML = options.map((o, i) =>
-          `<li data-value="${o.value}" class="${i === 0 ? 'active' : ''}">${o.label}</li>`
-        ).join("");
-
-        btn.addEventListener("click", () => menu.classList.toggle("open"));
-
-        document.addEventListener("click", e => {
-          if (!wrap.contains(e.target)) menu.classList.remove("open");
-        });
-
-        menu.addEventListener("click", e => {
-          const li = e.target.closest("li");
-          if (!li) return;
-          menu.querySelectorAll("li").forEach(l => l.classList.remove("active"));
-          li.classList.add("active");
-          label.textContent = li.textContent;
-          menu.classList.remove("open");
-          selectedDate = li.dataset.value;
+        const dd = req("weekDropdown");
+        const dates = getUniqueDates(allData);
+        dd.innerHTML =
+          `<option value="all">Todos los torneos</option>` +
+          dates
+            .map((d) => `<option value="${d}">${formatDate(d)}</option>`)
+            .join("");
+        dd.value = "all";
+        dd.addEventListener("change", (e) => {
+          selectedDate = e.target.value;
           render();
         });
 
         const tf = el("topFilter");
-        if (tf) tf.addEventListener("change", e => { selectedTop = Number(e.target.value); render(); });
+        if (tf)
+          tf.addEventListener("change", (e) => {
+            selectedTop = Number(e.target.value);
+            render();
+          });
       }
 
       /* ── Main render ─────────────────────────────────── */
@@ -1548,13 +1496,20 @@
       }
       function renderArchetypes(archs) {
         const wrap = req("archetypeGrid");
+        // Keep the header row, clear the rest
         const header = wrap.querySelector(".arch-header-row");
         wrap.innerHTML = "";
         wrap.appendChild(header);
 
-        archs.forEach((a) => {
+        archs.forEach((a, i) => {
           const wr = a.games > 0 ? Math.round((a.wins / a.games) * 100) : 0;
-          const color = wrColor(wr);
+          const color = wrColor(a.wr);
+          const wrColor =
+            wr >= 55
+              ? "var(--win)"
+              : wr >= 45
+                ? "var(--yellow)"
+                : "var(--loss)";
           const row = document.createElement("div");
           row.className = "arch-row";
           row.innerHTML = `
@@ -1565,7 +1520,7 @@
             <div class="arch-bar-fill" style="width:${wr}%;background:${color}"></div>
           </div>
         </div>
-        <div class="arch-pct" style="color:${color}">${wr}%</div>
+        <div class="arch-pct" style="color:${wrColor}">${wr}%</div>
         <div class="arch-count">${a.count}×</div>
       `;
           wrap.appendChild(row);
