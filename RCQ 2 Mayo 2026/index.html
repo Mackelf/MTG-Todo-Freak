@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>RCQ 2 Mayo 2026 — Standing</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue-router@4"></script>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #161920;
+      --surface-2: #1e2130;
+      --border: #2a2f45;
+      --text: #fdfdff;
+      --muted: #c8cdd8;
+      --accent: #c89b3c;
+      --accent-dim: rgba(200, 155, 60, 0.12);
+      --win: #4ade80;
+      --loss: #f87171;
+      --draw: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", serif;
+      margin: 0;
+    }
+
+    /* ── Navbar ── */
+    .navbar-custom {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+    }
+
+    .navbar-brand-custom {
+      font-family: "Georgia", serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent) !important;
+      text-decoration: none;
+    }
+
+    .nav-link-custom {
+      color: var(--muted) !important;
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      transition:
+        color 0.2s,
+        background 0.2s;
+    }
+
+    .nav-link-custom:hover,
+    .nav-link-custom.router-link-active {
+      color: var(--accent) !important;
+      background: var(--accent-dim);
+    }
+
+    /* ── Layout ── */
+    .main-container {
+      max-width: 960px;
+      margin: 2.5rem auto;
+      padding: 0 1rem;
+    }
+
+    .view-title {
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .view-heading {
+      font-size: 1.6rem;
+      color: var(--text);
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    /* ── Tabla Standing ── */
+
+    .badge-gold {
+      background-color: #ffd700;
+      color: #000;
+    }
+
+    .badge-silver {
+      background-color: #c0c0c0;
+      color: #000;
+    }
+
+    .badge-bronze {
+      background-color: #cd7f32;
+      color: #fff;
+    }
+
+    .badge-green {
+      background-color: #198754;
+      color: #fff;
+    }
+
+    .standing-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .standing-table thead th {
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-weight: 400;
+      font-family: "Georgia", serif;
+    }
+
+    .standing-table td {
+      padding: 0.6rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .standing-table tbody tr:hover {
+      background: var(--surface-2);
+    }
+
+    .place-badge {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .decklist-tag {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-pts {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-vde {
+      font-family: "Georgia", serif;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-v {
+      color: var(--win);
+    }
+
+    .stat-d {
+      color: var(--loss);
+    }
+
+    .stat-e {
+      color: var(--draw);
+    }
+
+    /* ── Metagame cards ── */
+    .meta-card-img {
+      height: 120px;
+      background-size: cover;
+      background-position: center top;
+      border-radius: 4px 4px 0 0;
+      margin: -1.1rem -1.25rem 1rem -1.25rem;
+      position: relative;
+    }
+
+    .meta-card-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom,
+          transparent 40%,
+          var(--surface) 100%);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .meta-deck-name a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .meta-deck-name a:hover {
+      text-decoration: underline;
+    }
+
+    .meta-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.1rem 1.25rem;
+      transition: border-color 0.2s;
+    }
+
+    .meta-card:hover {
+      border-color: var(--accent);
+    }
+
+    .meta-deck-name {
+      font-size: 1.5 rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .meta-row span:last-child {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .meta-wr {
+      margin-top: 0.65rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta-wr-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .meta-presence {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .meta-presence-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+
+    /* ── Loading ── */
+    .loading-msg {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 3rem 0;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      background-color: #000;
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+      font-family: sans-serif;
+    }
+
+    .social-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+
+    .text-muted-social {
+      color: #c8cdd8;
+    }
+
+    .interview-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    @media (min-width: 768px) {
+      .interview-img {
+        height: 100%;
+      }
+    }
+
+    .social-link:hover {
+      color: var(--accent);
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div>
+      <img src="./assets/LogoTodoFreak.jpg" alt="Logo TodoFreak" class="img-fluid" style="height: 100px" />
+    </div>
+    <!-- Navbar -->
+    <nav class="navbar-custom">
+      <div class="container d-flex align-items-center justify-content-between">
+        <router-link class="navbar-brand-custom" to="/">RCQ 2026</router-link>
+        <div class="d-flex gap-1">
+          <router-link class="nav-link-custom" to="/standing">
+            <i class="bi bi-trophy me-1"></i>Standing
+          </router-link>
+          <router-link class="nav-link-custom" to="/metagame">
+            <i class="bi bi-pie-chart me-1"></i>Metagame
+          </router-link>
+          <router-link class="nav-link-custom" to="/social">
+            <i class="bi bi-people me-1"></i>Social
+          </router-link>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Router view -->
+    <div class="main-container">
+      <router-view></router-view>
+    </div>
+  </div>
+
+  <footer>Mario Canto. 2026. PandaComboMtg</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    // ── Store compartido (simple reactive state) ────────────────────────
+    const store = Vue.reactive({
+      players: [],
+      loaded: false,
+    });
+
+    async function loadData() {
+      if (store.loaded) return;
+      const res = await fetch("./assets/StandingRCQ.json");
+      store.players = await res.json();
+      store.loaded = true;
+    }
+
+    // ── Vista Standing ──────────────────────────────────────────────────
+    const Standing = {
+      template: `
+          <div>
+            <p class="view-title">Torneo</p>
+            <h1 class="view-heading">Standing Ronda 5 + Top 4</h1>
+
+            <div v-if="!store.loaded" class="loading-msg">Cargando resultados…</div>
+
+            <div v-else class="table-responsive">
+              <table class="standing-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Jugador</th>
+                  <th>Decklist</th>
+                  <th>Pts</th>
+                  <th>V</th>
+                  <th>D</th>
+                  <th>E</th>
+                  <th>%VPO</th>
+                  <th>%JG</th>
+                  <th>%JGO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="p in store.players" :key="p.Nombre">
+               <td class="place-badge">{{ p.Place }}</td>
+<td>
+  {{ p.Nombre }}
+  <span v-if="p.Badge" class="badge rounded-pill me-1" :class="badgeClass(p.Badge)">
+    {{ p.Badge }}
+  </span>
+  
+</td>
+                  <td>
+                    <a :href="p.decklistUrl" target="_blank" rel="noopener noreferrer">
+                      <span class="decklist-tag">{{ p.Decklist }}</span>
+                    </a>
+                  </td>
+                  <td class="stat-pts">
+                    
+                    {{ p.Puntos }}</td>
+                  <td class="stat-v">{{ p.V }}</td>
+                  <td class="stat-d">{{ p.D }}</td>
+                  <td class="stat-e">{{ p.E }}</td>
+                  <td>{{ p['%VPO'] }}</td>
+                  <td>{{ p['%JG'] }}</td>
+                  <td>{{ p['%JGO'] }}</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        `,
+
+      methods: {
+        badgeClass(badge) {
+          const map = {
+            "1st": "badge-gold",
+            "2nd": "badge-silver",
+            Top4: "badge-bronze",
+            Top8: "badge-green",
+          };
+          return map[badge] || "";
+        },
+      },
+      setup() {
+        onMounted(loadData);
+        return { store };
+      },
+    };
+
+    // ── Vista Metagame ──────────────────────────────────────────────────
+    const Metagame = {
+      template: `
+    <div>
+      <p class="view-title">Análisis</p>
+      <h1 class="view-heading">Metagame Breakdown</h1>
+
+      <div v-if="!store.loaded" class="loading-msg">Cargando datos…</div>
+
+      <div v-else class="row g-3">
+        <div
+          class="col-12 col-md-6 col-lg-3"
+          v-for="d in deckStats"
+          :key="d.name"
+        >
+          <div class="meta-card h-100">
+
+            <div class="meta-card-img" :style="{ backgroundImage: 'url(' + d.img + ')' }"></div>
+
+      <div class="meta-deck-name">
+  <!-- badges del arquetipo -->
+  <span
+    v-for="(qty, badge) in d.badges"
+    :key="badge"
+    class="badge rounded-pill me-1"
+    :class="badgeClass(badge)"
+  >
+    {{ qty > 1 ? qty + 'x ' : '' }}{{ badge }}
+  </span>
+
+  <a v-if="d.url" :href="d.url" target="_blank" rel="noopener noreferrer">
+    {{ d.name }}
+  </a>
+  <span v-else>{{ d.name }}</span>
+</div>
+
+            <div class="meta-row">
+              <span>Copias jugadas</span>
+              <h5><span>{{ d.count }}</span></h5>
+            </div>
+            <div class="meta-row">
+              <span>Partidas (V / D / E)</span>
+              <span>
+                <h6>
+                <span style="color:var(--win)">{{ d.wins }}</span> /
+                <span style="color:var(--loss)">{{ d.losses }}</span> /
+                <span style="color:var(--draw)">{{ d.draws }}</span>
+              </span>
+              </h6>
+            </div>
+
+            <div class="meta-wr">Win Rate</div>
+            <div class="meta-wr-value">{{ d.winrate }}%</div>
+
+           <div class="meta-wr">Meta %</div>
+<div class="meta-wr-value">{{ d.presence }}%</div>
+
+    <div class="meta-presence">
+      <div class="meta-presence-fill" :style="{ width: d.presence + '%' }"></div>
+    </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `,
+
+      methods: {
+        badgeClass(badge) {
+          const map = {
+            "1st": "badge-gold",
+            "2nd": "badge-silver",
+            Top4: "badge-bronze",
+            Top8: "badge-green",
+          };
+          return map[badge] || "";
+        },
+      },
+
+      setup() {
+        onMounted(loadData);
+
+        const deckStats = computed(() => {
+          if (!store.loaded) return [];
+
+          // Agrupar por Decklist
+          const map = {};
+          for (const p of store.players) {
+            const key = p.Decklist;
+            if (!map[key]) {
+              map[key] = {
+                name: key,
+                count: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0,
+                img:
+                  p.imgRoute?.replace(/\\\\/g, "/").replace(/\\/g, "/") ?? "",
+                url: p.decklistUrl ?? "",
+                badges: {},
+              };
+            }
+            map[key].count++;
+            map[key].wins += p.V;
+            map[key].losses += p.D;
+            map[key].draws += p.E;
+
+            // acumular badges
+            if (p.Badge) {
+              map[key].badges[p.Badge] = (map[key].badges[p.Badge] || 0) + 1;
+            }
+          }
+
+          const maxCount = Math.max(
+            ...Object.values(map).map((d) => d.count),
+          );
+
+          return Object.values(map)
+            .map((d) => {
+              const total = d.wins + d.losses + d.draws;
+              const winrate =
+                total > 0 ? ((d.wins / total) * 100).toFixed(1) : "0.0";
+              const presence = parseFloat(
+                ((d.count / store.players.length) * 100).toFixed(2),
+              );
+              return { ...d, winrate, presence };
+            })
+            .sort((a, b) => b.count - a.count || b.winrate - a.winrate);
+        });
+
+        return { store, deckStats };
+      },
+    };
+
+    const Social = {
+      template: `
+  
+    <div>
+      <p class="view-title">Comunidad</p>
+      <h1 class="view-heading">Redes Sociales</h1>
+      <div class="d-flex gap-3 mb-4">
+  <a href="https://www.instagram.com/todofreakstore/" target="_blank" class="social-link">
+    <i class="bi bi-instagram me-1"></i>Todo Freak Store
+  </a>
+  <a href="https://instagram.com/pandacombomtg" target="_blank" class="social-link">
+    <i class="bi bi-instagram me-1"></i>pandacombomtg
+  </a>
+  <a href="https://www.facebook.com/groups/423462367843879" target="_blank" class="social-link">
+    <i class="bi bi-facebook me-1"></i>Daily Modern
+  </a>
+</div>
+
+
+<!--
+    
+<div class="card bg-dark border-secondary shadow-sm mb-4">
+  <div class="row g-0 flex-column flex-md-row">
+    <div class="col-12 col-md-3">
+      <img src="./assets/HLobosPortrait.png" alt="Hernán Lobos" class="interview-img rounded-top rounded-md-start">
+    </div>
+    <div class="col-12 col-md-9">
+      <div class="card-body">
+        <h5 class="card-title" style="color: var(--accent);">Hernán Lobos</h5>
+        <p class="text-muted-social mb-3" style="font-size:0.8rem;">Piloto de Eldrazi Tron</p>
+        <h6 class="card-subtitle mb-2 fs-6" style="color: var(--text);">¿Qué te motivó a jugar Eldrazi Tron para este RCQ?</h6>
+        <blockquote class="blockquote" style="font-size:0.95rem; color: #c8cdd8; border-left: 3px solid var(--accent); padding-left: 1rem;">
+          "Escogí ese mazo porque me gusta... Creo que responde bien por su versatilidad, el potencial de toolbox gracias a
+          <a href="https://scryfall.com/card/rvr/1/karn-the-great-creator" target="_blank" style="color:var(--accent);">Karn the Great Creator</a>.
+          El desafío más interesante es buscar un equilibrio para interacciones tempranas. Chalice of the Void es una buena adición, pero tengo dudas en la cantidad uno o dos.
+          Uno funcionó bien, pero no lo vi mucho, así que en mis próximos testeos incluiré una segunda copia.
+          Mi otra alternativa es jugar con más
+          <a href="https://scryfall.com/card/cmm/812/warping-wail" target="_blank" style="color:var(--accent);">Warping Wail</a>.
+          Una de las dificultades mayores del mazo es remover drops de uno como Ragavan o Tamiyo, y con esta carta podemos detener la carrera de Boros Energy."
+        </blockquote>
+      <a href=" https://www.instagram.com/teamlatinos.mtg/" target="_blank" class="social-link">
+    <i class="bi bi-instagram me-1"></i>Team Latinos
+  </a>
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="card bg-dark border-secondary shadow-sm mb-4">
+  <div class="row g-0 flex-column flex-md-row-reverse">
+    <div class="col-12 col-md-3">
+      <img src="./assets/FMirandaPortrait.png" alt="Francisco A. Miranda" class="interview-img rounded-top rounded-md-end">
+    </div>
+    <div class="col-12 col-md-9">
+      <div class="card-body">
+        <h5 class="card-title" style="color: var(--accent);">Francisco A. Miranda</h5>
+        <p class="text-muted-social mb-1" style="font-size:0.8rem;"><strong>Clasificado RCQ BloodMoon</strong> · Piloto de Zoo Domain</p>
+        <p class="text-muted-social mb-3" style="font-size:0.78rem;">
+          Jugando desde 2018 · <strong>Clasificaciones previas</strong>: En la gran mayoría que se han celebrado. Falté solo a los primeros 2 SAMS ·
+          <strong>Mejor torneo</strong>: RC Modern 6-1-1 con Zoo y 6-2 con Boros Energy (ambos Top 16)
+        </p>
+        <h6 class="card-subtitle mb-2 fs-6" style="color: var(--text);">¿Qué te motivó a jugar Domain Zoo para este RCQ?</h6>
+        <blockquote class="blockquote" style="font-size:0.95rem; color: #c8cdd8; border-left: 3px solid var(--accent); padding-left: 1rem;">
+          "Venía de dos qualis jugando Boros Energy, en ambos perdí en semis y en el win and in. Además la serie de mazos combo como Ruby, Belcher y Neobrand son un problema para el tier1 actual, así que cambié a Zoo que tiene mejor matchup contra ellos.
+          Adapté la lista al meta local esperando Boros Energy, Affinity, Jeskai Blink y Amulet Titan — incluí Prismatic Ending al main y el tercer Stubborn Denial en desmedro de Consign.
+          En el side metí Damping Sphere y Void Mirror contra Tron, que sirvieron mucho. La predicción del meta no fue exacta — llegó mucho Eldrazi Tron — pero el deck se portó increíble y el plan de side funcionó."
+        </blockquote>
+        <h6 class="card-subtitle mb-2 fs-6" style="color: var(--text);">¿Cómo te vas a preparar para el regional?</h6>
+        <blockquote class="blockquote" style="font-size:0.95rem; color: #c8cdd8; border-left: 3px solid var(--accent); padding-left: 1rem;">
+          "Testeo en tiendas y con mi team, Team Dominus. No juego Magic Online así que debo hacer esfuerzos extras jajaja."
+        </blockquote>
+          <a href=" https://www.instagram.com/teamdominusmtg" target="_blank" class="social-link">
+    <i class="bi bi-instagram me-1"></i>Team Dominus
+  </a>
+       
+      </div>
+    </div>
+  </div>
+</div>
+-->
+
+      <!-- Brackets y Top 8 -->
+        <h2 class="view-heading">Brackets y Top 8</h2>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-2">
+              <img
+                src="./assets/Brackets.png"
+                alt="Brackets RCQ25"
+                class="img-fluid rounded"
+                style="cursor:pointer;"
+                data-bs-toggle="modal"
+                data-bs-target="#imgModal"
+                @click="modalImg = './assets/Brackets.png'"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-2">
+              <img
+                src="./assets/Top4.png"
+                alt="Top 4 RCQ26"
+                class="img-fluid rounded"
+                style="cursor:pointer;"
+                data-bs-toggle="modal"
+                data-bs-target="#imgModal"
+                @click="modalImg = './assets/Top4.png'"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-2">
+              <img
+                src="./assets/1st.png"
+                alt="1st Place RCQ26"
+                class="img-fluid rounded"
+                style="cursor:pointer;"
+                data-bs-toggle="modal"
+                data-bs-target="#imgModal"
+                @click="modalImg = './assets/1st.png'"
+              >
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="imgModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary py-2">
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-2 text-center">
+              <img :src="modalImg" class="img-fluid rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+  `,
+      data() {
+        return {
+          modalImg: "",
+        };
+      },
+    };
+
+    // ── Router ──────────────────────────────────────────────────────────
+    const routes = [
+      { path: "/", redirect: "/standing" },
+      { path: "/standing", component: Standing },
+      { path: "/metagame", component: Metagame },
+      { path: "/social", component: Social },
+    ];
+
+    const router = VueRouter.createRouter({
+      history: VueRouter.createWebHashHistory(),
+      routes,
+    });
+
+    // ── App ──────────────────────────────────────────────────────────────
+    const app = createApp({});
+    app.use(router);
+    app.mount("#app");
+  </script>
+</body>
+
+</html>
