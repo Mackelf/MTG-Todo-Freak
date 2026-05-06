@@ -135,7 +135,6 @@ const DATAFILE = "data/season3.json";
               w: 0,
               d: 0,
               l: 0,
-              best: 99,
               decks: [],
             };
           const p = byPlayer[n];
@@ -146,7 +145,6 @@ const DATAFILE = "data/season3.json";
           p.w += parseInt(r.V || 0, 10);
           p.d += parseInt(r.E || 0, 10);
           p.l += parseInt(r.D || 0, 10);
-          if (Number(r.Puesto) < p.best) p.best = Number(r.Puesto);
           p.decks.push(r.Arquetipo);
         });
         const players = Object.values(byPlayer).sort((a, b) => b.pts - a.pts);
@@ -210,12 +208,6 @@ const DATAFILE = "data/season3.json";
             const name = p.name.replace(/\s+/g, " ").trim();
             const deckStr = [...new Set(p.decks)].join(", ");
             const rankClass = i === 0 ? "top1" : i < 3 ? "top3" : "";
-            const bestColor =
-              p.best <= 3
-                ? "var(--yellow)"
-                : p.best <= 8
-                  ? "var(--text)"
-                  : "var(--text-muted)";
             const dotsW = Array(Math.min(p.w, 20))
               .fill('<span class="dot w"></span>')
               .join("");
@@ -225,7 +217,7 @@ const DATAFILE = "data/season3.json";
             const dotsL = Array(Math.min(p.l, 20))
               .fill('<span class="dot l"></span>')
               .join("");
-            return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-cell"><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div><div class="player-decks">${deckStr}</div></div></td><td><div class="wdl-wrap">${dotsW}${dotsD}${dotsL}<span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span></div></td><td><span class="best-pos" style="color:${bestColor}">${p.best}</span></td></tr>`;
+            return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-cell"><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div><div class="player-decks">${deckStr}</div></div></td><td><div class="wdl-wrap">${dotsW}${dotsD}${dotsL}<span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span></div></td></tr>`;
           })
           .join("");
       }
