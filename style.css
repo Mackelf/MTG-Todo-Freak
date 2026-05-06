@@ -796,7 +796,7 @@ tr.row-leader .player-name {
 
 .pie-legend-name {
   font-family: var(--font-body);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   color: var(--text);
   flex: 1;
   white-space: nowrap;
