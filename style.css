@@ -654,13 +654,13 @@
       }
       .arch-pct {
         font-family: var(--font-ui);
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 700;
         text-align: right;
       }
       .arch-count {
         font-family: var(--font-ui);
-        font-size: var(--fs-xs);
+        font-size: var(--fs-sm);
         color: var(--text-muted);
         text-align: right;
       }
