@@ -556,12 +556,12 @@ tr.row-leader td:first-child {
   font-family: var(--font-body);
   font-weight: 600;
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: 1.2rem;
 }
 
 tr.row-leader .player-name {
   color: var(--yellow);
-  font-size: 1rem;
+  font-size: 1.45rem;
 }
 
 .player-decks {
@@ -796,7 +796,7 @@ tr.row-leader .player-name {
 
 .pie-legend-name {
   font-family: var(--font-body);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-sm);
   color: var(--text);
   flex: 1;
   white-space: nowrap;
@@ -806,7 +806,7 @@ tr.row-leader .player-name {
 
 .pie-legend-stat {
   font-family: var(--font-ui);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
