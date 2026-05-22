@@ -1,4 +1,5 @@
 let DATAFILE = "data/season3.json";
+let currentSeason = 3;
 let allData = [];
 let selectedDate = "all";
 let selectedTop = 8;
@@ -31,6 +32,22 @@ function getFiltered() {
     ? allData
     : allData.filter((r) => normalizeDate(r.Fecha) === selectedDate);
 }
+
+function getRelMultiplier(rel) {
+  const relNorm = (rel || "").toLowerCase();
+
+  if (currentSeason === 4) {
+    // Season 4: Competitivo 2x, RCQ 1.5x, resto 1x
+    if (relNorm.includes("competitivo")) return 2;
+    if (relNorm.includes("rcq")) return 1.5;
+    return 1;
+  }
+
+  // Season 3: Competitivo 2x, resto 1x
+  if (relNorm.includes("competitivo")) return 2;
+  return 1;
+}
+
 function groupByTournament(data) {
   const g = {};
   data.forEach((r) => {
@@ -67,6 +84,8 @@ async function init() {
   }
 }
 function setSeason(season) {
+  currentSeason = Number(season);
+
   if (season === "3") {
     DATAFILE = "data/season3.json";
   } else if (season === "4") {
@@ -143,15 +162,15 @@ function render() {
         decks: [],
       };
     const p = byPlayer[n];
-    const multiplier = r.REL === "Competitivo" ? 2 : 1;
-    p.entries.push(r);
-    p.pts += Number(r.Puntos || 0) * multiplier;
-    p.ptsRaw += Number(r.Puntos || 0);
-    p.w += parseInt(r.V || 0, 10);
-    p.d += parseInt(r.E || 0, 10);
-    p.l += parseInt(r.D || 0, 10);
-    p.decks.push(r.Arquetipo);
-  });
+   const multiplier = getRelMultiplier(r.REL);
+  p.entries.push(r);
+  p.pts += Number(r.Puntos || 0) * multiplier;
+  p.ptsRaw += Number(r.Puntos || 0);
+  p.w += parseInt(r.V || 0, 10);
+  p.d += parseInt(r.E || 0, 10);
+  p.l += parseInt(r.D || 0, 10);
+  p.decks.push(r.Arquetipo);
+});
   const players = Object.values(byPlayer).sort((a, b) => b.pts - a.pts);
   req("metaTotalPlayers").textContent = players.length;
   req("metaTotalTournaments").textContent = tournaments.length;
@@ -187,12 +206,26 @@ function render() {
   renderTournaments(tournaments);
   renderFacts(archs, mostConsistent, bestAvg, tournaments);
 }
+function computeFinalPoints(p) {
+  const att = p.entries.length;
+
+  if (currentSeason === 4) {
+    // Season 4: Pts torneo ponderados + asistencia (sin bonus)
+    const bonus = 0;
+    const finalPts = p.pts + att;
+    return { att, bonus, finalPts };
+  }
+
+  // Season 3: Pts torneo ponderados + asistencia + 1 pto cada 3 asistencias
+  const bonus = Math.floor(att / 3);
+  const finalPts = p.pts + att + bonus;
+  return { att, bonus, finalPts };
+}
 function renderFinalRank(players) {
   const final = players
     .map((p) => {
-      const att = p.entries.length;
-      const bonus = Math.floor(att / 4);
-      return { ...p, att, bonus, finalPts: p.pts + att + bonus };
+    const { att, bonus, finalPts } = computeFinalPoints(p);
+      return { ...p, att, bonus, finalPts };
     })
     .sort((a, b) => b.finalPts - a.finalPts);
   req("finalRankBody").innerHTML = final
