@@ -162,15 +162,15 @@ function render() {
         decks: [],
       };
     const p = byPlayer[n];
-   const multiplier = getRelMultiplier(r.REL);
-  p.entries.push(r);
-  p.pts += Number(r.Puntos || 0) * multiplier;
-  p.ptsRaw += Number(r.Puntos || 0);
-  p.w += parseInt(r.V || 0, 10);
-  p.d += parseInt(r.E || 0, 10);
-  p.l += parseInt(r.D || 0, 10);
-  p.decks.push(r.Arquetipo);
-});
+    const multiplier = getRelMultiplier(r.REL);
+    p.entries.push(r);
+    p.pts += Number(r.Puntos || 0) * multiplier;
+    p.ptsRaw += Number(r.Puntos || 0);
+    p.w += parseInt(r.V || 0, 10);
+    p.d += parseInt(r.E || 0, 10);
+    p.l += parseInt(r.D || 0, 10);
+    p.decks.push(r.Arquetipo);
+  });
   const players = Object.values(byPlayer).sort((a, b) => b.pts - a.pts);
   req("metaTotalPlayers").textContent = players.length;
   req("metaTotalTournaments").textContent = tournaments.length;
@@ -224,7 +224,7 @@ function computeFinalPoints(p) {
 function renderFinalRank(players) {
   const final = players
     .map((p) => {
-    const { att, bonus, finalPts } = computeFinalPoints(p);
+      const { att, bonus, finalPts } = computeFinalPoints(p);
       return { ...p, att, bonus, finalPts };
     })
     .sort((a, b) => b.finalPts - a.finalPts);
@@ -445,7 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (seasonLabel) {
         seasonLabel.textContent = season;
       }
-
 
       if (seasonScreen) seasonScreen.style.display = "none";
       if (dashboard) {
