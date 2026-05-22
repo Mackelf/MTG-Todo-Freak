@@ -438,6 +438,10 @@ document.addEventListener("DOMContentLoaded", () => {
       setSeason(season);
 
       await init(); // carga el JSON
+      document.querySelectorAll(".season-text").forEach((el) => {
+        el.textContent = season;
+      });
+
       if (seasonLabel) {
         seasonLabel.textContent = season;
       }
