@@ -53,15 +53,17 @@ async function init() {
     allData = await res.json();
     if (!Array.isArray(allData) || !allData.length)
       throw new Error("empty data");
+
     setupDropdowns();
     setupTournamentToggle();
     render();
-    el("loadingScreen").style.display = "none";
+
+    // SOLO dashboard, sin tocar loading aquí
     req("dashboard").classList.add("visible");
   } catch (err) {
     console.error(err);
-    el("loadingScreen").style.display = "none";
-    el("errorScreen").classList.add("visible");
+    const errorScreen = el("errorScreen");
+    if (errorScreen) errorScreen.classList.add("visible");
   }
 }
 function setSeason(season) {
@@ -382,22 +384,26 @@ function renderFacts(archs, mostConsistent, bestAvg, tournaments) {
     .join("");
 }
 document.addEventListener("DOMContentLoaded", () => {
+  const loadingScreen = document.getElementById("loadingScreen");
   const seasonScreen = document.getElementById("seasonSelect");
   const dashboard = document.getElementById("dashboard");
   const buttons = document.querySelectorAll(".btn-season");
 
-  // importante: ocultar dashboard al inicio
+  // 1) Ocultar loading y mostrar portada
+  if (loadingScreen) loadingScreen.style.display = "none";
+  if (seasonScreen) seasonScreen.style.display = "block";
   if (dashboard) {
     dashboard.classList.remove("visible");
     dashboard.style.display = "none";
   }
 
+  // 2) Listeners de los botones
   buttons.forEach((btn) => {
     btn.addEventListener("click", async () => {
       const season = btn.dataset.season;
       setSeason(season);
 
-      await init(); // aquí recién se hace el fetch
+      await init(); // carga el JSON
 
       if (seasonScreen) seasonScreen.style.display = "none";
       if (dashboard) {
