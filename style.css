@@ -72,6 +72,28 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
+#dashboard {
+  display: none;
+}
+.season-select-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.season-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-season {
+  padding: 0.8rem 1.6rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
 
 img,
 svg {
