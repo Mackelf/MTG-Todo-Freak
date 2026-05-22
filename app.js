@@ -421,6 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const seasonScreen = document.getElementById("seasonSelect");
   const dashboard = document.getElementById("dashboard");
   const buttons = document.querySelectorAll(".btn-season");
+  const seasonLabel = document.getElementById("currentSeasonLabel");
 
   // 1) Ocultar loading y mostrar portada
   if (loadingScreen) loadingScreen.style.display = "none";
@@ -437,6 +438,10 @@ document.addEventListener("DOMContentLoaded", () => {
       setSeason(season);
 
       await init(); // carga el JSON
+      if (seasonLabel) {
+        seasonLabel.textContent = season;
+      }
+
 
       if (seasonScreen) seasonScreen.style.display = "none";
       if (dashboard) {
