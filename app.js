@@ -1,4 +1,4 @@
-const DATAFILE = "data/season3.json";
+let DATAFILE = "data/season3.json";
 let allData = [];
 let selectedDate = "all";
 let selectedTop = 8;
@@ -386,22 +386,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashboard = document.getElementById("dashboard");
   const buttons = document.querySelectorAll(".btn-season");
 
+  // importante: ocultar dashboard al inicio
+  if (dashboard) {
+    dashboard.classList.remove("visible");
+    dashboard.style.display = "none";
+  }
+
   buttons.forEach((btn) => {
     btn.addEventListener("click", async () => {
       const season = btn.dataset.season;
       setSeason(season);
 
-      // Cargar datos de esa season
-      await init();
+      await init(); // aquí recién se hace el fetch
 
-      // Ocultar portada y mostrar dashboard
       if (seasonScreen) seasonScreen.style.display = "none";
-      if (dashboard) dashboard.style.display = "block";
-
-      // Opcional: cambiar textos del header
-      const eyebrow = document.querySelector(".header-eyebrow");
-      const seasonTag = document.querySelector(".hstat-num-season"); // si quieres agregar uno
-      if (eyebrow) eyebrow.textContent = `Todo Freak Store Season ${season}`;
+      if (dashboard) {
+        dashboard.style.display = "block";
+        dashboard.classList.add("visible");
+      }
     });
   });
 });
