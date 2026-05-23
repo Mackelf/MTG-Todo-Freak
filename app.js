@@ -72,7 +72,7 @@ async function init() {
       throw new Error("empty data");
 
     setupDropdowns();
-    setupTournamentToggle();
+    //setupTournamentToggle();
     render();
 
     // SOLO dashboard, sin tocar loading aquí
@@ -482,6 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Listeners del dropdown: solo una vez
   initDropdownListeners();
+  setupTournamentToggle();
 
   // Listener del filtro TOP: solo una vez
   const tf = el("topFilter");
