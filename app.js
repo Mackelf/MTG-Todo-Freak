@@ -92,39 +92,13 @@ function setSeason(season) {
     DATAFILE = "data/season4.json";
   }
 }
-function setupDropdowns() {
-  const dates = getUniqueDates(allData);
+// Se llama UNA SOLA VEZ al inicio
+function initDropdownListeners() {
   const menu = req("dropdownMenu");
   const label = req("dropdownLabel");
   const btn = req("dropdownBtn");
   const wrap = req("dropdownWrap");
 
-  const options = [
-    { value: "all", label: "Todos los torneos" },
-    ...dates.map((d) => ({ value: d, label: formatDate(d) })),
-  ];
-
-  // 1) Rellenar las opciones del menú
-  menu.innerHTML = options
-    .map(
-      (o, i) =>
-        `<li data-value="${o.value}" class="${
-          o.value === selectedDate ? "active" : i === 0 ? "active" : ""
-        }">${o.label}</li>`
-    )
-    .join("");
-
-  // 2) Ajustar el texto del label según selectedDate
-  const current =
-    options.find((o) => o.value === selectedDate) || options[0];
-  label.textContent = current.label;
-
-  // 3) Limpiar listeners previos (para que no se dupliquen)
-  btn.onclick = null;
-  menu.onclick = null;
-  document.onclick = null;
-
-  // 4) Listeners
   btn.addEventListener("click", () => {
     menu.classList.toggle("open");
   });
@@ -139,9 +113,7 @@ function setupDropdowns() {
     const li = e.target.closest("li");
     if (!li) return;
 
-    menu.querySelectorAll("li").forEach((l) =>
-      l.classList.remove("active")
-    );
+    menu.querySelectorAll("li").forEach((l) => l.classList.remove("active"));
     li.classList.add("active");
 
     label.textContent = li.textContent;
@@ -150,9 +122,35 @@ function setupDropdowns() {
     selectedDate = li.dataset.value;
     render();
   });
+}
 
+// Se llama CADA VEZ que cambia la season o se recargan datos
+function setupDropdowns() {
+  const dates = getUniqueDates(allData);
+  const menu = req("dropdownMenu");
+  const label = req("dropdownLabel");
 
+  const options = [
+    { value: "all", label: "Todos los torneos" },
+    ...dates.map((d) => ({ value: d, label: formatDate(d) })),
+  ];
 
+  // Reconstruir las opciones
+  menu.innerHTML = options
+    .map(
+      (o) =>
+        `
+          o.value === selectedDate ? "active" : ""
+        }">${o.label}</li>`
+    )
+    .join("");
+
+  // Actualizar el texto del botón
+  const current =
+    options.find((o) => o.value === selectedDate) || options[0];
+  label.textContent = current.label;
+
+  }
 
   const tf = el("topFilter");
   if (tf)
@@ -160,7 +158,7 @@ function setupDropdowns() {
       selectedTop = Number(e.target.value);
       render();
     });
-}
+
 function setupTournamentToggle() {
   const grid = req("weekGrid");
   grid.addEventListener("click", (e) => {
@@ -514,21 +512,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 2) Listeners de los botones
-  buttons.forEach((btn) => {
+  allSeasonBtns.forEach((btn) => {
     btn.addEventListener("click", async () => {
       const season = btn.dataset.season;
       setSeason(season);
+      selectedDate = "all";
 
-      await init(); // carga el JSON
-      document.querySelectorAll(".season-text").forEach((el) => {
-        el.textContent = season;
-      });
+      await init();
 
       updateSeasonColumns();
-
-      if (seasonLabel) {
-        seasonLabel.textContent = season;
-      }
+      updateSeasonText(season);
 
       if (seasonScreen) seasonScreen.style.display = "none";
       if (dashboard) {
