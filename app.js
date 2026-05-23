@@ -137,13 +137,16 @@ function setupDropdowns() {
 
   // Reconstruir las opciones
   menu.innerHTML = options
-    .map(
-      (o) =>
-        `
-          o.value === selectedDate ? "active" : ""
-        }">${o.label}</li>`
-    )
+    .map((o) => {
+      const isActive = o.value === selectedDate ? "active" : "";
+      return `<li>${o.label}</li>`;
+    })
     .join("");
+
+  // Actualizar texto del botón
+  const current = options.find((o) => o.value === selectedDate) || options[0];
+  label.textContent = current.label;
+}
 
   // Actualizar el texto del botón
   const current =
