@@ -113,8 +113,8 @@ function initDropdownListeners() {
     const li = e.target.closest("li");
     if (!li) return;
 
-      console.log("li clicked:", li.dataset.value); // <-- agrega esto
-  console.log("selectedDate antes:", selectedDate);
+    console.log("li clicked:", li.dataset.value); // <-- agrega esto
+    console.log("selectedDate antes:", selectedDate);
 
     menu.querySelectorAll("li").forEach((l) => l.classList.remove("active"));
     li.classList.add("active");
@@ -143,7 +143,7 @@ function setupDropdowns() {
   menu.innerHTML = options
     .map((o) => {
       const isActive = o.value === selectedDate ? "active" : "";
-      return `<li>${o.label}</li>`;
+      return `<li class="dropdown-item ${isActive}" data-value="${o.value}">${o.label}</li>`;
     })
     .join("");
 
@@ -152,14 +152,12 @@ function setupDropdowns() {
   label.textContent = current.label;
 }
 
-
-
-  const tf = el("topFilter");
-  if (tf)
-    tf.addEventListener("change", (e) => {
-      selectedTop = Number(e.target.value);
-      render();
-    });
+const tf = el("topFilter");
+if (tf)
+  tf.addEventListener("change", (e) => {
+    selectedTop = Number(e.target.value);
+    render();
+  });
 
 function setupTournamentToggle() {
   const grid = req("weekGrid");
@@ -520,7 +518,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Todos los botones de season (portada + navbar)
-  const allSeasonBtns = document.querySelectorAll(".btn-season, .nav-season-btn");
+  const allSeasonBtns = document.querySelectorAll(
+    ".btn-season, .nav-season-btn",
+  );
   allSeasonBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       handleSeasonChange(btn.dataset.season);
