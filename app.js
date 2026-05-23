@@ -206,7 +206,7 @@ function render() {
   renderTournaments(tournaments);
   renderFacts(archs, mostConsistent, bestAvg, tournaments);
 
-  updateSeasonColumns();  
+  updateSeasonColumns();
 }
 function computeFinalPoints(p) {
   const att = p.entries.length;
@@ -442,6 +442,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashboard = document.getElementById("dashboard");
   const buttons = document.querySelectorAll(".btn-season");
   const seasonLabel = document.getElementById("currentSeasonLabel");
+  const homeButtons = document.querySelectorAll(".btn-season");
+  const navButtons = document.querySelectorAll(".nav-season-btn");
+
+  function updateSeasonText(season) {
+    document.querySelectorAll(".season-text").forEach((el) => {
+      el.textContent = season;
+    });
+
+    navButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.season === season);
+    });
+  }
+
+  async function handleSeasonChange(season) {
+    setSeason(season);
+    await init();
+    updateSeasonColumns();
+    updateSeasonText(season);
+    // mostrar dashboard / ocultar portada, como ya tenías
+  }
+
+  homeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      handleSeasonChange(btn.dataset.season);
+    });
+  });
 
   // 1) Ocultar loading y mostrar portada
   if (loadingScreen) loadingScreen.style.display = "none";

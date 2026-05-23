@@ -455,6 +455,25 @@ table {
   color: var(--yellow);
 }
 
+.nav-season-switch {
+  margin-left: auto;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* opcional: hacerlos un pelín más compactos que la portada */
+.nav-season-btn {
+  padding: 0.6rem 1.6rem;
+  font-size: 0.9rem;
+}
+
+/* estado activo (mismo estilo hover de portada pero permanente) */
+.nav-season-btn.active {
+  background: #f5c800;
+  color: #101010;
+}
+
 .section-header {
   margin: var(--sp-10) 0 var(--sp-5);
   padding-bottom: var(--sp-4);
