@@ -98,6 +98,7 @@ function setupDropdowns() {
   const label = req("dropdownLabel");
   const btn = req("dropdownBtn");
   const wrap = req("dropdownWrap");
+
   const options = [
     { value: "all", label: "Todos los torneos" },
     ...dates.map((d) => ({ value: d, label: formatDate(d) })),
@@ -108,6 +109,11 @@ function setupDropdowns() {
         `<li data-value="${o.value}" class="${i === 0 ? "active" : ""}">${o.label}</li>`,
     )
     .join("");
+
+  // NUEVO: elegir la opción que corresponde al selectedDate actual
+  const current = options.find((o) => o.value === selectedDate) || options[0];
+  label.textContent = current.label;
+
   btn.addEventListener("click", () => menu.classList.toggle("open"));
   document.addEventListener("click", (e) => {
     if (!wrap.contains(e.target)) menu.classList.remove("open");
@@ -457,6 +463,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function handleSeasonChange(season) {
     setSeason(season);
+
+    //Reset de fecha
+    selectedDate = "all";
+
     await init();
     updateSeasonColumns();
     updateSeasonText(season);
