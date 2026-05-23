@@ -205,6 +205,8 @@ function render() {
   renderPieChart(archs);
   renderTournaments(tournaments);
   renderFacts(archs, mostConsistent, bestAvg, tournaments);
+
+  updateSeasonColumns();  
 }
 function computeFinalPoints(p) {
   const att = p.entries.length;
@@ -221,6 +223,15 @@ function computeFinalPoints(p) {
   const finalPts = p.pts + att + bonus;
   return { att, bonus, finalPts };
 }
+
+function updateSeasonColumns() {
+  const s3Cols = document.querySelectorAll(".col-s3-only");
+
+  s3Cols.forEach((el) => {
+    el.classList.toggle("is-hidden", currentSeason !== 3);
+  });
+}
+
 function renderFinalRank(players) {
   const final = players
     .map((p) => {
@@ -233,7 +244,16 @@ function renderFinalRank(players) {
       const name = p.name.replace(/\s+/g, " ").trim();
       const isTop = i < 3;
       const rankClass = i === 0 ? "top1" : isTop ? "top3" : "";
-      return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div></td><td><span class="pts-big">${p.ptsRaw}</span></td><td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td><td><span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">${p.bonus}</span><div class="breakdown">${p.att} / 4</div></td><td><span class="pts-big ${i === 0 ? "leader" : ""}">${p.finalPts}</span><div class="breakdown">${p.pts} + ${p.att} + ${p.bonus}</div></td></tr>`;
+      return `<tr ${i === 0 ? 'class="row-leader"' : ""}>
+      <td><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div></td>
+      <td><span class="pts-big">${p.ptsRaw}</span></td>
+      <td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
+      
+      <td class="col-s3-only">
+      <span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">${p.bonus}</span><div class="breakdown">${p.att} / 4</div>
+      </td>
+      
+      <td><span class="pts-big ${i === 0 ? "leader" : ""}">${p.finalPts}</span><div class="breakdown">${p.pts} + ${p.att} + ${p.bonus}</div></td></tr>`;
     })
     .join("");
 }
@@ -441,6 +461,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".season-text").forEach((el) => {
         el.textContent = season;
       });
+
+      updateSeasonColumns();
 
       if (seasonLabel) {
         seasonLabel.textContent = season;

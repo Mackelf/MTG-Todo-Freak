@@ -76,6 +76,9 @@ body::before {
   display: none;
 }
 
+.is-hidden {
+  display: none;
+}
 
 
 .season-select-screen {
