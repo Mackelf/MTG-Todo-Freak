@@ -148,12 +148,7 @@ function setupDropdowns() {
   label.textContent = current.label;
 }
 
-  // Actualizar el texto del botón
-  const current =
-    options.find((o) => o.value === selectedDate) || options[0];
-  label.textContent = current.label;
 
-  }
 
   const tf = el("topFilter");
   if (tf)
