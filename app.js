@@ -470,10 +470,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingScreen = document.getElementById("loadingScreen");
   const seasonScreen = document.getElementById("seasonSelect");
   const dashboard = document.getElementById("dashboard");
-  const buttons = document.querySelectorAll(".btn-season");
-  const seasonLabel = document.getElementById("currentSeasonLabel");
-  const homeButtons = document.querySelectorAll(".btn-season");
   const navButtons = document.querySelectorAll(".nav-season-btn");
+
+  // Ocultar loading y mostrar portada
+  if (loadingScreen) loadingScreen.style.display = "none";
+  if (seasonScreen) seasonScreen.style.display = "block";
+  if (dashboard) {
+    dashboard.classList.remove("visible");
+    dashboard.style.display = "none";
+  }
+
+  // Listeners del dropdown: solo una vez
+  initDropdownListeners();
+
+  // Listener del filtro TOP: solo una vez
+  const tf = el("topFilter");
+  if (tf)
+    tf.addEventListener("change", (e) => {
+      selectedTop = Number(e.target.value);
+      render();
+    });
 
   function updateSeasonText(season) {
     document.querySelectorAll(".season-text").forEach((el) => {
@@ -487,47 +503,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function handleSeasonChange(season) {
     setSeason(season);
-
-    //Reset de fecha
     selectedDate = "all";
 
     await init();
+
     updateSeasonColumns();
     updateSeasonText(season);
-    // mostrar dashboard / ocultar portada, como ya tenías
+
+    if (seasonScreen) seasonScreen.style.display = "none";
+    if (dashboard) {
+      dashboard.style.display = "block";
+      dashboard.classList.add("visible");
+    }
   }
 
-  homeButtons.forEach((btn) => {
+  // Todos los botones de season (portada + navbar)
+  const allSeasonBtns = document.querySelectorAll(".btn-season, .nav-season-btn");
+  allSeasonBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       handleSeasonChange(btn.dataset.season);
-    });
-  });
-
-  // 1) Ocultar loading y mostrar portada
-  if (loadingScreen) loadingScreen.style.display = "none";
-  if (seasonScreen) seasonScreen.style.display = "block";
-  if (dashboard) {
-    dashboard.classList.remove("visible");
-    dashboard.style.display = "none";
-  }
-
-  // 2) Listeners de los botones
-  allSeasonBtns.forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const season = btn.dataset.season;
-      setSeason(season);
-      selectedDate = "all";
-
-      await init();
-
-      updateSeasonColumns();
-      updateSeasonText(season);
-
-      if (seasonScreen) seasonScreen.style.display = "none";
-      if (dashboard) {
-        dashboard.style.display = "block";
-        dashboard.classList.add("visible");
-      }
     });
   });
 });
