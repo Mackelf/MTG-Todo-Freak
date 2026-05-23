@@ -113,6 +113,9 @@ function initDropdownListeners() {
     const li = e.target.closest("li");
     if (!li) return;
 
+      console.log("li clicked:", li.dataset.value); // <-- agrega esto
+  console.log("selectedDate antes:", selectedDate);
+
     menu.querySelectorAll("li").forEach((l) => l.classList.remove("active"));
     li.classList.add("active");
 
@@ -120,6 +123,7 @@ function initDropdownListeners() {
     menu.classList.remove("open");
 
     selectedDate = li.dataset.value;
+    console.log("selectedDate después:", selectedDate); // <-- y esto
     render();
   });
 }
