@@ -103,31 +103,57 @@ function setupDropdowns() {
     { value: "all", label: "Todos los torneos" },
     ...dates.map((d) => ({ value: d, label: formatDate(d) })),
   ];
+
+  // 1) Rellenar las opciones del menú
   menu.innerHTML = options
     .map(
       (o, i) =>
-        `<li data-value="${o.value}" class="${i === 0 ? "active" : ""}">${o.label}</li>`,
+        `<li data-value="${o.value}" class="${
+          o.value === selectedDate ? "active" : i === 0 ? "active" : ""
+        }">${o.label}</li>`
     )
     .join("");
 
-  // NUEVO: elegir la opción que corresponde al selectedDate actual
-  const current = options.find((o) => o.value === selectedDate) || options[0];
+  // 2) Ajustar el texto del label según selectedDate
+  const current =
+    options.find((o) => o.value === selectedDate) || options[0];
   label.textContent = current.label;
 
-  btn.addEventListener("click", () => menu.classList.toggle("open"));
-  document.addEventListener("click", (e) => {
-    if (!wrap.contains(e.target)) menu.classList.remove("open");
+  // 3) Limpiar listeners previos (para que no se dupliquen)
+  btn.onclick = null;
+  menu.onclick = null;
+  document.onclick = null;
+
+  // 4) Listeners
+  btn.addEventListener("click", () => {
+    menu.classList.toggle("open");
   });
+
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) {
+      menu.classList.remove("open");
+    }
+  });
+
   menu.addEventListener("click", (e) => {
     const li = e.target.closest("li");
     if (!li) return;
-    menu.querySelectorAll("li").forEach((l) => l.classList.remove("active"));
+
+    menu.querySelectorAll("li").forEach((l) =>
+      l.classList.remove("active")
+    );
     li.classList.add("active");
+
     label.textContent = li.textContent;
     menu.classList.remove("open");
+
     selectedDate = li.dataset.value;
     render();
   });
+
+
+
+
   const tf = el("topFilter");
   if (tf)
     tf.addEventListener("change", (e) => {
