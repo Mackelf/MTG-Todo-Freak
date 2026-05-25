@@ -37,6 +37,8 @@
         <div class="screen-logo">TODO FREAK</div>
         <h1 class="season-title">ELIGE LA TEMPORADA</h1>
         <div class="season-buttons">
+          <button class="btn-season" data-season="1">SEASON 1</button>
+          <button class="btn-season" data-season="2">SEASON 2</button>
           <button class="btn-season" data-season="3">SEASON 3</button>
           <button class="btn-season" data-season="4">SEASON 4</button>
         </div>
@@ -76,6 +78,8 @@
           </div>
           <!--Botones Season Navbar-->
           <div class="nav-season-switch">
+            <button class="btn-season nav-season-btn" data-season="1">SEASON 1</button>
+            <button class="btn-season nav-season-btn" data-season="2">SEASON 2</button>
             <button class="btn-season nav-season-btn" data-season="3">SEASON 3</button>
             <button class="btn-season nav-season-btn" data-season="4">SEASON 4</button> 
           </div>
@@ -85,11 +89,11 @@
             <div class="sh-left">
               <span class="sh-eyebrow">01 · Clasificación Final</span>
               <div class="sh-title">
-                Ranking Final <span class="tag">PTS + ASISTENCIA + BONUS</span>
+                Ranking Final <span class="tag" id="formulaTag">PTS + ASISTENCIA + BONUS</span>
               </div>
             </div>
           </div>
-          <div class="formula-callout">
+          <div class="formula-callout" id="formulaCallout">
             Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong> · Bonus
             = <strong>+1 pt por cada 4 asistencias</strong>
           </div>
