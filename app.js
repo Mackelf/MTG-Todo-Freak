@@ -13,37 +13,28 @@ const req = (id) => {
 function updateFormulaText() {
   const tag = el("formulaTag");
   if (tag) {
-    if (currentSeason === 2) {
-      tag.textContent = "PTS · ASISTENCIA 1.2X ·";
-    }
-    if (currentSeason === 3) {
+    if (currentSeason === 1) {
+      tag.textContent = "PTS · ASISTENCIA";
+    } else if (currentSeason === 2) {
+      tag.textContent = "PTS · ASISTENCIA · BONUS";
+    } else if (currentSeason === 3) {
       tag.textContent = "PTS · ASISTENCIA · BONUS";
     } else if (currentSeason === 4) {
       tag.textContent = "PTS · ASISTENCIA · 2x · RCQ 1.5x";
-    } else {
-      tag.textContent = "PTS · ASISTENCIA";
     }
   }
 
   const callout = el("formulaCallout");
-  if (!callout) return;
-
-  if (currentSeason === 1 || currentSeason === 2) {
-    callout.innerHTML = `
-      Fórmula: <strong>Pts Totales + Asistencias</strong>
-    `;
-  } else if (currentSeason === 3) {
-    callout.innerHTML = `
-      Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong>
-      &nbsp;·&nbsp; Bonus <strong>1 pt por cada 4 asistencias</strong>
-      &nbsp;·&nbsp; Competitivo <strong>2x</strong>
-    `;
-  } else if (currentSeason === 4) {
-    callout.innerHTML = `
-      Fórmula: <strong>Pts Totales + Asistencias</strong>
-      &nbsp;·&nbsp; Competitivo <strong>2x</strong>
-      &nbsp;·&nbsp; RCQ <strong>1.5x</strong>
-    `;
+  if (callout) {
+    if (currentSeason === 1) {
+      callout.innerHTML = `Fórmula: <strong>Pts Totales + Asistencias</strong>`;
+    } else if (currentSeason === 2) {
+      callout.innerHTML = `Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong> &nbsp;·&nbsp; Bonus <strong>1 pt por cada 5 asistencias</strong>`;
+    } else if (currentSeason === 3) {
+      callout.innerHTML = `Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong> &nbsp;·&nbsp; Bonus <strong>1 pt por cada 4 asistencias</strong> &nbsp;·&nbsp; Competitivo <strong>2x</strong>`;
+    } else if (currentSeason === 4) {
+      callout.innerHTML = `Fórmula: <strong>Pts Totales + Asistencias</strong> &nbsp;·&nbsp; Competitivo <strong>2x</strong> &nbsp;·&nbsp; RCQ <strong>1.5x</strong>`;
+    }
   }
 }
 function normalizeDate(v) {
@@ -293,9 +284,10 @@ function computeFinalPoints(p) {
   }
 
   if (currentSeason === 2) {
-    // Season 2: pts + asistencia x 1.2
-    const finalPts = p.pts + att * 1.2;
-    return { att, bonus: 0, finalPts };
+    // Season 2: pts + asistencia + 1 pto cada 5 asistencias
+    const bonus = Math.floor(att / 5);
+    const finalPts = p.pts + att + bonus;
+    return { att, bonus, finalPts };
   }
 
   if (currentSeason === 4) {
