@@ -12,15 +12,18 @@ const req = (id) => {
 
 function updateFormulaText() {
   const tag = el("formulaTag");
-if (tag) {
-  if (currentSeason === 3) {
-    tag.textContent = "PTS · ASISTENCIA · BONUS";
-  } else if (currentSeason === 4) {
-    tag.textContent = "PTS · ASISTENCIA · 2x · RCQ 1.5x";
-  } else {
-    tag.textContent = "PTS · ASISTENCIA";
+  if (tag) {
+    if (currentSeason === 2) {
+      tag.textContent = "PTS · ASISTENCIA 1.2X ·";
+    }
+    if (currentSeason === 3) {
+      tag.textContent = "PTS · ASISTENCIA · BONUS";
+    } else if (currentSeason === 4) {
+      tag.textContent = "PTS · ASISTENCIA · 2x · RCQ 1.5x";
+    } else {
+      tag.textContent = "PTS · ASISTENCIA";
+    }
   }
-}
 
   const callout = el("formulaCallout");
   if (!callout) return;
@@ -70,7 +73,7 @@ function getFiltered() {
 function getRelMultiplier(rel) {
   const relNorm = (rel || "").toLowerCase();
 
-    if (currentSeason === 1 || currentSeason === 2) {
+  if (currentSeason === 1 || currentSeason === 2) {
     return 1; // sin multiplicadores
   }
 
@@ -284,9 +287,15 @@ function render() {
 function computeFinalPoints(p) {
   const att = p.entries.length;
 
-   if (currentSeason === 1 || currentSeason === 2) {
+  if (currentSeason === 1 || currentSeason === 2) {
     // Season 1 y 2: solo pts torneo + asistencia
     return { att, bonus: 0, finalPts: p.pts + att };
+  }
+
+  if (currentSeason === 2) {
+    // Season 2: pts + asistencia x 1.2
+    const finalPts = p.pts + att * 1.2;
+    return { att, bonus: 0, finalPts };
   }
 
   if (currentSeason === 4) {
@@ -296,8 +305,8 @@ function computeFinalPoints(p) {
     return { att, bonus, finalPts };
   }
 
-  // Season 3: Pts torneo ponderados + asistencia + 1 pto cada 3 asistencias
-  const bonus = Math.floor(att / 3);
+  // Season 3: Pts torneo ponderados + asistencia + 1 pto cada 4 asistencias
+  const bonus = Math.floor(att / 4);
   const finalPts = p.pts + att + bonus;
   return { att, bonus, finalPts };
 }
