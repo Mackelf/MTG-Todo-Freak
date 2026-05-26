@@ -278,30 +278,29 @@ function render() {
 function computeFinalPoints(p) {
   const att = p.entries.length;
 
-  if (currentSeason === 1 || currentSeason === 2) {
-    // Season 1 y 2: solo pts torneo + asistencia
+  if (currentSeason === 1) {
+    // Season 1: pts + asistencia simple
     return { att, bonus: 0, finalPts: p.pts + att };
   }
 
   if (currentSeason === 2) {
     // Season 2: pts + asistencia + 1 pto cada 5 asistencias
     const bonus = Math.floor(att / 5);
-    const finalPts = p.pts + att + bonus;
-    return { att, bonus, finalPts };
+    return { att, bonus, finalPts: p.pts + att + bonus };
+  }
+
+  if (currentSeason === 3) {
+    // Season 3: pts ponderados + asistencia + 1 pto cada 4 asistencias
+    const bonus = Math.floor(att / 4);
+    return { att, bonus, finalPts: p.pts + att + bonus };
   }
 
   if (currentSeason === 4) {
-    // Season 4: Pts torneo ponderados + asistencia (sin bonus)
-    const bonus = 0;
-    const finalPts = p.pts + att;
-    return { att, bonus, finalPts };
+    // Season 4: pts ponderados + asistencia, sin bonus
+    return { att, bonus: 0, finalPts: p.pts + att };
   }
-
-  // Season 3: Pts torneo ponderados + asistencia + 1 pto cada 4 asistencias
-  const bonus = Math.floor(att / 4);
-  const finalPts = p.pts + att + bonus;
-  return { att, bonus, finalPts };
 }
+
 
 function updateSeasonColumns() {
   const s3Cols = document.querySelectorAll(".col-s3-only");
