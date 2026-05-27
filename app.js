@@ -324,10 +324,10 @@ function renderFinalRank(players) {
       const rankClass = i === 0 ? "top1" : isTop ? "top3" : "";
       return `<tr ${i === 0 ? 'class="row-leader"' : ""}>
       <td><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div></td>
-      <td><span class="pts-big">${p.ptsRaw}</span></td>
-      <td><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
+      <td class="d-none d-md-table-cell"><span class="pts-big">${p.ptsRaw}</span></td>
+      <td class="d-none d-md-table-cell"><span class="badge ${p.att >= 2 ? "badge-yellow" : "badge-dim"}">${p.att} torneo${p.att !== 1 ? "s" : ""}</span></td>
       
-      <td class="col-s3-only">
+      <td class="d-none d-md-table-cell col-s3-only">
       <span class="badge ${p.bonus > 0 ? "badge-green" : "badge-dim"}">${p.bonus}</span><div class="breakdown">${p.att} / 4</div>
       </td>
       
@@ -350,7 +350,15 @@ function renderPlayerTable(players) {
       const dotsL = Array(Math.min(p.l, 20))
         .fill('<span class="dot l"></span>')
         .join("");
-      return `<tr ${i === 0 ? 'class="row-leader"' : ""}><td><div class="player-cell"><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div><div class="player-decks">${deckStr}</div></div></td><td><div class="wdl-wrap">${dotsW}${dotsD}${dotsL}<span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span></div></td></tr>`;
+      return `<tr ${i === 0 ? 'class="row-leader"' : ""}>
+      <td>
+      <div class="player-cell"><div class="player-name"><span class="rank-num ${rankClass}">${i + 1}</span>${name}</div>
+      
+      <div class="player-decks">${deckStr}</div></div></td><td>
+      
+      <div class="wdl-wrap">${dotsW}${dotsD}${dotsL}<span class="wdl-text">${p.w}W · ${p.d}E · ${p.l}L</span></div>
+      
+      </td></tr>`;
     })
     .join("");
 }
