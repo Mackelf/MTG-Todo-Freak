@@ -1103,12 +1103,16 @@ tr.row-leader .player-name {
 
   .nav-bar {
     padding: var(--sp-3) var(--sp-4);
+    flex-wrap: nowrap;        /* NUEVO: evita que se parta en 2 filas */
+    overflow-x: auto;
   }
-
-  .dropdown {
+   .dropdown {
     min-width: 100%;
     width: 100%;
   }
+    .nav-season-switch {
+     flex-shrink: 0;           /* NUEVO: los botones no se comprimen */
+  }     
 
   .pie-section {
     grid-template-columns: 1fr;
