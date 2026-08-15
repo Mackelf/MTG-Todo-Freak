@@ -75,6 +75,13 @@ function getRelMultiplier(rel) {
     return 1;
   }
 
+  if (currentSeason === 5) {
+    // Season 5: Competitivo 2x, RCQ 1.5x, resto 1x
+    if (relNorm.includes("competitivo")) return 2;
+    if (relNorm.includes("rcq")) return 1.5;
+    return 1;
+  }
+
   // Season 3: Competitivo 2x, resto 1x
   if (relNorm.includes("competitivo")) return 2;
   return 1;
