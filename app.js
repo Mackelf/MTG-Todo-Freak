@@ -126,6 +126,8 @@ function setSeason(season) {
     DATAFILE = "data/season3.json";
   } else if (season === "4") {
     DATAFILE = "data/season4.json";
+  } else if (season === "5") {
+    DATAFILE = "data/season5.json";
   }
 }
 // Se llama UNA SOLA VEZ al inicio
@@ -299,8 +301,11 @@ function computeFinalPoints(p) {
     // Season 4: pts ponderados + asistencia, sin bonus
     return { att, bonus: 0, finalPts: p.pts + att };
   }
+  if (currentSeason === 5) {
+    // Season 5: pts ponderados + asistencia, sin bonus
+    return { att, bonus: 0, finalPts: p.pts + att };
+  }
 }
-
 
 function updateSeasonColumns() {
   const s3Cols = document.querySelectorAll(".col-s3-only");
