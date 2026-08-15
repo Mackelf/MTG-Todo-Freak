@@ -1,5 +1,5 @@
-let DATAFILE = "data/season3.json";
-let currentSeason = 3;
+let DATAFILE = "data/season5.json";
+let currentSeason = 5;
 let allData = [];
 let selectedDate = "all";
 let selectedTop = 8;
@@ -304,14 +304,17 @@ function computeFinalPoints(p) {
     return { att, bonus, finalPts: p.pts + att + bonus };
   }
 
-  if (currentSeason === 4) {
+  if (currentSeason === 4 || currentSeason === 5) {
     // Season 4: pts ponderados + asistencia, sin bonus
     return { att, bonus: 0, finalPts: p.pts + att };
   }
-  if (currentSeason === 5) {
-    // Season 5: pts ponderados + asistencia, sin bonus
-    return { att, bonus: 0, finalPts: p.pts + att };
-  }
+
+  // Protección: evita que la función devuelva undefined
+  return {
+    att,
+    bonus: 0,
+    finalPts: p.pts + att,
+  };
 }
 
 function updateSeasonColumns() {
