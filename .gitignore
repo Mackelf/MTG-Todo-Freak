@@ -1,29 +1,19 @@
+# Archivos del sistema operativo (Windows / macOS)
 desktop.ini
 Thumbs.db
+.DS_Store
 *.ini
 
-# Sistema operativo
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Editores
+# Editores y IDEs
 .vscode/
 .idea/
 *.suo
 *.user
 
-# Node (por si usas npm en algún momento)
+# Node / Dependencias
 node_modules/
 npm-debug.log*
-
-# Imágenes locales de desarrollo (si no quieres subir los assets)
-# img/
 
 # Variables de entorno
 .env
 .env.local
-RCQ 13 Diciembre 2025/decklist/desktop.ini
-RCQ 13 Diciembre 2025/decklist/desktop.ini
-RCQ 4 Octubre 2025/Decklist4Oct/desktop.ini
-RCQ 6 sept 2025/Decklist/desktop.ini
