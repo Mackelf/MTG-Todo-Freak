@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo Freak S3 Dashboard</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css" >
+  </head>
+  <body>
+    <div class="page-wrap">
+      <div id="loadingScreen">
+        <div class="screen-logo">TODO FREAK <em>S3</em></div>
+        <div class="loading-spinner"></div>
+        <div class="loading-label">Cargando dashboard</div>
+      </div>
+      <div id="errorScreen">
+        <div class="screen-logo">TODO FREAK <em>S3</em></div>
+        <div class="error-box">
+          <h2>Error de Carga</h2>
+          <p>
+            No se pudo cargar el archivo de datos. Verifica que exista
+            <strong>data/season3.json</strong> y que abras el proyecto con un
+            servidor local.
+          </p>
+        </div>
+      </div>
+
+      <!-- NUEVA PORTADA -->
+      <div id="seasonSelect" class="season-select-screen">
+        <div class="screen-logo">TODO FREAK</div>
+        <h1 class="season-title">ELIGE LA TEMPORADA</h1>
+        <div class="season-buttons">
+          <button class="btn-season" data-season="1">SEASON 1</button>
+          <button class="btn-season" data-season="2">SEASON 2</button>
+          <button class="btn-season" data-season="3">SEASON 3</button>
+          <button class="btn-season" data-season="4">SEASON 4</button>
+          <button class="btn-season" data-season="5">SEASON 5</button>
+        </div>
+      </div>
+
+      <div id="dashboard">
+        <header class="header">
+          <div class="header-inner">
+            <div class="header-brand">
+              <div class="header-eyebrow">Todo Freak Store · Season <span class="season-text">3</span></span></div>
+              <h1>STANDINGS<br /><em>DASHBOARD</em></h1>
+            </div>
+            <div class="header-stats" id="headerStats">
+              <div class="hstat">
+                <span class="hstat-num" id="metaTotalPlayers"></span
+                ><span class="hstat-lbl">Jugadores</span>
+              </div>
+              <div class="hstat">
+                <span class="hstat-num" id="metaTotalTournaments"></span
+                ><span class="hstat-lbl">Torneos</span>
+              </div>
+            <div class="hstat">
+                <span class="hstat-num">S<span class="season-text">3</span></span>
+                <span class="hstat-lbl">Temporada</span>
+              </div>
+            </div>
+          </div>
+        </header>
+        <nav class="nav-bar">
+          <span class="nav-label">Torneos</span>
+          <div class="dropdown-wrap" id="dropdownWrap">
+            <button class="dropdown" id="dropdownBtn" type="button">
+              <span id="dropdownLabel">TODOS LOS TORNEOS</span>
+              <span class="dropdown-arrow">▾</span>
+            </button>
+            <ul class="dropdown-menu" id="dropdownMenu"></ul>
+          </div>
+          <!--Botones Season Navbar-->
+          <div class="nav-season-switch">
+            <button class="btn-season nav-season-btn" data-season="1">SEASON 1</button>
+            <button class="btn-season nav-season-btn" data-season="2">SEASON 2</button>
+            <button class="btn-season nav-season-btn" data-season="3">SEASON 3</button>
+            <button class="btn-season nav-season-btn" data-season="4">SEASON 4</button> 
+            <button class="btn-season nav-season-btn" data-season="5">SEASON 5</button>
+          </div>
+        </nav>
+        <main class="inner">
+          <div class="section-header">
+            <div class="sh-left">
+              <span class="sh-eyebrow">01 · Clasificación Final</span>
+              <div class="sh-title">
+                Ranking Final <span class="tag" id="formulaTag">PTS + ASISTENCIA + BONUS</span>
+              </div>
+            </div>
+          </div>
+          <div class="formula-callout" id="formulaCallout">
+            Fórmula: <strong>Pts Totales + Asistencias + Bonus</strong> · Bonus
+            = <strong>+1 pt por cada 4 asistencias</strong>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jugador</th>
+                  <th class="d-none d-md-table-cell">Pts Torneo</th>
+                  <th class="d-none d-md-table-cell">Asistencias</th>
+                  <th class="d-none d-md-table-cell col-s3-only">Bonus</th>
+                  <th>Pts Final</th>
+                </tr>
+              </thead>
+              <tbody id="finalRankBody"></tbody>
+            </table>
+          </div>
+          <div class="section-header">
+            <div class="sh-left">
+              <span class="sh-eyebrow">02 · Rendimiento Individual</span>
+              <div class="sh-title">Jugadores</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jugador</th>
+                  <th>W · E · L</th>
+                </tr>
+              </thead>
+              <tbody id="playerTableBody"></tbody>
+            </table>
+          </div>
+          <div class="section-header" id="archSectionHeader">
+            <div class="sh-left">
+              <span class="sh-eyebrow">03 · Meta</span>
+              <div class="sh-title">Arquetipos</div>
+            </div>
+            <div class="sh-action">
+              <select id="topFilter">
+                <option value="4">TOP 4</option>
+                <option value="8" selected>TOP 8</option>
+                <option value="16">TOP 16</option>
+              </select>
+            </div>
+          </div>
+          <div class="arch-table-wrap" id="archetypeGrid">
+            <div class="arch-header-row">
+              <div></div>
+              <div class="arch-header-cell">Mazo</div>
+              <div class="arch-header-cell" style="text-align: center">
+                Rendimiento
+              </div>
+              <div class="arch-header-cell" style="text-align: right">%WR</div>
+              <div class="arch-header-cell" style="text-align: right">
+                Jugado
+              </div>
+            </div>
+          </div>
+          <div class="pie-section">
+            <canvas id="pieCanvas" width="280" height="280"></canvas>
+            <div class="pie-legend" id="pieLegend"></div>
+          </div>
+          <div class="section-header">
+            <div class="sh-left">
+              <span class="sh-eyebrow">04 · Historial</span>
+              <div class="sh-title">Resultados por Torneo</div>
+            </div>
+          </div>
+          <div class="week-grid" id="weekGrid"></div>
+          <div class="section-header">
+            <div class="sh-left">
+              <span class="sh-eyebrow">05 · Extra</span>
+              <div class="sh-title">Datos Curiosos</div>
+            </div>
+          </div>
+          <div class="facts-grid" id="factsGrid"></div>
+
+          <footer class="footer">
+            <em>Todo Freak Store</em> ·<em>Panda Combo MTG</em>· Magic: The
+            Gathering · Season <span class="season-text">3</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
